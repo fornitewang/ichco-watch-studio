@@ -1563,7 +1563,9 @@ function sweepBandTier(curve,N,cx0,bw0,y0,halfH,chamfer,LEN,segL,GW,GD){
       const localZ=(localT-0.5)*segL;                // 沿本節自己的切線方向位移，不重取curve
       const distToEdge=Math.min(localT,1-localT);
       const gf = distToEdge>GW ? 1 : 1-GD*(1-distToEdge/GW)*(1-distToEdge/GW);
-      const hh=halfH*gf, hwG=hw*(1-(1-gf)*0.35);
+      // 🔴 寬度也跟著捏會讓側緣變成一圈一圈的波浪輪廓；參考實錶＝寬度幾乎不變，
+      //    只有頂面那道細細的分隔線，改成只捏厚度不捏寬度。
+      const hh=halfH*gf, hwG=hw;
       const ch=Math.min(chamfer,hwG*0.85,hh*0.85);
       const top=y0+hh, bot=y0-hh;
       const prof=[[-hwG,bot],[hwG,bot],[hwG,top-ch],[hwG-ch,top],[-hwG+ch,top],[-hwG,top-ch],[-hwG,bot]];
@@ -1798,7 +1800,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     // 每欄(側/中珠)各兩層(lo拋光側邊／up拉絲頂面)連續掃描一整條，取代原本 N×欄數 個獨立方塊。
     const cols = bd.code==='JUB' ? [1,1,1.15,1,1] : [1,1.35,1];
     const sum=cols.reduce((a,b)=>a+b,0), mid=bd.code==='JUB'?[1,2,3]:[1];
-    const GW=0.09, GD=0.16;                        // 節界溝寬(佔一節比例)／溝深(0~1)
+    const GW=0.05, GD=0.14;                        // 節界溝寬(佔一節比例)／溝深(0~1)：細線不是波浪
     let x=-0.50;                                    // 參考尺度＝ hw 在 t=0.5(無收窄)時的值
     cols.forEach((f,ci)=>{
       const w=1.0*f/sum, isMid=mid.includes(ci);
@@ -2031,8 +2033,7 @@ function animate(){
   }
   if(parts.softStrap) flexStrap(parts.softStrap, loopTwist, loopSway);
   if(parts.threads) parts.threads.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
-  // 金屬鏈節現在是連續掃描幾何（不再是 N 個獨立剛體），甩動效果比照軟質錶帶走同一支 flexStrap。
-  if(parts.loopSweeps) parts.loopSweeps.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
+  // 🔴 鋼錶帶不是皮帶，不該跟著甩動變軟——metal band 完全靜止，不掛 flexStrap。
   if(parts.loop) parts.loop.rotation.z = loopSway*0.22;
   // 故事模式：鏡頭用阻尼追目標；一旦使用者拖曳就把控制權交出去
   if(storyOn&&!drg){
