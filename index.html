@@ -2093,11 +2093,19 @@ function onScroll(){
 
   // 手機版：桌機靠雙欄撐高讓 sticky 有空間可放，單欄沒有那個高度可借，
   // 改成量 .stage-col 原生位置手動判斷該不該釘住（釘住只維持到故事讀完）。
+  // 🔴 .pin 一切換，.stage 的實際渲染框（inset:0 填滿 vs fixed+aspect-ratio）跟著換，
+  //    three.js 的渲染緩衝跟 camera.aspect 卻還停在切換前那個尺寸沒更新，
+  //    畫面會被拉伸／裁切（錶殼被推出框外只剩錶帶）。切換當下必須重新 resize() 一次。
   if(mqMobile.matches&&stageCol){
     const scTop=stageCol.getBoundingClientRect().top;
-    stageCol.classList.toggle('pin', storyOn&&scTop<=58);
-  } else if(stageCol){
+    const wantPin=storyOn&&scTop<=58;
+    if(wantPin!==stageCol.classList.contains('pin')){
+      stageCol.classList.toggle('pin', wantPin);
+      if(ok) resize();
+    }
+  } else if(stageCol&&stageCol.classList.contains('pin')){
     stageCol.classList.remove('pin');
+    if(ok) resize();
   }
 
   // Hero 影格：第 0 章刷完 72 格，最後 25% 交棒給即時 3D
