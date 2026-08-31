@@ -1538,10 +1538,53 @@ function buildCrown3D(accM, polM){
   return g;
 }
 
+// 金屬錶帶「一欄」的其中一層（lo 側邊拋光帶／up 頂面拉絲帶）：
+// 沿整條 curve 連續掃描一片幾何，取代原本 N 節各自獨立的方塊。
+// 🔴 舊版每節是分開的 rbox()，就算深度重疊、圓角再怎麼調，PBR 金屬在獨立方塊
+//    接縫處的環境反射天生就是暗的（驗證過，不是沒調好）。連續幾何完全沒有接縫，
+//    改用沿途週期性地把斷面「捏」淺一點來暗示鏈節分界，而不是真的切開。
+function sweepBandTier(curve,N,cx0,bw0,y0,halfH,chamfer,LEN,segL,GW,GD){
+  // 🔴 掃描環數如果剛好等於節數(N)，每一環都會精準落在節界正中央(cyc-floor(cyc)恆=0)，
+  //    整條溝深就變成均勻壓扁，完全看不出週期性凹陷。取樣密度要比節數高幾倍，
+  //    才會在同一節內同時取到「節中段的滿高」跟「節界的凹陷」。
+  const RINGS=N*5;
+  const M=7;
+  const pos=[],uv=[],idx=[],base=[];
+  const Xw=new T.Vector3(1,0,0);
+  for(let i=0;i<=RINGS;i++){
+    const t=i/RINGS;
+    const p=curve.getPointAt(t), tan=curve.getTangentAt(t).normalize();
+    const yA=new T.Vector3().crossVectors(tan,Xw).normalize();
+    const xA=new T.Vector3().crossVectors(yA,tan).normalize();
+    const taper=(1-0.26*Math.sin(Math.PI*t));      // 跟原本 hw 公式一致，往錶扣收窄
+    const cx=cx0*taper, hw=(bw0/2)*taper;
+    const cyc=t*LEN/segL, frac=cyc-Math.floor(cyc), dist=Math.min(frac,1-frac);
+    const gf = dist>GW ? 1 : 1-GD*(1-dist/GW)*(1-dist/GW);   // 二次曲線，平滑不是硬角
+    const hh=halfH*gf, hwG=hw*(1-(1-gf)*0.35);
+    const ch=Math.min(chamfer,hwG*0.85,hh*0.85);
+    const top=y0+hh, bot=y0-hh;
+    const prof=[[-hwG,bot],[hwG,bot],[hwG,top-ch],[hwG-ch,top],[-hwG+ch,top],[-hwG,top-ch],[-hwG,bot]];
+    for(let j=0;j<M;j++){
+      const v=new T.Vector3().addScaledVector(xA,cx+prof[j][0]).addScaledVector(yA,prof[j][1]).add(p);
+      base.push(v.x,v.y,v.z); pos.push(v.x,v.y,v.z);
+      uv.push(j/(M-1), t*30);
+    }
+  }
+  for(let i=0;i<RINGS;i++) for(let j=0;j<M-1;j++){
+    const a=i*M+j,b=a+1,c=a+M,d=c+1;
+    idx.push(a,c,b, b,c,d);
+  }
+  const g=new T.BufferGeometry();
+  g.setAttribute('position',new T.Float32BufferAttribute(pos,3));
+  g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
+  g.setIndex(idx); g.computeVertexNormals();
+  g.userData={base:Float32Array.from(base),N:RINGS,M};
+  return g;
+}
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
-  parts.loopRows=[]; parts.softStrap=null; parts.threads=null;
+  parts.loopRows=[]; parts.loopSweeps=[]; parts.softStrap=null; parts.threads=null;
   const pts=[
     // 起訖點＝彈簧棒的位置（錶耳尖端 y=-0.157 / z=±1.00），錶帶才是扣在棒上
     new T.Vector3(0,-0.143,-0.961), new T.Vector3(0,-0.60,-1.44),
@@ -1735,34 +1778,34 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
           const hp=new T.Mesh(new T.CylinderGeometry(0.022,0.022,hw*2.0,12),polM);
           hp.rotation.z=Math.PI/2; hp.position.set(0,-0.020,sg*segL*3.5); g.add(hp);
         });
-      } else {
-        // 勞力士 Oyster 實物：中珠只比側珠稍寬；頂面拉絲、兩側倒角鏡面拋光
-        const cols = bd.code==='JUB' ? [1,1,1.15,1,1] : [1,1.35,1];
-        const sum=cols.reduce((a,b)=>a+b,0), mid=bd.code==='JUB'?[1,2,3]:[1];
-        let x=-hw;
-        cols.forEach((f,ci)=>{
-          const w=(hw*2)*f/sum, isMid=mid.includes(ci);
-          const gold=(mt.two&&isMid);
-          const topM = gold ? accBrush : brushM;
-          const sideM= gold ? accM     : polM;
-          const bw=w*0.94, th=isMid?0.058:0.050, cx=x+w/2, y0=isMid?0.005:0;
-          // 🔴 原本深度只給 segL*0.96，節與節之間刻意留 4% 縫，各節又是各自獨立的方塊，
-          //    沒有咬合造型去遮那條縫 → 每節看起來像懸空疊起來的鐵板。
-          //    改成深度略超過 segL（互相輕微咬合），圓角本來就有(rbox的r參數)，
-          //    咬合處剛好被圓角蓋住，看起來像連續一條鏈，不是分開的鐵板。
-          const LINK_D=segL*1.08;
-          // 下半＝拋光側面帶（實物的亮邊），上半略窄＝拉絲頂面，交界就是那道倒角
-          const lo=new T.Mesh(rbox(bw,th*0.52,LINK_D,segL*0.11),sideM);
-          lo.position.set(cx,y0-th*0.24,0); g.add(lo);
-          const up=new T.Mesh(rbox(bw*0.86,th*0.52,LINK_D,segL*0.13),topM);
-          up.position.set(cx,y0+th*0.24,0); g.add(up);
-          x+=w;
-        });
       }
+      // 平鏈節不再逐節蓋章式建方塊——迴圈外一次性連續掃描整條，見下方。
     }
     parts.loop.add(g);
     // 兩端固定在錶耳，中段最自由 → 擺動權重 sin(πt)
     parts.loopRows.push({g:g, t:t, w:Math.sin(Math.PI*t), by:g.rotation.y});
+  }
+
+  if(bd.type==='metal'){
+    // 勞士 Oyster 實物：中珠只比側珠稍寬；頂面拉絲、兩側倒角鏡面拋光。
+    // 每欄(側/中珠)各兩層(lo拋光側邊／up拉絲頂面)連續掃描一整條，取代原本 N×欄數 個獨立方塊。
+    const cols = bd.code==='JUB' ? [1,1,1.15,1,1] : [1,1.35,1];
+    const sum=cols.reduce((a,b)=>a+b,0), mid=bd.code==='JUB'?[1,2,3]:[1];
+    const GW=0.09, GD=0.16;                        // 節界溝寬(佔一節比例)／溝深(0~1)
+    let x=-0.50;                                    // 參考尺度＝ hw 在 t=0.5(無收窄)時的值
+    cols.forEach((f,ci)=>{
+      const w=1.0*f/sum, isMid=mid.includes(ci);
+      const gold=(mt.two&&isMid);
+      const topM = gold ? accBrush : brushM;
+      const sideM= gold ? accM     : polM;
+      const bw0=w*0.94, th=isMid?0.058:0.050, cx0=x+w/2, y0=isMid?0.005:0;
+      const loGeo=sweepBandTier(curve,N,cx0,bw0,y0-th*0.24,th*0.26,segL*0.11,LEN,segL,GW,GD);
+      const upGeo=sweepBandTier(curve,N,cx0,bw0*0.86,y0+th*0.24,th*0.26,segL*0.13,LEN,segL,GW,GD);
+      const loMesh=new T.Mesh(loGeo,sideM), upMesh=new T.Mesh(upGeo,topM);
+      parts.loop.add(loMesh); parts.loop.add(upMesh);
+      parts.loopSweeps.push(loMesh,upMesh);
+      x+=w;
+    });
   }
 }
 
@@ -1981,6 +2024,8 @@ function animate(){
   }
   if(parts.softStrap) flexStrap(parts.softStrap, loopTwist, loopSway);
   if(parts.threads) parts.threads.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
+  // 金屬鏈節現在是連續掃描幾何（不再是 N 個獨立剛體），甩動效果比照軟質錶帶走同一支 flexStrap。
+  if(parts.loopSweeps) parts.loopSweeps.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
   if(parts.loop) parts.loop.rotation.z = loopSway*0.22;
   // 故事模式：鏡頭用阻尼追目標；一旦使用者拖曳就把控制權交出去
   if(storyOn&&!drg){
