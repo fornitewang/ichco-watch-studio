@@ -110,7 +110,7 @@ header{position:sticky; top:0; z-index:40;
   border-radius:2px; box-shadow:0 1px 2px rgba(90,70,35,.10)}
 .stage::before{left:26px; transform:rotate(-6deg)}
 .stage::after{right:26px; transform:rotate(5deg)}
-@media(max-width:1000px){ .stage{aspect-ratio:1/0.86; height:auto; top:62px; position:static} }
+@media(max-width:1000px){ .stage{position:absolute; inset:0} }
 #gl{display:block; width:100%; height:100%; touch-action:none; cursor:grab; transition:opacity .35s}
 #gl:active{cursor:grabbing}
 #heroImg{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
@@ -239,7 +239,9 @@ header{position:sticky; top:0; z-index:40;
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 
 @media(max-width:1000px){
-  .stage-col{position:static}
+  .stage-col{position:relative; aspect-ratio:1/0.86; height:auto}
+  .stage-col.pin .stage{position:fixed; top:58px; left:22px; right:22px; bottom:auto;
+    aspect-ratio:1/0.86; height:auto; z-index:5}
   .chapter{min-height:74vh}
   .card.night{padding:22px}
 }
@@ -2033,6 +2035,8 @@ if(typeof HERO_FRAMES!=='undefined'){
 }
 const cards=[].slice.call(document.querySelectorAll('.card'));
 const chapters=[].slice.call(document.querySelectorAll('.chapter'));
+const stageCol=document.querySelector('.stage-col');
+const mqMobile=matchMedia('(max-width:1000px)');
 function setSceneOnly(i){ if(S.scene===i||!ok) return; S.scene=i; applyScene(); buildUI(); }
 
 // 錶帶淡出（第 4 章看透底背蓋用）。
@@ -2086,6 +2090,15 @@ function onScroll(){
   tRotX=a.rotX+(b.rotX-a.rotX)*e;
   tDist=a.dist+(b.dist-a.dist)*e;
   storyOn=p<0.999;
+
+  // 手機版：桌機靠雙欄撐高讓 sticky 有空間可放，單欄沒有那個高度可借，
+  // 改成量 .stage-col 原生位置手動判斷該不該釘住（釘住只維持到故事讀完）。
+  if(mqMobile.matches&&stageCol){
+    const scTop=stageCol.getBoundingClientRect().top;
+    stageCol.classList.toggle('pin', storyOn&&scTop<=58);
+  } else if(stageCol){
+    stageCol.classList.remove('pin');
+  }
 
   // Hero 影格：第 0 章刷完 72 格，最後 25% 交棒給即時 3D
   heroP=Math.max(0,Math.min(1,u));
