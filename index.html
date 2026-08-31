@@ -1539,37 +1539,44 @@ function buildCrown3D(accM, polM){
 }
 
 // 金屬錶帶「一欄」的其中一層（lo 側邊拋光帶／up 頂面拉絲帶）：
-// 沿整條 curve 連續掃描一片幾何，取代原本 N 節各自獨立的方塊。
-// 🔴 舊版每節是分開的 rbox()，就算深度重疊、圓角再怎麼調，PBR 金屬在獨立方塊
-//    接縫處的環境反射天生就是暗的（驗證過，不是沒調好）。連續幾何完全沒有接縫，
-//    改用沿途週期性地把斷面「捏」淺一點來暗示鏈節分界，而不是真的切開。
+// 連續一片幾何、零接縫，但每一節維持「真的平」，不是整條平滑彎曲的圓管。
+// 🔴🔴 第一版每一環都重新取樣 curve 的切線方向，等於整條錶帶是一根平滑彎曲的圓管，
+//    鏡面反射從頭到尾連續彎曲，完全沒有真正「平」的一段 —— 這才是「看起來不像鏈節」
+//    的真正原因，不是溝深溝寬沒調好。真鏈條之所以有一片一片的平面反光，是因為每節
+//    本身是剛體不會彎，彎折只發生在節與節的交界。改成每一節用「自己中點的那個朝向」
+//    固定住（不逐環重取樣朝向），節內只用位移量做兩端內縮的膠囊形，節本身完全不彎，
+//    交界處兩節框架角度自然有一點點差異，反而更像真的鉸鏈節點。
 function sweepBandTier(curve,N,cx0,bw0,y0,halfH,chamfer,LEN,segL,GW,GD){
-  // 🔴 掃描環數如果剛好等於節數(N)，每一環都會精準落在節界正中央(cyc-floor(cyc)恆=0)，
-  //    整條溝深就變成均勻壓扁，完全看不出週期性凹陷。取樣密度要比節數高幾倍，
-  //    才會在同一節內同時取到「節中段的滿高」跟「節界的凹陷」。
-  const RINGS=N*5;
+  const SUB=6;                                     // 每節內部細分幾環，只塑形兩端內縮，不重取朝向
   const M=7;
   const pos=[],uv=[],idx=[],base=[];
   const Xw=new T.Vector3(1,0,0);
-  for(let i=0;i<=RINGS;i++){
-    const t=i/RINGS;
-    const p=curve.getPointAt(t), tan=curve.getTangentAt(t).normalize();
+  for(let seg=0;seg<N;seg++){
+    const tMid=(seg+0.5)/N;
+    const pMid=curve.getPointAt(tMid), tan=curve.getTangentAt(tMid).normalize();
     const yA=new T.Vector3().crossVectors(tan,Xw).normalize();
     const xA=new T.Vector3().crossVectors(yA,tan).normalize();
-    const taper=(1-0.26*Math.sin(Math.PI*t));      // 跟原本 hw 公式一致，往錶扣收窄
+    const taper=(1-0.26*Math.sin(Math.PI*tMid));    // 跟原本 hw 公式一致，往錶扣收窄
     const cx=cx0*taper, hw=(bw0/2)*taper;
-    const cyc=t*LEN/segL, frac=cyc-Math.floor(cyc), dist=Math.min(frac,1-frac);
-    const gf = dist>GW ? 1 : 1-GD*(1-dist/GW)*(1-dist/GW);   // 二次曲線，平滑不是硬角
-    const hh=halfH*gf, hwG=hw*(1-(1-gf)*0.35);
-    const ch=Math.min(chamfer,hwG*0.85,hh*0.85);
-    const top=y0+hh, bot=y0-hh;
-    const prof=[[-hwG,bot],[hwG,bot],[hwG,top-ch],[hwG-ch,top],[-hwG+ch,top],[-hwG,top-ch],[-hwG,bot]];
-    for(let j=0;j<M;j++){
-      const v=new T.Vector3().addScaledVector(xA,cx+prof[j][0]).addScaledVector(yA,prof[j][1]).add(p);
-      base.push(v.x,v.y,v.z); pos.push(v.x,v.y,v.z);
-      uv.push(j/(M-1), t*30);
+    for(let s=0;s<=SUB;s++){
+      const localT=s/SUB;                           // 0..1，本節內部位置
+      const localZ=(localT-0.5)*segL;                // 沿本節自己的切線方向位移，不重取curve
+      const distToEdge=Math.min(localT,1-localT);
+      const gf = distToEdge>GW ? 1 : 1-GD*(1-distToEdge/GW)*(1-distToEdge/GW);
+      const hh=halfH*gf, hwG=hw*(1-(1-gf)*0.35);
+      const ch=Math.min(chamfer,hwG*0.85,hh*0.85);
+      const top=y0+hh, bot=y0-hh;
+      const prof=[[-hwG,bot],[hwG,bot],[hwG,top-ch],[hwG-ch,top],[-hwG+ch,top],[-hwG,top-ch],[-hwG,bot]];
+      for(let j=0;j<M;j++){
+        const v=new T.Vector3()
+          .addScaledVector(xA,cx+prof[j][0]).addScaledVector(yA,prof[j][1])
+          .addScaledVector(tan,localZ).add(pMid);
+        base.push(v.x,v.y,v.z); pos.push(v.x,v.y,v.z);
+        uv.push(j/(M-1), seg+localT);
+      }
     }
   }
+  const RINGS=N*(SUB+1)-1;
   for(let i=0;i<RINGS;i++) for(let j=0;j<M-1;j++){
     const a=i*M+j,b=a+1,c=a+M,d=c+1;
     idx.push(a,c,b, b,c,d);
