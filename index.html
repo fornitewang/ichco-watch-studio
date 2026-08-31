@@ -1191,15 +1191,30 @@ function buildWatch(){
   if(scn.fx==='sand'){ baseM.roughness=Math.min(.8,baseM.roughness*1.9); }
 
   // 錶殼（車削剖面）
+  // 🔴 原本(0.985,0.115)→(0.90,0.13)→(0.78,0.13)是兩段近乎水平的直線，
+  //    錶圈內緣跟錶鏡之間看起來像一刀切下去的平台。改成連續弧線落到錶鏡起點附近，
+  //    肉眼才看得出弧度，不是直角。
   const caseGeo=latheProfile([
     [0,-0.20],[0.55,-0.21],[0.80,-0.19],[0.93,-0.10],[0.985,0.02],
-    [1.0,0.08],[0.985,0.115],[0.90,0.13],[0.78,0.13]],128);
+    [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]],128);
   root.add(new T.Mesh(caseGeo,baseM));
-  // 錶圈本體（96 面＝滾花齒紋）
-  const bez=new T.Mesh(new T.CylinderGeometry(1.0,0.995,0.115,se.sub?128:96,1,true),
+  // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
+  const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
+  const bezGeo=new T.CylinderGeometry(1.0,0.995,0.115,BEZ_SEGS,1,true);
+  if(!se.sub){                                  // 潛水／工具錶款才有止滑齒紋；計時款維持全平滑
+    const pos=bezGeo.attributes.position;
+    for(let i=0;i<pos.count;i++){
+      const x=pos.getX(i), z=pos.getZ(i), r=Math.sqrt(x*x+z*z);
+      const ang=Math.atan2(z,x);
+      const bump=Math.cos(ang*RIDGES)*RDEPTH*0.5;
+      const k=(r-RDEPTH*0.25+bump)/r;
+      pos.setX(i,x*k); pos.setZ(i,z*k);
+    }
+    pos.needsUpdate=true; bezGeo.computeVertexNormals();
+  }
+  const bez=new T.Mesh(bezGeo,
     metalMat(mt.base,se.sub?Math.max(.06,mt.rough*0.30):Math.min(.5,mt.rough+.06)));
   bez.position.y=0.175;
-  bez.material.flatShading=!se.sub;             // 潛水款＝滾花齒紋；計時款＝拋光光滑
   root.add(bez);
   // 錶圈面
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
@@ -1438,6 +1453,9 @@ function buildWatch(){
   // 錶帶
   buildBand(bd,baseM,accM,polM,brushM,accBrush,mt);
   root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
+  // 🔴 每節鏈節都會互相投影，就算幾何咬合了，陰影還是在接縫處畫出一條硬黑線，
+  //    看起來像懸空。鏈節本身還是接光（receiveShadow 留著），只是不再互相投影。
+  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh) o.castShadow=false; });
   applyEnvToAll();
 }
 
@@ -1728,10 +1746,15 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
           const topM = gold ? accBrush : brushM;
           const sideM= gold ? accM     : polM;
           const bw=w*0.94, th=isMid?0.058:0.050, cx=x+w/2, y0=isMid?0.005:0;
+          // 🔴 原本深度只給 segL*0.96，節與節之間刻意留 4% 縫，各節又是各自獨立的方塊，
+          //    沒有咬合造型去遮那條縫 → 每節看起來像懸空疊起來的鐵板。
+          //    改成深度略超過 segL（互相輕微咬合），圓角本來就有(rbox的r參數)，
+          //    咬合處剛好被圓角蓋住，看起來像連續一條鏈，不是分開的鐵板。
+          const LINK_D=segL*1.08;
           // 下半＝拋光側面帶（實物的亮邊），上半略窄＝拉絲頂面，交界就是那道倒角
-          const lo=new T.Mesh(rbox(bw,th*0.52,segL*0.96,segL*0.13),sideM);
+          const lo=new T.Mesh(rbox(bw,th*0.52,LINK_D,segL*0.11),sideM);
           lo.position.set(cx,y0-th*0.24,0); g.add(lo);
-          const up=new T.Mesh(rbox(bw*0.86,th*0.52,segL*0.96,segL*0.15),topM);
+          const up=new T.Mesh(rbox(bw*0.86,th*0.52,LINK_D,segL*0.13),topM);
           up.position.set(cx,y0+th*0.24,0); g.add(up);
           x+=w;
         });
