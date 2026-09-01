@@ -1546,48 +1546,95 @@ function buildCrown3D(accM, polM){
 //    本身是剛體不會彎，彎折只發生在節與節的交界。改成每一節用「自己中點的那個朝向」
 //    固定住（不逐環重取樣朝向），節內只用位移量做兩端內縮的膠囊形，節本身完全不彎，
 //    交界處兩節框架角度自然有一點點差異，反而更像真的鉸鏈節點。
-function sweepBandTier(curve,N,cx0,bw0,y0,halfH,chamfer,LEN,segL,GW,GD){
-  const SUB=6;                                     // 每節內部細分幾環，只塑形兩端內縮，不重取朝向
-  const M=7;
-  const pos=[],uv=[],idx=[],base=[];
+/* ── 鏈節 ─────────────────────────────────────────────────
+   🔴 連續掃描（舊 sweepBandTier）做出來的是「三條從頭到尾的鋼帶」，不是鏈：
+      每一欄是一整條實體，分節只靠一道很淺的厚度凹痕暗示，寬度不變、沒有真接縫。
+      用戶 2026-09-01 一眼看出「一直設定成三條鋼帶型」——就是這件事。
+   改法＝每一節都是**獨立的封閉實體**：
+      ・端部收薄（endScaleY）+ 相鄰節重疊（overlap>1）→ 沒有黑縫，但節界有真的陰影
+      ・Jubilee 中間三顆用半圓斷面（dome），外側兩節用倒角方斷面
+      ・平節輸出 non-indexed 讓法線自然變 flat（稜線才利）；圓珠保持 indexed 平滑
+*/
+function linkProfile(hw,hh,ch,dome){
+  const p=[];
+  if(dome){                                        // 半圓珠：平底＋橢圓頂
+    p.push([-hw,-hh],[hw,-hh]);
+    const K=12;
+    for(let k=1;k<K;k++){ const a=k/K*Math.PI; p.push([hw*Math.cos(a), -hh+2.05*hh*Math.sin(a)]); }
+  }else{                                           // 平節：倒角方斷面
+    const c=Math.min(ch,hw*0.45,hh*0.45);
+    p.push([-hw,-hh+c],[-hw+c,-hh],[hw-c,-hh],[hw,-hh+c],
+           [hw,hh-c],[hw-c,hh],[-hw+c,hh],[-hw,hh-c]);
+  }
+  return p;                                        // 封閉輪廓，逆時針（從 +tan 看）
+}
+function buildLinkColumn(curve,N,cx0,bw0,y0,halfH,ch,segL,opt){
+  opt=opt||{};
+  const dome=!!opt.dome, OV=opt.overlap||1.08;
+  const K=opt.rings||7;                            // 沿長度取幾環
+  const CR=(opt.crown==null?0.45:opt.crown);        // 每一節頂面往兩端降多少（縱向拱起）
+  const EX=opt.endScaleX||0.96;
+  const skip=opt.skip||function(){return false;};
+  // 🔴 只在兩端「切一刀」是沒用的：金屬頂面反射的是一整片均勻環境光，淺凹槽照樣是同一個亮度
+  //    （實測整條錶帶頂面像素值一路 228 飽和，凹槽完全被吃掉）。
+  //    要讓每一節讀得出來，頂面必須**沿長度連續拱起**——每節有自己的高光帶、節界自然變暗。
+  const RZ=[],SY=[],SX=[];
+  for(let k=0;k<K;k++){
+    const t=k/(K-1);
+    RZ.push(t-0.5);
+    SY.push(1-CR*(1-Math.pow(Math.sin(Math.PI*t),0.7)));
+    SX.push(1-(1-EX)*(1-Math.sin(Math.PI*t)));
+  }
   const Xw=new T.Vector3(1,0,0);
+  const pos=[],uv=[],idx=[]; let vbase=0;
   for(let seg=0;seg<N;seg++){
+    if(skip(seg)) continue;
     const tMid=(seg+0.5)/N;
     const pMid=curve.getPointAt(tMid), tan=curve.getTangentAt(tMid).normalize();
     const yA=new T.Vector3().crossVectors(tan,Xw).normalize();
     const xA=new T.Vector3().crossVectors(yA,tan).normalize();
-    const taper=(1-0.26*Math.sin(Math.PI*tMid));    // 跟原本 hw 公式一致，往錶扣收窄
-    const cx=cx0*taper, hw=(bw0/2)*taper;
-    for(let s=0;s<=SUB;s++){
-      const localT=s/SUB;                           // 0..1，本節內部位置
-      const localZ=(localT-0.5)*segL;                // 沿本節自己的切線方向位移，不重取curve
-      const distToEdge=Math.min(localT,1-localT);
-      const gf = distToEdge>GW ? 1 : 1-GD*(1-distToEdge/GW)*(1-distToEdge/GW);
-      // 🔴 寬度也跟著捏會讓側緣變成一圈一圈的波浪輪廓；參考實錶＝寬度幾乎不變，
-      //    只有頂面那道細細的分隔線，改成只捏厚度不捏寬度。
-      const hh=halfH*gf, hwG=hw;
-      const ch=Math.min(chamfer,hwG*0.85,hh*0.85);
-      const top=y0+hh, bot=y0-hh;
-      const prof=[[-hwG,bot],[hwG,bot],[hwG,top-ch],[hwG-ch,top],[-hwG+ch,top],[-hwG,top-ch],[-hwG,bot]];
-      for(let j=0;j<M;j++){
-        const v=new T.Vector3()
-          .addScaledVector(xA,cx+prof[j][0]).addScaledVector(yA,prof[j][1])
-          .addScaledVector(tan,localZ).add(pMid);
-        base.push(v.x,v.y,v.z); pos.push(v.x,v.y,v.z);
-        uv.push(j/(M-1), seg+localT);
+    const taper=(1-0.26*Math.sin(Math.PI*tMid));   // 往錶扣收窄，跟舊版同公式
+    const cx=cx0*taper, hw=(bw0/2)*taper, L=segL*OV;
+    const put=function(px,py,pz){
+      return new T.Vector3().addScaledVector(xA,cx+px).addScaledVector(yA,y0+py)
+                            .addScaledVector(tan,pz).add(pMid);
+    };
+    const rings=[];
+    for(let r=0;r<K;r++){
+      // 只壓頂面、不動底面：底面保持滿高度貼合（不會透出黑縫），頂面沿長度拱起。
+      const prof=linkProfile(hw*SX[r], halfH, ch, dome), z=RZ[r]*L, ring=[];
+      for(let j=0;j<prof.length;j++){
+        const px=prof[j][0], py=prof[j][1]>0 ? prof[j][1]*SY[r] : prof[j][1];
+        ring.push(put(px,py,z));
       }
+      rings.push(ring);
     }
-  }
-  const RINGS=N*(SUB+1)-1;
-  for(let i=0;i<RINGS;i++) for(let j=0;j<M-1;j++){
-    const a=i*M+j,b=a+1,c=a+M,d=c+1;
-    idx.push(a,c,b, b,c,d);
+    const M=rings[0].length;
+    for(let r=0;r<K;r++) for(let j=0;j<M;j++){
+      const v=rings[r][j]; pos.push(v.x,v.y,v.z); uv.push(j/M, seg+RZ[r]+0.5);
+    }
+    const ci0=vbase+K*M, ci1=ci0+1;
+    const c0=put(0,0,RZ[0]*L), c1=put(0,0,RZ[K-1]*L);
+    pos.push(c0.x,c0.y,c0.z); uv.push(0.5,seg);
+    pos.push(c1.x,c1.y,c1.z); uv.push(0.5,seg+1);
+    // 側面：法線要朝外 → (a,b,c)/(b,d,c)，寫成 (a,c,b) 會整條翻黑
+    for(let r=0;r<K-1;r++) for(let j=0;j<M;j++){
+      const jn=(j+1)%M;
+      const a=vbase+r*M+j, b=vbase+r*M+jn, c=vbase+(r+1)*M+j, d=vbase+(r+1)*M+jn;
+      idx.push(a,b,c, b,d,c);
+    }
+    for(let j=0;j<M;j++){ const jn=(j+1)%M;        // 兩端封蓋，法線各朝 ∓tan
+      idx.push(ci0, vbase+jn, vbase+j);
+      idx.push(ci1, vbase+(K-1)*M+j, vbase+(K-1)*M+jn);
+    }
+    vbase+=K*M+2;
   }
   const g=new T.BufferGeometry();
   g.setAttribute('position',new T.Float32BufferAttribute(pos,3));
   g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
-  g.setIndex(idx); g.computeVertexNormals();
-  g.userData={base:Float32Array.from(base),N:RINGS,M};
+  g.setIndex(idx);
+  // 🔴 縱向拱起要靠平滑法線才會有「一節一條高光」；改成 non-indexed 會變成一格一格的刻面。
+  g.computeVertexNormals();
   return g;
 }
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
@@ -1796,23 +1843,39 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   }
 
   if(bd.type==='metal'){
-    // 勞士 Oyster 實物：中珠只比側珠稍寬；頂面拉絲、兩側倒角鏡面拋光。
-    // 每欄(側/中珠)各兩層(lo拋光側邊／up拉絲頂面)連續掃描一整條，取代原本 N×欄數 個獨立方塊。
-    const cols = bd.code==='JUB' ? [1,1,1.15,1,1] : [1,1.35,1];
-    const sum=cols.reduce((a,b)=>a+b,0), mid=bd.code==='JUB'?[1,2,3]:[1];
-    const GW=0.05, GD=0.14;                        // 節界溝寬(佔一節比例)／溝深(0~1)：細線不是波浪
+    // JUB＝Jubilee 五珠：外側兩節大、拉絲、方斷面；中間三顆小、拋光、**半圓珠**（竹節感）。
+    // OYS＝Oyster 蠔式：三節全平，中珠略寬；頂面拉絲、側邊倒角拋光（兩層疊出來）。
+    const jub  = bd.code==='JUB';
+    const cols = jub ? [1.50,0.82,0.92,0.82,1.50] : [1,1.35,1];
+    const dm   = jub ? [0,1,1,1,0]                : [0,0,0];
+    const sum  = cols.reduce((a,b)=>a+b,0);
+    const claspI = Math.round(N/2)-1;               // 錶扣佔中間那節
+    const skip = function(i){ return Math.abs(i-claspI)<=2; };   // 錶扣底下不長鏈節
     let x=-0.50;                                    // 參考尺度＝ hw 在 t=0.5(無收窄)時的值
     cols.forEach((f,ci)=>{
-      const w=1.0*f/sum, isMid=mid.includes(ci);
-      const gold=(mt.two&&isMid);
-      const topM = gold ? accBrush : brushM;
-      const sideM= gold ? accM     : polM;
-      const bw0=w*0.94, th=isMid?0.058:0.050, cx0=x+w/2, y0=isMid?0.005:0;
-      const loGeo=sweepBandTier(curve,N,cx0,bw0,y0-th*0.24,th*0.26,segL*0.11,LEN,segL,GW,GD);
-      const upGeo=sweepBandTier(curve,N,cx0,bw0*0.86,y0+th*0.24,th*0.26,segL*0.13,LEN,segL,GW,GD);
-      const loMesh=new T.Mesh(loGeo,sideM), upMesh=new T.Mesh(upGeo,topM);
-      parts.loop.add(loMesh); parts.loop.add(upMesh);
-      parts.loopSweeps.push(loMesh,upMesh);
+      const w=1.0*f/sum, dome=!!dm[ci], cx0=x+w/2;
+      const gold=(mt.two&&dome);
+      // 🔴 端部收太薄＋重疊不夠＝節與節之間露出端面陰影，又變回「疊鐵板」。
+      //    要靠「重疊多、端部只微收」讓鄰居把凹口填掉，只留一道細分界線。
+      if(dome){                                     // 半圓拋光珠：一顆一顆獨立實體
+        const th=0.062, hh=th*0.42;
+        const geo=buildLinkColumn(curve,N,cx0,w*0.86,0.004,hh,segL*0.10,segL,
+          {dome:true,overlap:1.04,rings:11,crown:0.42,endScaleX:0.93,skip:skip});
+        const m=new T.Mesh(geo, gold?accM:polM);
+        parts.loop.add(m); parts.loopSweeps.push(m);
+      }else{                                        // 平節：下層拋光側邊＋上層拉絲頂面
+        const th=0.052, bw0=w*0.95;
+        // 🔴 淺 V 凹槽在拋光/拉絲金屬上「照樣反光」，肉眼還是一條連續鋼帶——這是實測結論。
+        //    真錶的分節之所以看得見，是**頂片本身就是分開的、中間看得到下沉的凹處**。
+        //    所以：下層 overlap>1 連成不透光的底，上層 overlap<1 留真實間隙露出底層陰影。
+        const loGeo=buildLinkColumn(curve,N,cx0,bw0,     -th*0.24,th*0.26,segL*0.11,segL,
+          {overlap:1.10,rings:5,crown:0.18,endScaleX:0.99,skip:skip});
+        const upGeo=buildLinkColumn(curve,N,cx0,bw0*0.86, th*0.24,th*0.26,segL*0.13,segL,
+          {overlap:1.02,rings:9,crown:0.55,endScaleX:0.94,skip:skip});
+        const loMesh=new T.Mesh(loGeo, gold?accM:polM), upMesh=new T.Mesh(upGeo, gold?accBrush:brushM);
+        parts.loop.add(loMesh); parts.loop.add(upMesh);
+        parts.loopSweeps.push(loMesh,upMesh);
+      }
       x+=w;
     });
   }
