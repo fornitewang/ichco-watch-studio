@@ -1072,6 +1072,27 @@ function flexStrap(mesh, twist, sway){
   }
   g.attributes.position.needsUpdate=true; g.computeVertexNormals();
 }
+// 把一串 indexed 幾何合成一個（減 draw call）；只保留 position/normal/uv
+function mergeGeos(list){
+  let nV=0,nI=0; list.forEach(function(g){ nV+=g.attributes.position.count; nI+=g.index.count; });
+  const pos=new Float32Array(nV*3), nor=new Float32Array(nV*3), uv=new Float32Array(nV*2), idx=new Uint32Array(nI);
+  let vo=0, io2=0;
+  list.forEach(function(g){ const p=g.attributes.position, n=g.attributes.normal, u=g.attributes.uv, ix=g.index;
+    pos.set(p.array,vo*3); if(n) nor.set(n.array,vo*3); if(u) uv.set(u.array,vo*2);
+    for(let i=0;i<ix.count;i++) idx[io2+i]=ix.array[i]+vo; vo+=p.count; io2+=ix.count; g.dispose(); });
+  const g=new T.BufferGeometry();
+  g.setAttribute('position',new T.BufferAttribute(pos,3)); g.setAttribute('normal',new T.BufferAttribute(nor,3));
+  g.setAttribute('uv',new T.BufferAttribute(uv,2)); g.setIndex(new T.BufferAttribute(idx,1)); return g;
+}
+// 跟 flexStrap 同一組旋轉，但用每個頂點自己的 t（合併後的縫線／針孔用）
+function flexByT(mesh,twist,sway){
+  const g=mesh.geometry, d=g.userData; if(!d||!d.base||!d.tArr) return;
+  const pos=g.attributes.position.array, base=d.base, tA=d.tArr, v=new T.Vector3(), Y=new T.Vector3(0,1,0), X=new T.Vector3(1,0,0);
+  for(let i=0;i<tA.length;i++){ const w=Math.sin(Math.PI*tA[i]), k=i*3;
+    v.set(base[k],base[k+1],base[k+2]).applyAxisAngle(Y,twist*w).applyAxisAngle(X,sway*w*0.55);
+    pos[k]=v.x; pos[k+1]=v.y; pos[k+2]=v.z; }
+  g.attributes.position.needsUpdate=true; g.computeVertexNormals();
+}
 // 鱷魚皮：方格鱗片，中央鱗大、兩側漸小，溝縫深；半光澤（參考 alligator strap 實拍）
 function leatherTex(base){
   const W=512,H=512,c=ctx2d(512),g=c.getContext('2d');
@@ -2057,7 +2078,7 @@ function holeAlphaRaw(HT,LEN){
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
-  parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[];   // softAtt＝跟著皮帶一起擺的剛性零件
+  parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[]; parts.flexT=null;   // softAtt＝跟著皮帶一起擺的剛性零件
   const metal = bd.type==='metal';
   // 起點：金屬帶＝帶頭(SEL)外緣的第一個鉸鏈；軟帶＝彈簧棒
   const Z0 = metal?LUG.selZ:LUG.softZ, Y0 = metal?LUG.selY:LUG.softY;
@@ -2153,24 +2174,48 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       g.userData={base:Float32Array.from(g.attributes.position.array),N:K,M:PR.length};
       const strap=new T.Mesh(g,[softM,edgeM,liningM,softHole,liningHole]);
       parts.loop.add(strap); parts.softStrap=strap;
-      // 車線：兩道真的虛線縫線（alphaMap 斷成一針一針），略凸出皮面，沿肩線走
-      if(!parts.stitchA){ const c=ctx2d(64), gg=c.getContext('2d');
-        gg.fillStyle='#000'; gg.fillRect(0,0,64,64); gg.fillStyle='#fff'; gg.fillRect(0,0,64,44);
-        parts.stitchA=new T.CanvasTexture(c); parts.stitchA.wrapS=parts.stitchA.wrapT=T.RepeatWrapping; }
-      parts.stitchA.repeat.set(1,1/0.19);            // 每 0.19 unit(3.8mm) 一針
-      const thread=new T.MeshStandardMaterial({color:0xB49C74,roughness:.85,metalness:0,
-        alphaMap:parts.stitchA,alphaTest:.5,side:T.DoubleSide});
+      // 車線：真的一針一針縫。每一針＝一小段弧形蠟線，從針孔冒出、貼著皮面、再鑽回下一個針孔，
+      // 帶馬鞍縫的斜度；線有厚度與蠟的微光；針孔處壓一點暗色凹痕；線底下一條深色細槽（縫線槽）。
+      // 全部合成一個幾何、每個頂點記自己的 t，擺動時跟皮帶同步。
+      const PITCH=0.165, SL=0.128, RT=0.0115;     // 針距 3.3mm、每針 2.6mm、線徑 0.5mm（皮件常見）
+      const stitchM=new T.MeshPhysicalMaterial({color:0xBDA57C,roughness:.62,metalness:0,sheen:.7,sheenRoughness:.65,
+        sheenColor:new T.Color(0xFFF1CC),envMapIntensity:.45});
+      const dimpleM=new T.MeshStandardMaterial({color:0x3A2416,roughness:.9,metalness:0});
+      const grooveM=new T.MeshStandardMaterial({color:0x2A1A10,roughness:.85,metalness:0});
+      const ySurf=function(th){ return 0.56*th; };
+      const sGeos=[], dGeos=[], sT=[], dT=[];
+      [-1,1].forEach(function(sg){
+        for(let s=PITCH*0.6; s<LEN-PITCH*0.6; s+=PITCH){
+          const u0=(s-SL/2)/LEN, u1=(s+SL/2)/LEN, um=s/LEN;
+          const f0=frameAt(curve,u0), f1=frameAt(curve,u1), fm=frameAt(curve,um);
+          const x0=sg*(0.86*hwF(u0)-0.011), x1=sg*(0.86*hwF(u1)+0.011), xm=sg*0.86*hwF(um);
+          const p0=f0.p.clone().addScaledVector(f0.xA,x0).addScaledVector(f0.yA,ySurf(thF(u0))-0.012);
+          const pm=fm.p.clone().addScaledVector(fm.xA,xm).addScaledVector(fm.yA,ySurf(thF(um))+RT*0.85);
+          const p1=f1.p.clone().addScaledVector(f1.xA,x1).addScaledVector(f1.yA,ySurf(thF(u1))-0.012);
+          const tg=new T.TubeGeometry(new T.CatmullRomCurve3([p0,pm,p1]),8,RT,7,false);
+          sGeos.push(tg); for(let k=0;k<tg.attributes.position.count;k++) sT.push(um);
+          [[f0,x0,u0],[f1,x1,u1]].forEach(function(q){
+            const dg=new T.CylinderGeometry(RT*1.3,RT*1.3,0.004,10), fr=q[0];
+            const c=fr.p.clone().addScaledVector(fr.xA,q[1]).addScaledVector(fr.yA,ySurf(thF(q[2]))+0.002);
+            dg.applyMatrix4(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan).setPosition(c));
+            dGeos.push(dg); for(let k=0;k<dg.attributes.position.count;k++) dT.push(um); });
+        }
+      });
+      const sG=mergeGeos(sGeos); sG.userData={base:Float32Array.from(sG.attributes.position.array),tArr:sT};
+      const dG=mergeGeos(dGeos); dG.userData={base:Float32Array.from(dG.attributes.position.array),tArr:dT};
+      const sM=new T.Mesh(sG,stitchM), dM=new T.Mesh(dG,dimpleM); parts.loop.add(sM,dM);
+      parts.flexT=[sM,dM];
+      // 縫線槽：線底下一條深色細槽
       parts.threads=[];
       [-1,1].forEach(function(sg){
-        const R=0.010, TP=[[-R,-R],[R,-R],[R,R],[-R,R]], tr=[], tv=[];
+        const R=0.006, TP=[[-R,-R],[R,-R],[R,R],[-R,R]], tr=[], tv=[];
         for(let k=0;k<=K;k++){ const u=k/K, fr=frameAt(curve,u), hw=hwF(u), th=thF(u);
-          const x=sg*0.86*hw, y=0.56*th+R*0.55;
-          tr.push(TP.map(function(q){ return new T.Vector3().copy(fr.p)
-            .addScaledVector(fr.xA,x+q[0]).addScaledVector(fr.yA,y+q[1]); }));
+          const x=sg*0.86*hw, y=0.56*th+0.002;
+          tr.push(TP.map(function(q){ return new T.Vector3().copy(fr.p).addScaledVector(fr.xA,x+q[0]).addScaledVector(fr.yA,y+q[1]); }));
           tv.push(u*LEN); }
         const tg=loftRings(tr,null,null,tv);
         tg.userData={base:Float32Array.from(tg.attributes.position.array),N:K,M:4};
-        const m=new T.Mesh(tg,thread); parts.loop.add(m); parts.threads.push(m);
+        const m=new T.Mesh(tg,grooveM); parts.loop.add(m); parts.threads.push(m);
       });
     } else {
       const geo=sweepStrap(curve,PROF,150,0.50,TH,VR);
@@ -2638,6 +2683,7 @@ function animate(){
       a.obj.quaternion.copy(a.q).premultiply(qy).premultiply(qx); });
   }
   if(parts.threads) parts.threads.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
+  if(parts.flexT) parts.flexT.forEach(function(m){ flexByT(m, loopTwist, loopSway); });
   // 🔴 鋼錶帶不是皮帶，不該跟著甩動變軟——metal band 完全靜止，不掛 flexStrap。
   if(parts.loop) parts.loop.rotation.z = loopSway*0.22;
   // 故事模式：鏡頭用阻尼追目標；一旦使用者拖曳就把控制權交出去
