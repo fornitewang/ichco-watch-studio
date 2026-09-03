@@ -562,7 +562,7 @@ const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,
              {code:'NAT',name:'NATO 尼龍',add:-400,type:'soft',col:0x3A444F,rough:.86,k:.24,d:.840,amp:.62,wave:0}];
 /* 情境光線：天空／地平線／柔光箱強度／主光色溫／霧／特效 */
 const SCENES=[
- {code:'STU',name:'紙棚',   sw:'#E8DCC4',sky:'#3A4247',hor:'#0E1214',bgTop:'#FBF5E9',bgBot:'#EFE3CE',box:'#FFFFFF',boxI:1.7,key:0xFFFFFF,keyI:2.8,fx:'none',  exp:1.00},
+ {code:'STU',name:'紙棚',   sw:'#E8DCC4',sky:'#3A4247',hor:'#0E1214',bgTop:'#FBF5E9',bgBot:'#EFE3CE',box:'#FFFFFF',boxI:1.7,key:0xFFFFFF,keyI:2.8,fx:'none',  exp:0.92},
  {code:'SUN',name:'正午陽光',sw:'#9CCBF2',sky:'#4E8FD6',hor:'#9FC4E2',box:'#FFF9EC',boxI:1.8,key:0xFFF6E2,keyI:3.6,fx:'none',  exp:0.95},
  {code:'GLD',name:'黃昏',    sw:'#F0A05A',sky:'#2A2038',hor:'#C97A38',box:'#FFCE8A',boxI:1.5,key:0xFFAE60,keyI:3.0,fx:'none',  exp:1.00},
  {code:'RAI',name:'雨天',    sw:'#5F6C74',sky:'#39434A',hor:'#525F68',box:'#D6E2E8',boxI:1.3,key:0xCBDCE6,keyI:2.2,fx:'rain',  exp:1.02},
@@ -1080,31 +1080,32 @@ function makeDropSim(){
   return {c:c,g:g,tr:tr,tg:tg,sn:sn,sg:sg,tex:tex,snowTex:snowTex,spr:sp,flake:fk,
           drops:[],flakes:[],splash:[],SZ:SZ,mode:'rain'};
 }
-function stepDrops(sim,gx,gy,gmag){
+function stepDrops(sim,gx,gy,gmag,fr){
+  fr=fr||1; sim.t=(sim.t||0)+fr;
   const g=sim.g, SZ=sim.SZ, tg=sim.tg, sg=sim.sg, spr=sim.spr, snow=sim.mode==='snow';
   const C=SZ/2, R=SZ*0.485;
   // 水痕慢慢蒸發
-  tg.globalCompositeOperation='destination-out'; tg.fillStyle='rgba(0,0,0,0.014)'; tg.fillRect(0,0,SZ,SZ);
+  tg.globalCompositeOperation='destination-out'; tg.fillStyle='rgba(0,0,0,'+(0.014*fr).toFixed(4)+')'; tg.fillRect(0,0,SZ,SZ);
   tg.globalCompositeOperation='source-over';
   // 新的雨滴／雪花落在圓形鏡面內
   const spawn=sim.mode==='rain'?0.20:(snow?0.10:0);
-  if(Math.random()<spawn && sim.drops.length+sim.flakes.length<110){
+  if(Math.random()<spawn*fr && sim.drops.length+sim.flakes.length<110){
     const a=Math.random()*Math.PI*2, rr=Math.sqrt(Math.random())*R*0.94, x=C+Math.cos(a)*rr, y=C+Math.sin(a)*rr;
     if(snow) sim.flakes.push({x:x,y:y,r:6+Math.random()*7,rot:Math.random()*6.28,t:0,melt:80+Math.random()*200,fade:1});
     else sim.splash.push({x:x,y:y,t:0,max:7+Math.random()*9,seed:3.5+Math.random()*6.5});
   }
   // 雪花：停在玻璃上 → 時間到開始融：花瓣淡掉、原地長出一顆水珠（融雪水比雨滴冷，停更久）
-  for(let i=sim.flakes.length-1;i>=0;i--){ const f=sim.flakes[i]; f.t++;
-    if(f.t>=f.melt && !f.melted){ f.melted=true; sim.drops.push({x:f.x,y:f.y,r:f.r*0.62,vx:0,vy:0,rest:150+Math.random()*260}); }  // 🔴 melt 是浮點數，不能用 ===
-    if(f.t>f.melt){ f.fade-=0.02; if(f.fade<=0){ sim.flakes.splice(i,1); } }
+  for(let i=sim.flakes.length-1;i>=0;i--){ const f=sim.flakes[i]; f.t+=fr;
+    if(f.t>=f.melt && !f.melted){ f.melted=true; sim.drops.push({x:f.x,y:f.y,r:f.r*0.62,vx:0,vy:0,rest:150+Math.random()*260,ph:Math.random()*6.28}); }  // 🔴 melt 是浮點數，不能用 ===
+    if(f.t>f.melt){ f.fade-=0.02*fr; if(f.fade<=0){ sim.flakes.splice(i,1); } }
   }
   // 水花 → 水珠（帶著一段「停住」的時間）
   g.fillStyle='#8080ff'; g.fillRect(0,0,SZ,SZ);
-  for(let i=sim.splash.length-1;i>=0;i--){ const sp=sim.splash[i]; sp.t++;
+  for(let i=sim.splash.length-1;i>=0;i--){ const sp=sim.splash[i]; sp.t+=fr;
     const k=sp.t/12, rr=2+(sp.max-2)*k, a=Math.max(0,1-k)*0.8;
     g.strokeStyle='rgba(150,150,255,'+a.toFixed(3)+')'; g.lineWidth=2.2;
     g.beginPath(); g.arc(sp.x,sp.y,rr,0,7); g.stroke();
-    if(sp.t>=12){ sim.drops.push({x:sp.x,y:sp.y,r:sp.seed,vx:0,vy:0,rest:40+Math.random()*160}); sim.splash.splice(i,1); }
+    if(sp.t>=12){ sim.drops.push({x:sp.x,y:sp.y,r:sp.seed,vx:0,vy:0,rest:40+Math.random()*160,ph:Math.random()*6.28}); sim.splash.splice(i,1); }
   }
   // 水珠
   const ux=gmag>1e-4?gx/gmag:0, uy=gmag>1e-4?gy/gmag:0;
@@ -1112,22 +1113,24 @@ function stepDrops(sim,gx,gy,gmag){
     const px=d.x, py=d.y;
     const cx=(d.x-C)/R, cy=(d.y-C)/R, cr=Math.hypot(cx,cy);
     const slope=Math.max(0, gmag-0.10);                       // 錶平放（重力沒有平面分量）就不滑
-    if(d.rest>0){ d.rest-=1; d.r-=0.0025; }                  // 停住期間微微蒸發
+    if(d.rest>0){ d.rest-=fr; d.r-=0.0025*fr; }              // 停住期間微微蒸發
     else if(d.r>=3.0 && slope>0){
       const acc=(0.006+0.0045*d.r)*slope;
-      d.vx+=ux*acc+(Math.random()-0.5)*0.05+cx*0.0012*cr;    // 微晃＋拱面往外的分量
-      d.vy+=uy*acc+(Math.random()-0.5)*0.05+cy*0.0012*cr;
-      d.vx*=0.93; d.vy*=0.93;                                 // 黏滯：慢慢滑，不是掉下去
-      d.x+=d.vx; d.y+=d.vy;
+      // 微晃用平滑的正弦（每顆自己的相位），不用每格亂數——亂數會抖，正弦才像水在玻璃上蛇行
+      const wob=Math.sin(sim.t*0.13+(d.ph||0))*0.030, wob2=Math.cos(sim.t*0.09+(d.ph||0)*1.7)*0.030;
+      d.vx+=(ux*acc+wob*uy+cx*0.0012*cr)*fr;                  // 晃動方向垂直於滑落方向
+      d.vy+=(uy*acc-wob*ux+cy*0.0012*cr)*fr+wob2*0.2*fr;
+      const damp=Math.pow(0.93,fr); d.vx*=damp; d.vy*=damp;   // 黏滯：慢慢滑，不是掉下去
+      d.x+=d.vx*fr; d.y+=d.vy*fr;
       const sp2=Math.hypot(d.vx,d.vy);
       if(sp2>0.05){                                           // 水痕：細水膜＋殘珠
         tg.globalAlpha=0.30; tg.drawImage(spr,px-d.r*0.42,py-d.r*0.42,d.r*0.84,d.r*0.84);
         if(Math.random()<0.22){ const rr=d.r*(0.22+Math.random()*0.22);
           tg.globalAlpha=0.85; tg.drawImage(spr,px-rr+(Math.random()-0.5)*d.r*0.6,py-rr+(Math.random()-0.5)*d.r*0.6,rr*2,rr*2); }
         tg.globalAlpha=1;
-        d.r-=0.004*sp2;                                       // 一路留水痕會變小
+        d.r-=0.004*sp2*fr;                                    // 一路留水痕會變小
       }
-    } else { d.r-=0.0018; }
+    } else { d.r-=0.0018*fr; }
     // 合併：滑到別顆水珠就吞掉
     for(let j=sim.drops.length-1;j>=0;j--){ if(j===i) continue; const e=sim.drops[j];
       if(Math.hypot(e.x-d.x,e.y-d.y)<(d.r+e.r)*0.72){ d.r=Math.sqrt(d.r*d.r+e.r*e.r); d.rest=Math.min(d.rest,12);
@@ -1405,8 +1408,8 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
     clearcoat:1,clearcoatRoughness:.02,envMapIntensity:1.6,emissive:0x060B30,emissiveIntensity:.6}));
   gem.scale.set(0.82,1,1); gem.position.y=0.135; cr.add(gem);
   // 錶鏡：圓角方形平板、中央微拱；黑色只留菲涅耳反射；UV 平面投影給雨雪模擬用
-  const crystalM=new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:0.02,transparent:true,opacity:0.12,
-    clearcoat:0,envMapIntensity:4.0,side:T.FrontSide,depthWrite:false});
+  const crystalM=new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:0.02,transparent:true,opacity:0.14,
+    clearcoat:0,envMapIntensity:6.5,side:T.FrontSide,depthWrite:false});
   if(wet){ parts.dropSim=parts.dropSim||makeDropSim();
     if(parts.dropSim.mode!==scn.fx){ parts.dropSim.drops=[]; parts.dropSim.flakes=[]; parts.dropSim.splash=[];
       parts.dropSim.tg.clearRect(0,0,parts.dropSim.SZ,parts.dropSim.SZ); }
@@ -1415,7 +1418,7 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
   const cg=extrudeUp(roundedRectShape(1.44,1.44,0.17),0.10,0,1);
   { const p=cg.attributes.position, uv=cg.attributes.uv;
     for(let i=0;i<p.count;i++){ const x=p.getX(i), z=p.getZ(i);
-      if(p.getY(i)>0.05) p.setY(i,p.getY(i)+0.022*(1-Math.min(1,(x*x+z*z)/1.04)));
+      if(p.getY(i)>0.05) p.setY(i,p.getY(i)+0.07*(1-Math.min(1,(x*x+z*z)/1.04)));   // 從錶圈開口往上拱成玻璃罩
       uv.setXY(i,x/1.44+0.5,z/1.44+0.5); }
     p.needsUpdate=true; uv.needsUpdate=true; cg.computeVertexNormals(); }
   const crystal=new T.Mesh(cg,crystalM); crystal.position.y=0.135; crystal.renderOrder=12; root.add(crystal); parts.crystal=crystal;
@@ -1432,7 +1435,7 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
 // 第一排直接塞在錶圈彎角底下（Santos 是一體式，沒有傳統錶耳）
 function buildSantosBand(polM,brushM){
   parts.loop=new T.Group(); root.add(parts.loop);
-  parts.loopRows=[]; parts.softStrap=null; parts.threads=null;
+  parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[];
   const Z0=1.12, Y0=-0.145;
   const pts=[
     new T.Vector3(0,Y0,-Z0), new T.Vector3(0,-0.40,-1.54), new T.Vector3(0,-0.98,-1.64),
@@ -1656,8 +1659,8 @@ function buildWatch(){
   //    黑色只留鏡面反射（F0=4%，掠射角自動變強），反射量再用 envMapIntensity 補回 opacity 的折損：
   //    有效反射 ≈ 0.04 × 4.0 × 0.12 ≈ 2%，跟真藍寶石鍍膜差不多；轉動時棚燈會在拱面上掃過去。
   const crystalM=new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:0.02,
-    transparent:true,opacity:0.12,clearcoat:0,
-    envMapIntensity:4.0,side:T.FrontSide,depthWrite:false});
+    transparent:true,opacity:0.14,clearcoat:0,
+    envMapIntensity:6.5,side:T.FrontSide,depthWrite:false});
   if(wet){ // 鏡面上的水：會滑下來並拖出水痕
     parts.dropSim=parts.dropSim||makeDropSim();
     if(parts.dropSim.mode!==scn.fx){ parts.dropSim.drops=[]; parts.dropSim.flakes=[]; parts.dropSim.splash=[];
@@ -1668,7 +1671,8 @@ function buildWatch(){
     crystalM.opacity=0.18; crystalM.roughness=0.03; crystalM.envMapIntensity=5.0;
   }
   // 藍寶石鏡面是「拱形」的：球缺剖面，中央比邊緣高，雨水才會順著弧面滑下去
-  const CR=0.775, CH=0.105, CY0=0.196;
+  // 玻璃罩從錶圈內徑（r 0.78、錶圈頂面高度）起算，往上拱成一個罩：不是埋在錶圈裡的一片薄鏡
+  const CR=0.78, CH=0.15, CY0=0.236;
   const Rs=(CR*CR+CH*CH)/(2*CH);                 // 球缺半徑
   const yEdge=Math.sqrt(Rs*Rs-CR*CR);
   const prof=[];
@@ -1689,6 +1693,10 @@ function buildWatch(){
   }
   const crystal=new T.Mesh(domeGeo,crystalM); crystal.renderOrder=12; root.add(crystal);
   parts.crystal=crystal;
+  { const rim=new T.Mesh(latheProfile([[CR-0.012,CY0-0.02],[CR+0.004,CY0+0.006],[CR-0.006,CY0+0.03]],128),
+      new T.MeshPhysicalMaterial({color:0xF4F8FF,metalness:0,roughness:.08,transparent:true,opacity:.28,
+        envMapIntensity:2.0,side:T.DoubleSide,depthWrite:false}));
+    rim.renderOrder=12; root.add(rim); }
   parts.wetLayer=null;
   if(scn.fx==='snow'||scn.fx==='rain'){         // 水珠亮邊／雪花貼在錶鏡上：一層透明覆蓋，顏色圖來自模擬
     const sl=new T.Mesh(domeGeo,new T.MeshStandardMaterial({map:parts.dropSim.snowTex,transparent:true,
@@ -1912,10 +1920,41 @@ function linkGeo(fr,L,cw,hh,cx,dome){
   const tags=prof.isTop.map(function(t,j){ return (t&&prof.isTop[(j+1)%prof.isTop.length])?1:0; });
   return loftRings(rings,tags,sh,zs.map(function(z){ return (z+half)/L; }));
 }
+// 把幾何在 v∈[v0,v1] 內、屬於某些材質群組的三角形改派到新群組（皮帶尾段換成「有打孔」的材質）
+function regroupByV(g,v0,v1,remap){
+  const idx=g.index.array, uv=g.attributes.uv, buckets={};
+  g.groups.forEach(function(gr){
+    for(let i=gr.start;i<gr.start+gr.count;i+=3){
+      const a=idx[i],b=idx[i+1],c=idx[i+2], v=(uv.getY(a)+uv.getY(b)+uv.getY(c))/3;
+      const mi=(v>=v0&&v<=v1&&remap[gr.materialIndex]!=null)?remap[gr.materialIndex]:gr.materialIndex;
+      (buckets[mi]=buckets[mi]||[]).push(a,b,c);
+    }
+  });
+  const keys=Object.keys(buckets).map(Number).sort(function(a,b){return a-b;});
+  let out=[], start=0; g.clearGroups();
+  keys.forEach(function(k){ out=out.concat(buckets[k]); g.addGroup(start,buckets[k].length,k); start+=buckets[k].length; });
+  g.setIndex(out);
+}
+// 皮帶調整孔的 alpha 遮罩（黑＝挖掉）。真的穿透：頂面、底面各挖一個孔，中間放一截深色管當孔壁。
+// 🔴 r134 所有貼圖共用「第一張 map」的 uv 變換：鱷魚皮面材質有 croc map（repeat 0.46,0.30），
+//    alphaMap 會被一起縮放，所以孔要畫在「貼圖格」座標；裡皮材質沒有 map，alphaMap 就用自己的 repeat。
+function holeAlphaTile(HT,LEN){
+  const S=1024, c=ctx2d(S), g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,S,S); g.fillStyle='#000';
+  HT.forEach(function(ht){ const vt=(0.30*ht*LEN)%1, x=0.615*0.46*S, y=(1-vt)*S;   // 頂面中線 u=8/13
+    g.beginPath(); g.ellipse(x,y,0.042*0.72*0.46*S,0.042*0.30*S,0,0,7); g.fill(); });
+  const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; return t;
+}
+function holeAlphaRaw(HT,LEN){
+  const W=512,H=2048, c=ctx2d(W); c.height=H; const g=c.getContext('2d');
+  g.fillStyle='#fff'; g.fillRect(0,0,W,H); g.fillStyle='#000';
+  HT.forEach(function(ht){ const x=0.115*W, y=(1-ht)*H;                          // 底面中線 u=1.5/13
+    g.beginPath(); g.ellipse(x,y,0.042*0.31*W,0.042/LEN*H,0,0,7); g.fill(); });
+  const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.repeat.set(1,1/LEN); return t;
+}
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
-  parts.loopRows=[]; parts.softStrap=null; parts.threads=null;
+  parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[];   // softAtt＝跟著皮帶一起擺的剛性零件
   const metal = bd.type==='metal';
   // 起點：金屬帶＝帶頭(SEL)外緣的第一個鉸鏈；軟帶＝彈簧棒
   const Z0 = metal?LUG.selZ:LUG.softZ, Y0 = metal?LUG.selY:LUG.softY;
@@ -2002,8 +2041,14 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
           .addScaledVector(fr.xA,q[0]*hw).addScaledVector(fr.yA,q[1]*th); }));
         vAt.push(u*LEN); }
       const g=loftRings(rings,EDGE,null,vAt);
+      // 帶尾（u 0.30～0.50）的皮面／裡皮換成有打孔的材質：孔是真的挖穿，看得到對面
+      const HT=[]; for(let k=0;k<6;k++) HT.push(0.5-(0.016+k*0.026));
+      regroupByV(g,0.30*LEN,0.50*LEN,{0:3,2:4});
+      const softHole=softM.clone(); softHole.alphaMap=holeAlphaTile(HT,LEN); softHole.alphaTest=0.5;
+      const liningHole=new T.MeshPhysicalMaterial({color:0x2E1B10,roughness:.88,metalness:0,clearcoat:0,
+        envMapIntensity:.45,side:T.FrontSide,alphaMap:holeAlphaRaw(HT,LEN),alphaTest:0.5});
       g.userData={base:Float32Array.from(g.attributes.position.array),N:K,M:PR.length};
-      const strap=new T.Mesh(g,[softM,edgeM,liningM]);
+      const strap=new T.Mesh(g,[softM,edgeM,liningM,softHole,liningHole]);
       parts.loop.add(strap); parts.softStrap=strap;
       // 車線：兩道真的虛線縫線（alphaMap 斷成一針一針），略凸出皮面，沿肩線走
       if(!parts.stitchA){ const c=ctx2d(64), gg=c.getContext('2d');
@@ -2041,7 +2086,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     const scale    = bd.code==='RUB'?1.15  : (bd.code==='LEA'?1.0 :0.94);
     const bk=buildTangBuckle(bw*scale, TH, polM, accM, thickBar);
     bk.position.y=TH*0.60; bg.add(bk);
-    parts.loop.add(bg);
+    parts.loop.add(bg); parts.softAtt.push({obj:bg,w:1,pos:bg.position.clone(),q:bg.quaternion.clone()});
     // 錶帶環：皮帶與尼龍各兩個（固定環＋活動環），橡膠只有一個模製環
     const keepN = bd.code==='RUB'?1:2;
     const keepM = bd.code==='RUB'? softM : (bd.code==='LEA'? keepLea : polM);
@@ -2053,21 +2098,25 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       const kg=new T.Group(); kg.position.copy(kp);
       kg.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(kxA,kyA,ktan));
       kg.add(buildKeeper(0.50*0.80, TH, keepM, bd.code==='RUB'?0.075:0.055));
-      parts.loop.add(kg);
+      parts.loop.add(kg); parts.softAtt.push({obj:kg,w:Math.sin(Math.PI*kt),pos:kg.position.clone(),q:kg.quaternion.clone()});
     }
     // 皮帶／尼龍：帶尾一排調整孔
     if(bd.code!=='RUB'){
-      const holeM=new T.MeshStandardMaterial({color:0x0B0C0D,roughness:.95,side:T.DoubleSide});
       // 第 0 孔正對針的位置，扣起來就是穿過那一孔
+      const lea=bd.code==='LEA';
+      const holeM=lea? new T.MeshStandardMaterial({color:0x2B1B12,roughness:.92,side:T.BackSide})     // 孔壁：只畫內面
+                     : new T.MeshStandardMaterial({color:0x0B0C0D,roughness:.95,side:T.DoubleSide});
       for(let k=0;k<6;k++){
         const ht=0.5-(0.016+k*0.026);
         const hp=curve.getPointAt(ht), htan=curve.getTangentAt(ht).normalize();
         const hyA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),htan).normalize();
-        const h=new T.Mesh(new T.CylinderGeometry(0.030,0.030,TH*1.45,14),holeM);
-        h.position.copy(hp).addScaledVector(hyA,0);
+        const thL=0.140*(1-0.40*Math.sin(Math.PI*ht));                       // 跟 thF 同公式：這裡的皮厚
+        const h=lea? new T.Mesh(new T.CylinderGeometry(0.042,0.042,thL*1.36,18,1,true),holeM)
+                   : new T.Mesh(new T.CylinderGeometry(0.030,0.030,TH*1.45,14),holeM);
+        h.position.copy(hp).addScaledVector(hyA,lea?thL*0.28:0);          // 管心在皮的 -0.40th～+0.96th 中點
         h.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(
           new T.Vector3().crossVectors(hyA,htan).normalize(),hyA,htan));
-        parts.loop.add(h);
+        parts.loop.add(h); parts.softAtt.push({obj:h,w:Math.sin(Math.PI*ht),pos:h.position.clone(),q:h.quaternion.clone()});
       }
     }
     return;
@@ -2197,9 +2246,8 @@ function sandMaps(){
 function duneH(x,z){
   const dune=0.10*Math.sin(0.42*x+0.35*Math.sin(0.22*z+0.7))+0.06*Math.sin(0.75*z+1.3+0.3*Math.sin(0.5*x))
             +0.03*Math.sin(1.7*x+0.9*z);
-  const mound=0.24*Math.exp(-(x*x/1.5+z*z/3.4));                          // 錶身周圍堆起來的沙
-  const tail=0.13*Math.exp(-((x-1.4)*(x-1.4)/2.6+z*z/3.0));               // 背風側的沙尾（風往 +x 吹）
-  return dune+mound+tail;
+  // 用戶 2026-09-03：先不要堆沙（堆起來的沙丘他還想不到怎麼講才真實），只留很緩的起伏
+  return dune*0.35;
 }
 function buildDune(){
   const G=new T.PlaneGeometry(18,18,150,150); G.rotateX(-Math.PI/2);
@@ -2258,7 +2306,7 @@ function applyScene(){
     const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding;
     fx.bg=t; scene.background=t; }
   // 有實拍 HDRI 之後，環境光已經扛掉大部分照明；直接光只留來打陰影跟一點點高光
-  const LK=hdrTex?0.55:1.0;
+  const LK=hdrTex?0.32:1.0;                  // 直接光只留一點點：亮到刺眼就假
   keyLight.color.setHex(sc.key); keyLight.intensity=sc.keyI*LK;
   rimLight.color.setHex(sc.key); rimLight.intensity=sc.keyI*0.35*LK;
   fillLight.color.setHex(sc.key); fillLight.intensity=sc.keyI*0.30*LK;
@@ -2380,6 +2428,8 @@ function drag(){
 function animate(){
   requestAnimationFrame(animate);
   const t=clock.getElapsedTime();
+  // fr＝這一格相當於幾個 60fps 的格：所有動態都乘它，掉格或高更新率螢幕上速度才一致、看起來才順
+  const fr=Math.min(3,Math.max(0.05,(t-(parts.lastT==null?t-1/60:parts.lastT))*60)); parts.lastT=t;
   const n=new Date();
   if(parts.hourG){
     parts.hourG.rotation.y=-(10+10/60)*Math.PI/6;      // 10:10 商業攝影姿勢
@@ -2414,7 +2464,7 @@ function animate(){
       // 重力：世界的「下」轉進錶的區域座標，投影到錶鏡平面 → 水珠往哪滑、滑多快
       // 鏡面 UV：u=+x（3 點）、v=+z（6 點）；CanvasTexture flipY → 畫布 y 向下＝ −v
       const gw=new T.Vector3(0,-1,0).applyQuaternion(root.quaternion.clone().invert());
-      stepDrops(parts.dropSim, gw.x, -gw.z, Math.hypot(gw.x,gw.z));
+      stepDrops(parts.dropSim, gw.x, -gw.z, Math.hypot(gw.x,gw.z), fr);
     } }
   // 扣起來的錶帶＝一個圈：整圈跟著慣性扭轉並前後擺盪，
   // 兩端固定在錶耳所以不動，中段擺幅最大（sin(πt) 權重），放手後阻尼收斂。
@@ -2466,6 +2516,14 @@ function animate(){
     for(let i=0;i<n;i++){ RW[i].g.rotation.y=RW[i].by+RW[i].sy; RW[i].g.rotation.x=RW[i].sx; }
   }
   if(parts.softStrap) flexStrap(parts.softStrap, loopTwist, loopSway);
+  // 針扣、皮環、調整孔是剛體，套 flexStrap 同一組旋轉（先繞世界 Y 再繞世界 X，權重 sin(πt)）才會跟皮帶同步搖
+  if(parts.softAtt&&parts.softAtt.length){
+    const Yw=new T.Vector3(0,1,0), Xw2=new T.Vector3(1,0,0), qy=new T.Quaternion(), qx=new T.Quaternion();
+    parts.softAtt.forEach(function(a){ const ay=loopTwist*a.w, ax=loopSway*a.w*0.55;
+      a.obj.position.copy(a.pos).applyAxisAngle(Yw,ay).applyAxisAngle(Xw2,ax);
+      qy.setFromAxisAngle(Yw,ay); qx.setFromAxisAngle(Xw2,ax);
+      a.obj.quaternion.copy(a.q).premultiply(qy).premultiply(qx); });
+  }
   if(parts.threads) parts.threads.forEach(function(m){ flexStrap(m, loopTwist, loopSway); });
   // 🔴 鋼錶帶不是皮帶，不該跟著甩動變軟——metal band 完全靜止，不掛 flexStrap。
   if(parts.loop) parts.loop.rotation.z = loopSway*0.22;
@@ -2477,12 +2535,12 @@ function animate(){
   camera.position.set(0,dist*0.51,dist);
   camera.lookAt(0,-0.72,0);
   if(fx.rain){ const p=fx.rain.geometry.attributes.position;
-    for(let i=1;i<p.array.length;i+=3){ p.array[i]-=0.16; if(p.array[i]<-5.5) p.array[i]=5.5; }
+    for(let i=1;i<p.array.length;i+=3){ p.array[i]-=0.16*fr; if(p.array[i]<-5.5) p.array[i]=5.5; }
     p.needsUpdate=true; }
   if(fx.snow){ const p=fx.snow.geometry.attributes.position, ph=fx.snow.userData.ph;   // 雪花：慢慢飄、左右搖
     for(let i=0;i<p.count;i++){ const o=i*3;
-      p.array[o+1]-=0.012+0.006*Math.sin(ph[i]);
-      p.array[o]+=Math.sin(t*0.9+ph[i])*0.004; p.array[o+2]+=Math.cos(t*0.7+ph[i]*1.3)*0.003;
+      p.array[o+1]-=(0.012+0.006*Math.sin(ph[i]))*fr;
+      p.array[o]+=Math.sin(t*0.9+ph[i])*0.004*fr; p.array[o+2]+=Math.cos(t*0.7+ph[i]*1.3)*0.003*fr;
       if(p.array[o+1]<-5.5) p.array[o+1]=5.5; }
     p.needsUpdate=true; }
   if(fx.sand){
@@ -2490,7 +2548,7 @@ function animate(){
     const gust=0.45+0.55*Math.max(0,Math.sin(t*0.33))+0.35*Math.max(0,Math.sin(t*1.9+1.1))*Math.max(0,Math.sin(t*0.33+0.4));
     const p=fx.sand.geometry.attributes.position, ph=fx.sand.userData.ph, sp=fx.sand.userData.sp;
     for(let i=0;i<p.count;i++){ const o=i*3;
-      p.array[o]+=(0.010+0.045*gust)*sp[i];
+      p.array[o]+=(0.010+0.045*gust)*sp[i]*fr;
       const x=p.array[o], z=p.array[o+2], gnd=-2.06+duneH(x,z);
       const hop=Math.abs(Math.sin(t*(3.5+sp[i]*2)+ph[i]))*(0.05+0.32*gust);      // 貼地跳躍
       p.array[o+1]=gnd+0.02+hop;
@@ -2498,13 +2556,13 @@ function animate(){
     p.needsUpdate=true;
     if(fx.dust){ const q=fx.dust.geometry.attributes.position, dph=fx.dust.userData.ph, dsp=fx.dust.userData.sp;
       for(let i=0;i<q.count;i++){ const o=i*3;
-        q.array[o]+=(0.006+0.030*gust)*dsp[i]+Math.sin(t*0.8+dph[i])*0.006;
-        q.array[o+1]+=0.010*gust*dsp[i]-0.004+Math.sin(t*1.3+dph[i]*2)*0.004;   // 陣風把它抬起來，平時慢慢落
-        q.array[o+2]+=Math.cos(t*0.6+dph[i])*0.005;
+        q.array[o]+=((0.006+0.030*gust)*dsp[i]+Math.sin(t*0.8+dph[i])*0.006)*fr;
+        q.array[o+1]+=(0.010*gust*dsp[i]-0.004+Math.sin(t*1.3+dph[i]*2)*0.004)*fr;   // 陣風把它抬起來，平時慢慢落
+        q.array[o+2]+=Math.cos(t*0.6+dph[i])*0.005*fr;
         if(q.array[o]>8.5||q.array[o+1]>2.6){ q.array[o]=-8.5; q.array[o+1]=-2.0+Math.random()*0.8; q.array[o+2]=(Math.random()-0.5)*12; }
         if(q.array[o+1]<-2.05) q.array[o+1]=-2.05; }
       q.needsUpdate=true; fx.dust.material.opacity=0.16+0.22*gust; }
-    if(fx.dune){ fx.dune.material.normalMap.offset.x-=0.00025*gust; }         // 風紋隨風慢慢遷移
+    if(fx.dune){ fx.dune.material.normalMap.offset.x-=0.00025*gust*fr; }         // 風紋隨風慢慢遷移
   }
   if(fx.bubble){ const p=fx.bubble.geometry.attributes.position;
     for(let i=1;i<p.array.length;i+=3){ p.array[i]+=0.018;
