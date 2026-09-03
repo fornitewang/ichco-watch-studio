@@ -527,7 +527,7 @@ const SERIES=[
  /* Santos：照 ICH.CO 實品固定規格（用戶 2026-09-03 拍板「固定照片那樣」），不吃錶殼／錶圈／錶面／指針／錶帶選項。
     ⚠️ base 是佔位價，蝦皮頁面擋外部抓取（403），等用戶給實價。 */
  {id:'NH35',code:'SAN',name:'Santos',mv:'Seiko NH35A 自動機械',fn:'三針 · 方殼八螺絲',size:40,wr:'50m',base:6880,sub:0,fixed:1,
-  spec:{metal:'316L 不鏽鋼 · 拉絲',bezel:'方形拉絲錶圈 · 八顆拋光螺絲',dial:'銀白乳光面 · 黑色羅馬字',hands:'藍鋼劍形針',band:'螺絲鏈節鋼帶 · 摺疊扣'}}];
+  spec:{metal:'316L 不鏽鋼',bezel:'方形拋光錶圈 · 八顆鍍鉻螺絲',dial:'銀白乳光面 · 黑色羅馬字',hands:'藍鋼劍形針',band:'鍍鉻拋光螺絲鏈帶 · 摺疊扣'}}];
 const METAL=[
  {code:'ST',name:'316L 不鏽鋼',add:0,  base:0xC9CFD4,rough:.24,acc:0xC9CFD4,accR:.14},
  {code:'TT',name:'金銀雙色',  add:800,base:0xC9CFD4,rough:.24,acc:0xD8AE3E,accR:.16,two:1},
@@ -1327,7 +1327,7 @@ function clearGroup(g){
 }
 
 /* ── Santos 系列：方殼八螺絲 ─────────────────────────────────
-   照 ICH.CO Santos 實品照片做：圓角方形錶殼（拉絲側面）、錶圈頂面拉絲＋拋光倒角＋八顆拋光一字螺絲、
+   照 ICH.CO Santos 實品照片做：圓角方形錶殼（拉絲側面）、錶圈整個拋光（頂面＋倒角，用戶確認）＋八顆鍍鉻一字螺絲、
    錶圈 12／6 點兩端往下彎接錶帶（Santos 的招牌「彎角」）、銀白乳光面盤＋黑色羅馬字（IIII）＋內圈鐵軌分刻、
    藍鋼劍形針、七角錶冠嵌藍色凸圓寶石、螺絲鏈節鋼帶（每排三片對齊不錯開、外側兩片各一顆螺絲）、摺疊扣。 */
 function roundedRectShape(w,h,r){
@@ -1377,7 +1377,7 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
   const bezG=extrudeUp(bzShape,0.13,0.030,3);
   { const p=bezG.attributes.position; for(let i=0;i<p.count;i++){ const z=p.getZ(i), k=Math.max(0,Math.abs(z)-0.84);
       p.setY(i,p.getY(i)-1.2*k*k-0.15*k); } p.needsUpdate=true; bezG.computeVertexNormals(); }
-  const bez=new T.Mesh(bezG,[brushM,polM]); bez.position.y=0.11; root.add(bez);
+  const bez=new T.Mesh(bezG,[polM,polM]); bez.position.y=0.11; root.add(bez);   // 用戶確認：錶圈頂面是拋光的
   // 八顆一字螺絲：每邊兩顆靠角落，拋光頭＋深色一字槽（槽向交錯 45°）
   const SCREW=[[-0.60,-0.94],[0.60,-0.94],[-0.60,0.94],[0.60,0.94],[-0.82,-0.52],[-0.82,0.52],[0.82,-0.52],[0.82,0.52]];
   SCREW.forEach(function(q,i){ const x=q[0], z=q[1], k=Math.max(0,Math.abs(z)-0.84), y=0.24-1.2*k*k-0.15*k;
