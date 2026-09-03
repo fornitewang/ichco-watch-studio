@@ -563,7 +563,7 @@ const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D9EDC0',glow:0x74E8A8}
 // k=剛性 d=能量保留 amp=擺幅 wave=波動沿鏈傳遞的程度（只有鋼帶有）
 const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,amp:1.00,wave:1.0},
              {code:'JUB',name:'五珠鋼帶',add:400, type:'metal',k:.13,d:.892,amp:1.10,wave:1.2},
-             {code:'RUB',name:'潛水橡膠',add:-300,type:'soft',col:0x15191B,rough:.72,k:.20,d:.902,amp:.78,wave:0},
+             {code:'RUB',name:'潛水橡膠',add:-300,type:'soft',col:0x15191B,rough:.72,k:.46,d:.68,amp:.16,wave:0},   // 橡膠密度低、又厚，更不會甩：擺幅最小、回正最快（用戶）
              {code:'LEA',name:'鱷魚紋真皮',add:-100,type:'soft',col:0x24150B,rough:.52,k:.42,d:.72,amp:.22,wave:0},   // 皮帶偏硬：擺幅小、回正快（用戶：皮帶不是軟的）
              {code:'NAT',name:'NATO 尼龍',add:-400,type:'soft',col:0x3A444F,rough:.86,k:.24,d:.840,amp:.62,wave:0}];
 /* 情境光線：天空／地平線／柔光箱強度／主光色溫／霧／特效 */
@@ -2649,12 +2649,13 @@ function animate(){
     parts.minG.rotation.y=-10*Math.PI/30;
     const seNow=SERIES[S.series];
     if(seNow.sub && parts.subHands && parts.subHands.length===3){
-      // 計時碼錶：中央大秒針＝計時秒針（按了才走），9 點小秒針走時間，3 點 30 分計時，6 點 12 小時計時
+      // 用戶要的是「按鈕控制三眼」：中央大秒針照常走時間；三個小盤全由計時鈕驅動——
+      // 3 點＝計時秒（一分一圈）、6 點＝30 分計時、9 點＝12 小時計時，沒按就停在 12 點
       const el=chronoElapsed();
-      parts.secG.rotation.y=-(el%60)/60*Math.PI*2;
-      parts.subHands[2].rotation.y=-(n.getSeconds()+n.getMilliseconds()/1000)*Math.PI/30;
-      parts.subHands[0].rotation.y=-((el/60)%30)/30*Math.PI*2;
-      parts.subHands[1].rotation.y=-((el/3600)%12)/12*Math.PI*2;
+      parts.secG.rotation.y=-(n.getSeconds()+n.getMilliseconds()/1000)*Math.PI/30;
+      parts.subHands[0].rotation.y=-(el%60)/60*Math.PI*2;
+      parts.subHands[1].rotation.y=-((el/60)%30)/30*Math.PI*2;
+      parts.subHands[2].rotation.y=-((el/3600)%12)/12*Math.PI*2;
     } else {
       parts.secG.rotation.y=-(n.getSeconds()+n.getMilliseconds()/1000)*Math.PI/30;
     }
@@ -2838,7 +2839,7 @@ const CH=[
                                                        // 所以正面對鏡頭是 +1.34、背面是 1.34-π≈-1.80。
                                                        // 錶帶會同步淡出，否則另一側會擋住背蓋。
  {rotY:-0.18, rotX: 0.80, dist:7.0, hot:[0,0.09,-0.58]},
- {rotY:-0.55, rotX: 0.20, dist:8.4}
+ {rotY:-0.60, rotX: 0.34, dist:10.0}   // 「換你了」：拉遠到整支錶（含整圈錶帶）都在畫面內，帶一點角度
 ];
 let tRotY=CH[0].rotY, tRotX=CH[0].rotX, tDist=CH[0].dist;
 let storyOn=true, curCh=-1, heroP=0;
