@@ -20,6 +20,7 @@ img{ max-width:100% }
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&family=Saira+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/RGBELoader.js"></script>
 
 <style>
 /* ═══ 設計語言：製錶筆記本 ═══════════════════════════════
@@ -560,6 +561,7 @@ const SCENES=[
  {code:'SUN',name:'正午陽光',sw:'#9CCBF2',sky:'#4E8FD6',hor:'#9FC4E2',box:'#FFF9EC',boxI:1.8,key:0xFFF6E2,keyI:3.6,fx:'none',  exp:0.95},
  {code:'GLD',name:'黃昏',    sw:'#F0A05A',sky:'#2A2038',hor:'#C97A38',box:'#FFCE8A',boxI:1.5,key:0xFFAE60,keyI:3.0,fx:'none',  exp:1.00},
  {code:'RAI',name:'雨天',    sw:'#5F6C74',sky:'#39434A',hor:'#525F68',box:'#D6E2E8',boxI:1.3,key:0xCBDCE6,keyI:2.2,fx:'rain',  exp:1.02},
+ {code:'SNW',name:'下雪',    sw:'#DDE6EE',sky:'#6F7C88',hor:'#B9C4CE',box:'#F4F8FC',boxI:1.4,key:0xDDE8F4,keyI:2.0,fx:'snow',  exp:1.03},
  {code:'SEA',name:'水下',    sw:'#0E6A78',sky:'#04222E',hor:'#0B5866',box:'#9CEFF2',boxI:1.5,key:0x8CE4EC,keyI:2.6,fx:'bubble',exp:1.05},
  {code:'SND',name:'沙漠',    sw:'#D8A96A',sky:'#8C7A5E',hor:'#C79E68',box:'#FFEBC8',boxI:1.7,key:0xFFD9A0,keyI:3.3,fx:'sand',  exp:1.00},
  {code:'NGT',name:'夜光',    sw:'#0A1014',sky:'#04070A',hor:'#010203',box:'#22333C',boxI:.16,key:0x2E4652,keyI:.28,fx:'lume',  exp:1.00}];
@@ -610,6 +612,11 @@ function buildUI(){
 
 /* ══ 3D ═══════════════════════════════════════════════════ */
 let renderer,scene,camera,root,pmrem,envRT,keyLight,rimLight,fillLight,backFill,fx={},clock;
+let hdrTex=null;   // 實拍攝影棚 HDRI（Poly Haven studio_small_09，CC0）；載入前先用手繪 cubemap 頂著
+// 每個情境把同一張 HDRI 染色＋調亮暗：[tint rgb, 強度]
+const ENV_TINT={STU:[[1,1,1],0.8], SUN:[[1.05,1.0,0.92],1.05], GLD:[[1.0,0.72,0.48],0.8],
+  RAI:[[0.78,0.84,0.92],0.55], SNW:[[0.88,0.93,1.0],0.80], SEA:[[0.35,0.78,0.85],0.6],
+  SND:[[1.0,0.86,0.64],1.1], NGT:[[0.25,0.35,0.45],0.06]};
 const T=THREE;
 const cv=$('gl');
 let ok=true;
@@ -926,7 +933,7 @@ function sweepStrap(curve, profile, N, halfW, thick, vRepeat, xOff, yOff){
   for(let i=0;i<=N;i++){
     const t=i/N;
     const p=curve.getPointAt(t), tan=curve.getTangentAt(t).normalize();
-    const yA=new T.Vector3().crossVectors(tan,Xw).normalize();
+    const yA=new T.Vector3().crossVectors(Xw,tan).normalize();   // 朝外（跟 frameAt 一致）
     const xA=new T.Vector3().crossVectors(yA,tan).normalize();
     const sc=halfW*(1-0.26*Math.sin(Math.PI*t));      // 往錶扣收窄
     for(let j=0;j<M;j++){
@@ -1148,9 +1155,80 @@ function envCube(sc){
 
 /* ── 幾何 ─────────────────────────────────────────────── */
 const R_CASE=1.0;
+/* ── 錶耳：一體式，從錶殼側面長出來、往尖端逐漸下彎（Submariner 造型）──────
+   🔴 一對錶耳必須平行夾出 1.00 unit(=20mm) 的槽，帶頭剛好塞滿；耳根埋在錶殼裡才沒有縫。
+   頂面拉絲、側面與底面拋光（同一個 mesh 用材質群組分），尖端在側視與俯視都收圓。
+   比例基準：錶殼外徑 2.0 unit = 40mm → 1 unit = 20mm。 */
+const LUG={rootZ:0.58, tipZ:1.12, bendZ:0.74, topY:0.075, drop:0.12, botY:-0.19, w0:0.25, w1:0.19,
+           selZ:1.17, selY:-0.137, softZ:1.03, softY:-0.12, slot:0.50};
+function lugTop(z){ const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.topY-LUG.drop*Math.pow(k,1.6); }
+function lugW(z){ const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.w0-(LUG.w0-LUG.w1)*k; }
+function buildLugs(polM, brushM, accM){
+  const ZS=[0.58,0.70,0.78,0.86,0.94,1.01,1.06,1.095,1.113,1.12], rt=0.05;
+  const vAt=ZS.map(function(z){ return (z-ZS[0])/(ZS[ZS.length-1]-ZS[0]); });
+  [-1,1].forEach(function(dir){
+    [-1,1].forEach(function(sg){
+      const rings=[], shade=[]; let tags=null;
+      ZS.forEach(function(z){
+        let yT=lugTop(z), yB=LUG.botY, w=lugW(z);
+        const d=LUG.tipZ-z;
+        if(d<rt){                                            // 尖端：側視、俯視都收圓
+          const k=Math.max(0.12,Math.sqrt(Math.max(0,1-Math.pow((rt-d)/rt,2))));
+          const mid=(yT+yB)/2; yT=mid+(yT-mid)*k; yB=mid+(yB-mid)*k; w=w*Math.max(k,0.25);
+        }
+        const x0=sg>0? LUG.slot : -(LUG.slot+w), x1=sg>0? LUG.slot+w : -LUG.slot;
+        const pr=rectProfile(x0,x1,yB,yT,0.022,4);
+        if(!tags) tags=pr.isTop.map(function(t,j){ return (t&&pr.isTop[(j+1)%pr.isTop.length])?1:0; });
+        rings.push(pr.pts.map(function(q){ return new T.Vector3(q[0],q[1],z); }));
+        shade.push(1);
+      });
+      const m=new T.Mesh(loftRings(rings,tags,shade,vAt),[polM,brushM]);
+      if(dir<0) m.rotation.y=Math.PI;                       // 12 點側：繞 Y 轉 180°（保持右手系，法線不翻）
+      root.add(m);
+    });
+    // 彈簧棒：金屬帶被帶頭蓋住看不到；軟帶才露出來
+    const bar=new T.Mesh(new T.CylinderGeometry(0.045,0.045,LUG.slot*2+0.30,16),accM);
+    bar.rotation.z=Math.PI/2; bar.position.set(0,LUG.softY,dir*LUG.softZ); root.add(bar);
+  });
+}
 function metalMat(col,rough,env){
-  return new T.MeshPhysicalMaterial({color:col,metalness:1,roughness:Math.max(.05,rough),
-    envMapIntensity:1.30,clearcoat:.35,clearcoatRoughness:.18,side:T.DoubleSide});
+  // 🔴 金屬不上 clearcoat：不鏽鋼表面沒有透明漆層，加了會變塑膠電鍍感
+  return new T.MeshPhysicalMaterial({color:col,metalness:1,roughness:Math.max(.04,rough),
+    envMapIntensity:1.0,clearcoat:0,side:T.DoubleSide});
+}
+// 拉絲（satin）：法線貼圖上沿 v（零件長度方向）的細直紋，粗糙度跟著紋路微變。
+// r134 沒有 anisotropy 參數，只能用細紋法線讓高光沿紋路拉長。紋路沿 v，所以所有
+// 拉絲零件的 UV 都要把「長度方向」放在 v（鏈節、帶頭、錶耳都是這樣鋪的）。
+function brushedMaps(){
+  if(parts.brushN) return parts.brushN;
+  // 1024px 上鋪 4000 條髮絲紋：真拉絲是極細、極密、深淺不一的直紋，粗了會像瓦楞紙
+  const SZ=1024, N=SZ*SZ, h=new Float32Array(N);
+  for(let k=0;k<4000;k++){
+    const x0=Math.random()*SZ, amp=(Math.random()-0.5)*(0.5+Math.random()), wd=0.35+Math.random()*0.9,
+          y0=Math.random()*SZ, len=SZ*(0.25+Math.random()*0.75), drift=(Math.random()-0.5)*1.2;
+    for(let yy=0;yy<len;yy++){
+      const y=((y0+yy)|0)%SZ, xi=Math.round(x0+drift*yy/SZ);
+      for(let dx=-1;dx<=1;dx++){ const xx=((xi+dx)%SZ+SZ)%SZ; h[y*SZ+xx]+=amp*Math.exp(-(dx*dx)/(wd*wd)); }
+    }
+  }
+  const c=ctx2d(SZ), g=c.getContext('2d'), id=g.createImageData(SZ,SZ), d=id.data;
+  const c2=ctx2d(SZ), g2=c2.getContext('2d'), id2=g2.createImageData(SZ,SZ), d2=id2.data;
+  for(let y=0;y<SZ;y++) for(let x=0;x<SZ;x++){
+    const i=y*SZ+x, o=i*4;
+    const nx=(h[y*SZ+((x+1)%SZ)]-h[y*SZ+((x-1+SZ)%SZ)])*-1.6;
+    const ny=(h[((y+1)%SZ)*SZ+x]-h[((y-1+SZ)%SZ)*SZ+x])*-1.6;
+    d[o]=(128+Math.max(-127,Math.min(127,nx*127)))|0; d[o+1]=(128+Math.max(-127,Math.min(127,ny*127)))|0;
+    d[o+2]=255; d[o+3]=255;
+    const r=(215+Math.max(-40,Math.min(40,h[i]*30)))|0; d2[o]=r; d2[o+1]=r; d2[o+2]=r; d2[o+3]=255;
+  }
+  g.putImageData(id,0,0); g2.putImageData(id2,0,0);
+  const tN=new T.CanvasTexture(c); tN.wrapS=tN.wrapT=T.RepeatWrapping; tN.anisotropy=16;
+  const tR=new T.CanvasTexture(c2); tR.wrapS=tR.wrapT=T.RepeatWrapping; tR.anisotropy=16;
+  parts.brushN={n:tN,r:tR}; return parts.brushN;
+}
+function brushMat(col,rough){
+  const m=metalMat(col,rough), b=brushedMaps();
+  m.normalMap=b.n; m.normalScale=new T.Vector2(0.32,0.32); m.roughnessMap=b.r; return m;
 }
 function latheProfile(pts,seg){
   return new T.LatheGeometry(pts.map(p=>new T.Vector2(p[0],p[1])),seg);
@@ -1174,8 +1252,13 @@ function handShape(kind,len,w,isHour){
 }
 
 let parts={};
-function clearGroup(g){ while(g.children.length){ const c=g.children.pop();
-  c.geometry&&c.geometry.dispose(); c.material&&(Array.isArray(c.material)?c.material.forEach(m=>m.dispose()):c.material.dispose()); } }
+// 🔴 要遞迴：鏈節掛在 parts.loop 這個 Group 底下，只 pop 第一層等於整條錶帶每次重建都洩漏
+function clearGroup(g){
+  g.traverse(function(o){ if(o===g) return;
+    if(o.geometry) o.geometry.dispose();
+    if(o.material) (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){ m.dispose(); }); });
+  while(g.children.length) g.children.pop();
+}
 
 function buildWatch(){
   const se=SERIES[S.series], mt=METAL[S.metal], bz=BEZEL[S.bezel],
@@ -1184,8 +1267,8 @@ function buildWatch(){
   clearGroup(root);
   const baseM=metalMat(mt.base,mt.rough), accM=metalMat(mt.acc,mt.accR);
   const polM=metalMat(mt.base,Math.max(.045,mt.rough*0.22));   // 鏡面拋光（倒角、側邊）
-  const brushM=metalMat(mt.base,Math.min(.55,mt.rough+0.16));  // 拉絲（鏈節頂面）
-  const accBrush=metalMat(mt.acc,Math.min(.55,mt.accR+0.16));
+  const brushM=brushMat(mt.base,Math.min(.55,mt.rough+0.14));  // 拉絲（鏈節／錶耳頂面）
+  const accBrush=brushMat(mt.acc,Math.min(.55,mt.accR+0.14));
   const wet = scn.fx==='rain'||scn.fx==='bubble';
   if(wet){ [baseM,accM,polM,brushM,accBrush].forEach(m=>{m.roughness*=.45; m.clearcoat=1;}); }
   if(scn.fx==='sand'){ baseM.roughness=Math.min(.8,baseM.roughness*1.9); }
@@ -1195,7 +1278,7 @@ function buildWatch(){
   //    錶圈內緣跟錶鏡之間看起來像一刀切下去的平台。改成連續弧線落到錶鏡起點附近，
   //    肉眼才看得出弧度，不是直角。
   const caseGeo=latheProfile([
-    [0,-0.20],[0.55,-0.21],[0.80,-0.19],[0.93,-0.10],[0.985,0.02],
+    [0,-0.20],[0.55,-0.21],[0.85,-0.205],[0.94,-0.185],[0.975,-0.12],[0.985,0.02],
     [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]],128);
   root.add(new T.Mesh(caseGeo,baseM));
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
@@ -1220,7 +1303,7 @@ function buildWatch(){
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
     new T.MeshPhysicalMaterial({map:bezelTexture(bz,lm,!!se.sub),transparent:true,
       metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
-      color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.04,envMapIntensity:1.2}));
+      color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
   // 內圈
   // 內圈 rehaut：實拍是深色細直紋（像齒梳），不是一圈亮鋼
@@ -1250,7 +1333,7 @@ function buildWatch(){
     root.add(skb.group); parts.skelBack=skb; }
   const dial=new T.Mesh(new T.CircleGeometry(0.745,128),
     new T.MeshPhysicalMaterial({map:dialTexture(dl,se),metalness:.05,
-      roughness:.36,envMapIntensity:1.7,clearcoat:.45,clearcoatRoughness:.16,
+      roughness:.30,envMapIntensity:0.6,clearcoat:.6,clearcoatRoughness:.12,
       side:T.DoubleSide}));
   dial.rotation.x=-Math.PI/2; dial.position.y=0.055; root.add(dial);
 
@@ -1285,47 +1368,7 @@ function buildWatch(){
     const cap=new T.Mesh(rbox(w,0.016,h,0.022),lumeM);
     cap.position.set(px,0.088,pz); cap.rotation.y=-ang; root.add(cap);
   }
-  // 錶耳（lug）：實拍是「又寬又短、從錶殼順下來」的一體造型，不是細長的分離小塊。
-  // 做法跟鏈節同一套：下半拋光側面、上半略窄拉絲頂面，交界形成倒角。
-  // 🔴 一對錶耳必須「平行」夾出一道槽，錶帶穿進去、扣在彈簧棒上。
-  //    先前寫成 rotation.y = base ± 0.515，兩支是往外呈 V 字張開的，
-  //    而且淨槽寬只有 0.72 unit(≈14mm)、錶帶卻是 1.00 unit(≈20mm)，
-  //    塞不進去只好從外面繞 —— 看起來就像錶帶墊在錶殼底下。
-  //    比例基準：錶殼外徑 2.0 unit = 40mm，所以 1 unit = 20mm。
-  const LUG_W=0.235;                 // 單支錶耳厚 ≈4.7mm
-  const BAND_HW=0.50;                // 錶帶半寬（跟軟錶帶 sweepStrap 的 0.50 一致）
-  const LUG_X=BAND_HW+LUG_W/2;       // 耳心 ±0.6175 → 淨槽剛好 1.00 unit = 20mm
-  // 錶殼在 y=-0.04 的實測半徑是 0.958。耳根要**埋進去**才不會有縫：
-  // √(0.6175²+0.655²)=0.90，比錶殼內縮 0.06。
-  const LUG_Z=0.655;
-  const LUG_D=0.520;                 // 尖端伸出錶殼外緣約 3.7mm（耳距 ≈45.7mm）
-  const LUG_DROOP=0.30;              // 下垂角。0.46 太陡，錶耳會變成兩根伸出去的桿子
-  const TC=Math.cos(LUG_DROOP), TS=Math.sin(LUG_DROOP);
-  const TIP_Y=-0.040+(-0.150*0.05*TC-LUG_D*0.62*TS);   // 錶耳尖端（彈簧棒位置）
-  const TIP_Z=LUG_Z +(-0.150*0.05*TS+LUG_D*0.62*TC);
-  [-1,1].forEach(function(dir){
-    const base=(dir<0?Math.PI:0);
-    [-1,1].forEach(function(sg){
-      const g=new T.Group();
-      g.position.set(sg*LUG_X,-0.040,dir*LUG_Z);
-      g.rotation.y=base;                              // 平行，不再張開
-      const inner=new T.Group(); inner.rotation.x=LUG_DROOP; g.add(inner);  // 往外下方彎
-      const W=LUG_W, H=0.150, D=LUG_D;
-      const lo=new T.Mesh(rbox(W,H*0.52,D,0.045),polM);
-      lo.position.set(0,-H*0.24,D*0.34); inner.add(lo);
-      const up=new T.Mesh(rbox(W*0.84,H*0.52,D*0.96,0.048),brushM);
-      up.position.set(0,H*0.24,D*0.34); inner.add(up);
-      // 錶耳尖端收窄
-      const tip=new T.Mesh(rbox(W*0.72,H*0.62,D*0.30,0.040),polM);
-      tip.position.set(0,-H*0.05,D*0.62); inner.add(tip);
-      root.add(g);
-    });
-    // 彈簧棒：橫跨兩支錶耳尖端，錶帶就是扣在這根上（Ø1.8mm ≈ 0.09 unit）
-    const bar=new T.Mesh(new T.CylinderGeometry(0.045,0.045,LUG_X*2+LUG_W*0.6,16),accM);
-    bar.rotation.z=Math.PI/2;
-    bar.position.set(0,TIP_Y,dir*TIP_Z);
-    root.add(bar);
-  });
+  buildLugs(polM, brushM, accM);
 
   // 把冠（車削本體＋滾花＋端面）與護橋
   root.add(buildCrown3D(accM, polM));
@@ -1377,14 +1420,17 @@ function buildWatch(){
   pin.position.y=0.15; root.add(pin);
 
   // 藍寶石鏡面
-  const crystalM=new T.MeshPhysicalMaterial({color:0xffffff,metalness:0,roughness:0.02,
-    transparent:true,opacity:0.11,clearcoat:1,clearcoatRoughness:0,
-    envMapIntensity:2.8,side:T.FrontSide,depthWrite:false});
+  // 🔴 玻璃的 color 必須是黑：白色會讓「漫反射×opacity」變成一層灰霧蓋在錶盤上（黑錶盤變灰）。
+  //    黑色只留鏡面反射（F0=4%，掠射角自動變強），反射量再用 envMapIntensity 補回 opacity 的折損：
+  //    有效反射 ≈ 0.04 × 4.0 × 0.12 ≈ 2%，跟真藍寶石鍍膜差不多；轉動時棚燈會在拱面上掃過去。
+  const crystalM=new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:0.02,
+    transparent:true,opacity:0.12,clearcoat:0,
+    envMapIntensity:4.0,side:T.FrontSide,depthWrite:false});
   if(wet){ // 鏡面上的水：會滑下來並拖出水痕
     parts.dropSim=parts.dropSim||makeDropSim();
     crystalM.normalMap=parts.dropSim.tex;
     crystalM.normalScale=new T.Vector2(1.45,1.45);
-    crystalM.opacity=0.30; crystalM.roughness=0.03; crystalM.envMapIntensity=3.4;
+    crystalM.opacity=0.18; crystalM.roughness=0.03; crystalM.envMapIntensity=5.0;
   }
   // 藍寶石鏡面是「拱形」的：球缺剖面，中央比邊緣高，雨水才會順著弧面滑下去
   const CR=0.775, CH=0.105, CY0=0.196;
@@ -1445,8 +1491,8 @@ function buildWatch(){
   rotorArm.position.set(0,0.006,0); rotorPivot.add(rotorArm);
   parts.rotor=rotorPivot;
   const backGlass=new T.Mesh(new T.CylinderGeometry(0.53,0.53,0.030,64),
-    new T.MeshPhysicalMaterial({color:0xffffff,metalness:0,roughness:.02,transparent:true,
-      opacity:.09,clearcoat:1,clearcoatRoughness:.03,envMapIntensity:1.5,
+    new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:.02,transparent:true,
+      opacity:.10,clearcoat:0,envMapIntensity:4.0,
       side:T.FrontSide,depthWrite:false}));
   backGlass.position.y=-0.252; backGlass.renderOrder=11; root.add(backGlass);
 
@@ -1538,167 +1584,107 @@ function buildCrown3D(accM, polM){
   return g;
 }
 
-// 金屬錶帶「一欄」的其中一層（lo 側邊拋光帶／up 頂面拉絲帶）：
-// 連續一片幾何、零接縫，但每一節維持「真的平」，不是整條平滑彎曲的圓管。
-// 🔴🔴 第一版每一環都重新取樣 curve 的切線方向，等於整條錶帶是一根平滑彎曲的圓管，
-//    鏡面反射從頭到尾連續彎曲，完全沒有真正「平」的一段 —— 這才是「看起來不像鏈節」
-//    的真正原因，不是溝深溝寬沒調好。真鏈條之所以有一片一片的平面反光，是因為每節
-//    本身是剛體不會彎，彎折只發生在節與節的交界。改成每一節用「自己中點的那個朝向」
-//    固定住（不逐環重取樣朝向），節內只用位移量做兩端內縮的膠囊形，節本身完全不彎，
-//    交界處兩節框架角度自然有一點點差異，反而更像真的鉸鏈節點。
-/* ── 鏈節 ─────────────────────────────────────────────────
-   🔴 連續掃描（舊 sweepBandTier）做出來的是「三條從頭到尾的鋼帶」，不是鏈：
-      每一欄是一整條實體，分節只靠一道很淺的厚度凹痕暗示，寬度不變、沒有真接縫。
-      用戶 2026-09-01 一眼看出「一直設定成三條鋼帶型」——就是這件事。
-   改法＝每一節都是**獨立的封閉實體**：
-      ・端部收薄（endScaleY）+ 相鄰節重疊（overlap>1）→ 沒有黑縫，但節界有真的陰影
-      ・Jubilee 中間三顆用半圓斷面（dome），外側兩節用倒角方斷面
-      ・平節輸出 non-indexed 讓法線自然變 flat（稜線才利）；圓珠保持 indexed 平滑
-*/
-function linkProfile(hw,hh,ch,dome){
-  const p=[];
-  if(dome){                                        // 半圓珠：平底＋橢圓頂
-    p.push([-hw,-hh],[hw,-hh]);
-    const K=12;
-    for(let k=1;k<K;k++){ const a=k/K*Math.PI; p.push([hw*Math.cos(a), -hh+2.05*hh*Math.sin(a)]); }
-  }else{                                           // 平節：倒角方斷面
-    const c=Math.min(ch,hw*0.45,hh*0.45);
-    p.push([-hw,-hh+c],[-hw+c,-hh],[hw-c,-hh],[hw,-hh+c],
-           [hw,hh-c],[hw-c,hh],[-hw+c,hh],[-hw,hh-c]);
-  }
-  return p;                                        // 封閉輪廓，逆時針（從 +tan 看）
+/* ── 鏈節幾何 ──────────────────────────────────────────────
+   🔴 淺凹槽在全金屬表面上是隱形的：實測整條錶帶頂面像素一路飽和，凹槽再深、反射出來還是
+      同一個亮度（沒有 AO、環境光又均勻）。所以節與節的分界靠兩招：
+      ①每節端部是真的圓角（法線一轉，反射到的環境就不同）②端環頂點色壓暗（當接縫的假 AO）。
+   🔴 寬度不能跟著捏：寬度一收縮，側緣就變成一圈一圈的波浪輪廓；參考實錶＝每節寬度固定，
+      只有整條往錶扣慢慢收窄。
+   🔴 每一節是剛體：只用自己中點的朝向，節內不彎；彎折只發生在節與節之間（鉸鏈）。
+   每節都是獨立封閉實體（放樣＋兩端封蓋），材質群組 0＝拋光、1＝拉絲（頂面）。 */
+const Xw=new T.Vector3(1,0,0);
+// 曲線上某點的局部座標：tan 沿帶、yA 朝外（離開手腕）、xA 橫向。(xA,yA,tan) 右手系。
+function frameAt(curve,u){
+  const p=curve.getPointAt(u), tan=curve.getTangentAt(u).normalize();
+  const yA=new T.Vector3().crossVectors(Xw,tan).normalize();
+  const xA=new T.Vector3().crossVectors(yA,tan).normalize();
+  return {p:p,tan:tan,xA:xA,yA:yA};
 }
-function buildLinkColumn(curve,N,cx0,bw0,y0,halfH,ch,segL,opt){
-  opt=opt||{};
-  const dome=!!opt.dome, OV=opt.overlap||1.08;
-  const K=opt.rings||7;                            // 沿長度取幾環
-  const CR=(opt.crown==null?0.45:opt.crown);        // 每一節頂面往兩端降多少（縱向拱起）
-  const EX=opt.endScaleX||0.96;
-  const skip=opt.skip||function(){return false;};
-  // 🔴 只在兩端「切一刀」是沒用的：金屬頂面反射的是一整片均勻環境光，淺凹槽照樣是同一個亮度
-  //    （實測整條錶帶頂面像素值一路 228 飽和，凹槽完全被吃掉）。
-  //    要讓每一節讀得出來，頂面必須**沿長度連續拱起**——每節有自己的高光帶、節界自然變暗。
-  const RZ=[],SY=[],SX=[];
-  for(let k=0;k<K;k++){
-    const t=k/(K-1);
-    RZ.push(t-0.5);
-    SY.push(1-CR*(1-Math.pow(Math.sin(Math.PI*t),0.7)));
-    SX.push(1-(1-EX)*(1-Math.sin(Math.PI*t)));
-  }
-  const Xw=new T.Vector3(1,0,0);
-  const pos=[],uv=[],idx=[]; let vbase=0;
-  for(let seg=0;seg<N;seg++){
-    if(skip(seg)) continue;
-    const tMid=(seg+0.5)/N;
-    const pMid=curve.getPointAt(tMid), tan=curve.getTangentAt(tMid).normalize();
-    const yA=new T.Vector3().crossVectors(tan,Xw).normalize();
-    const xA=new T.Vector3().crossVectors(yA,tan).normalize();
-    const taper=(1-0.26*Math.sin(Math.PI*tMid));   // 往錶扣收窄，跟舊版同公式
-    const cx=cx0*taper, hw=(bw0/2)*taper, L=segL*OV;
-    const put=function(px,py,pz){
-      return new T.Vector3().addScaledVector(xA,cx+px).addScaledVector(yA,y0+py)
-                            .addScaledVector(tan,pz).add(pMid);
-    };
-    const rings=[];
-    for(let r=0;r<K;r++){
-      // 只壓頂面、不動底面：底面保持滿高度貼合（不會透出黑縫），頂面沿長度拱起。
-      const prof=linkProfile(hw*SX[r], halfH, ch, dome), z=RZ[r]*L, ring=[];
-      for(let j=0;j<prof.length;j++){
-        const px=prof[j][0], py=prof[j][1]>0 ? prof[j][1]*SY[r] : prof[j][1];
-        ring.push(put(px,py,z));
-      }
-      rings.push(ring);
-    }
-    const M=rings[0].length;
-    for(let r=0;r<K;r++) for(let j=0;j<M;j++){
-      const v=rings[r][j]; pos.push(v.x,v.y,v.z); uv.push(j/M, seg+RZ[r]+0.5);
-    }
-    const ci0=vbase+K*M, ci1=ci0+1;
-    const c0=put(0,0,RZ[0]*L), c1=put(0,0,RZ[K-1]*L);
-    pos.push(c0.x,c0.y,c0.z); uv.push(0.5,seg);
-    pos.push(c1.x,c1.y,c1.z); uv.push(0.5,seg+1);
-    // 側面：法線要朝外 → (a,b,c)/(b,d,c)，寫成 (a,c,b) 會整條翻黑
-    for(let r=0;r<K-1;r++) for(let j=0;j<M;j++){
-      const jn=(j+1)%M;
-      const a=vbase+r*M+j, b=vbase+r*M+jn, c=vbase+(r+1)*M+j, d=vbase+(r+1)*M+jn;
-      idx.push(a,b,c, b,d,c);
-    }
-    for(let j=0;j<M;j++){ const jn=(j+1)%M;        // 兩端封蓋，法線各朝 ∓tan
-      idx.push(ci0, vbase+jn, vbase+j);
-      idx.push(ci1, vbase+(K-1)*M+j, vbase+(K-1)*M+jn);
-    }
-    vbase+=K*M+2;
-  }
+// 圓角矩形斷面（逆時針，從 +tan 看）；頂面微拱 crown；isTop 標出頂面的點
+function rrProfile(hw,hh,rc,crown,nArc){
+  const pts=[], isTop=[];
+  const arc=function(cx,cy,a0,a1,top){ for(let i=0;i<=nArc;i++){ const a=a0+(a1-a0)*i/nArc;
+    pts.push([cx+rc*Math.cos(a), cy+rc*Math.sin(a)]); isTop.push(top(i)); } };
+  arc(-hw+rc,-hh+rc, Math.PI, Math.PI*1.5, function(){return false;});
+  arc( hw-rc,-hh+rc, Math.PI*1.5, Math.PI*2, function(){return false;});
+  arc( hw-rc, hh-rc, 0, Math.PI*0.5, function(i){return i===nArc;});
+  const NT=6; for(let i=1;i<NT;i++){ const x=(hw-rc)-2*(hw-rc)*i/NT;
+    pts.push([x, hh+crown*(1-Math.pow(x/hw,2))]); isTop.push(true); }
+  arc(-hw+rc, hh-rc, Math.PI*0.5, Math.PI, function(i){return i===0;});
+  return {pts:pts, isTop:isTop};
+}
+function rectProfile(x0,x1,y0,y1,rc,nArc){
+  const hw=(x1-x0)/2, hh=(y1-y0)/2, cx=(x0+x1)/2, cy=(y0+y1)/2;
+  const pr=rrProfile(hw,hh,Math.min(rc,hw*0.45,hh*0.45),0,nArc);
+  pr.pts.forEach(function(q){ q[0]+=cx; q[1]+=cy; }); return pr;
+}
+// 半圓珠斷面（五珠帶中間三顆）：平底、橢圓頂
+function domeProfile(hw,hh,nArc){
+  const pts=[], isTop=[], rc=Math.min(hh*0.35,hw*0.3);
+  for(let i=0;i<=nArc;i++){ const a=Math.PI+Math.PI*0.5*i/nArc;
+    pts.push([-hw+rc+rc*Math.cos(a), -hh+rc+rc*Math.sin(a)]); isTop.push(false); }
+  for(let i=0;i<=nArc;i++){ const a=Math.PI*1.5+Math.PI*0.5*i/nArc;
+    pts.push([hw-rc+rc*Math.cos(a), -hh+rc+rc*Math.sin(a)]); isTop.push(i===nArc); }
+  const NT=14; for(let i=1;i<NT;i++){ const a=Math.PI*i/NT;
+    pts.push([hw*Math.cos(a), -hh+rc+(2*hh-rc)*Math.sin(a)]); isTop.push(true); }
+  return {pts:pts, isTop:isTop};
+}
+// 通用放樣：rings＝每一環的 3D 點（同點數、逆時針），兩端封蓋。
+// tags[j]＝第 j 段（點 j→j+1）的材質群組；shade[r]＝每環頂點色；vAt[r]＝每環的 v。
+function loftRings(rings,tags,shade,vAt){
+  const K=rings.length, M=rings[0].length, pos=[], uv=[], col=[], tri=[[],[]];
+  for(let r=0;r<K;r++){ const s=shade?shade[r]:1, v=vAt?vAt[r]:r/(K-1);
+    for(let j=0;j<M;j++){ const p=rings[r][j]; pos.push(p.x,p.y,p.z); uv.push(j/M,v); col.push(s,s,s); } }
+  // 側面法線要朝外 → (a,b,c)/(b,d,c)，寫成 (a,c,b) 會整條翻黑
+  for(let r=0;r<K-1;r++) for(let j=0;j<M;j++){ const jn=(j+1)%M;
+    const a=r*M+j, b=r*M+jn, c=(r+1)*M+j, d=(r+1)*M+jn; tri[tags?tags[j]:0].push(a,b,c, b,d,c); }
+  const cap=function(ring,base,first){
+    const c=new T.Vector3(); ring.forEach(function(p){ c.add(p); }); c.multiplyScalar(1/M);
+    const ci=pos.length/3, s=shade?shade[first?0:K-1]:1;
+    pos.push(c.x,c.y,c.z); uv.push(0.5,first?0:1); col.push(s,s,s);
+    for(let j=0;j<M;j++){ const jn=(j+1)%M;               // 兩端封蓋，法線各朝 ∓tan
+      if(first) tri[0].push(ci,base+jn,base+j); else tri[0].push(ci,base+j,base+jn); }
+  };
+  cap(rings[0],0,true); cap(rings[K-1],(K-1)*M,false);
   const g=new T.BufferGeometry();
   g.setAttribute('position',new T.Float32BufferAttribute(pos,3));
   g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
-  g.setIndex(idx);
-  // 🔴 縱向拱起要靠平滑法線才會有「一節一條高光」；改成 non-indexed 會變成一格一格的刻面。
+  g.setAttribute('color',new T.Float32BufferAttribute(col,3));
+  g.setIndex(tri[0].concat(tri[1]));
+  g.addGroup(0,tri[0].length,0); g.addGroup(tri[0].length,tri[1].length,1);
   g.computeVertexNormals();
   return g;
+}
+// 一節鏈節（剛體）：fr 中心與朝向；L 長、cw 半寬、hh 半厚、cx 欄中心的橫向偏移
+function linkGeo(fr,L,cw,hh,cx,dome){
+  const rE=Math.min(0.014,L*0.3);            // 端部圓角：真錶的節端只是微圓（≈0.3mm），不是半圓
+  const prof=dome ? domeProfile(cw,hh,4) : rrProfile(cw,hh,Math.min(0.020,cw*0.4,hh*0.4),0.010,4);
+  const A=4, half=L/2, zs=[], sy=[], sh=[];
+  const end=function(i){ const a=(i/A)*Math.PI/2; sy.push(1-(rE/hh)*(1-Math.sin(a))); sh.push(0.72+0.28*Math.pow(i/A,1.6)); return a; };
+  for(let i=0;i<=A;i++){ const a=end(i); zs.push(-half+rE*(1-Math.cos(a))); }
+  for(let i=A;i>=0;i--){ const a=end(i); zs.push( half-rE*(1-Math.cos(a))); }
+  const rings=zs.map(function(z,r){ return prof.pts.map(function(q){
+    return new T.Vector3().copy(fr.p).addScaledVector(fr.xA,cx+q[0]).addScaledVector(fr.yA,q[1]*sy[r]).addScaledVector(fr.tan,z); }); });
+  const tags=prof.isTop.map(function(t,j){ return (t&&prof.isTop[(j+1)%prof.isTop.length])?1:0; });
+  return loftRings(rings,tags,sh,zs.map(function(z){ return (z+half)/L; }));
 }
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
-  parts.loopRows=[]; parts.loopSweeps=[]; parts.softStrap=null; parts.threads=null;
+  parts.loopRows=[]; parts.softStrap=null; parts.threads=null;
+  const metal = bd.type==='metal';
+  // 起點：金屬帶＝帶頭(SEL)外緣的第一個鉸鏈；軟帶＝彈簧棒
+  const Z0 = metal?LUG.selZ:LUG.softZ, Y0 = metal?LUG.selY:LUG.softY;
   const pts=[
-    // 起訖點＝彈簧棒的位置（錶耳尖端 y=-0.157 / z=±1.00），錶帶才是扣在棒上
-    new T.Vector3(0,-0.143,-0.961), new T.Vector3(0,-0.60,-1.44),
-    new T.Vector3(0,-1.34,-1.44), new T.Vector3(0,-1.90,-0.82),
-    new T.Vector3(0,-2.04, 0.00),
-    new T.Vector3(0,-1.90, 0.82), new T.Vector3(0,-1.34, 1.44),
-    new T.Vector3(0,-0.60, 1.44), new T.Vector3(0,-0.143, 0.961),
-  ].map(v=>v);
+    new T.Vector3(0,Y0,-Z0), new T.Vector3(0,-0.40,-1.54), new T.Vector3(0,-0.98,-1.64),
+    new T.Vector3(0,-1.56,-1.32), new T.Vector3(0,-1.98,-0.76), new T.Vector3(0,-2.08,0.00),
+    new T.Vector3(0,-1.98, 0.76), new T.Vector3(0,-1.56, 1.32), new T.Vector3(0,-0.98, 1.64),
+    new T.Vector3(0,-0.40, 1.54), new T.Vector3(0,Y0, Z0)];
   const curve=new T.CatmullRomCurve3(pts,false,'catmullrom',0.5);
   const LEN=curve.getLength();
-  const N = bd.type==='metal' ? 64 : 40;
-  const segL = LEN/N;
-
-  // 帶頭（end link）：實體是「一整片實心的弧形」夾在兩支錶耳中間，
-  // 不是十小片排成扇形。內緣照錶殼圓周挖弧，外緣接上第一節鏈節。
-  function endLinkGeo(rIn, rOut, span, th){
-    const sh=new T.Shape(), N=20;
-    for(let i=0;i<=N;i++){                       // 內緣：貼著錶殼的弧
-      const a=-span/2+span*i/N;
-      const x=Math.sin(a)*rIn, y=-Math.cos(a)*rIn;
-      if(i===0) sh.moveTo(x,y); else sh.lineTo(x,y);
-    }
-    for(let i=N;i>=0;i--){                        // 外緣：略帶弧的直邊，兩側收窄
-      const a=-span/2+span*i/N;
-      // 外緣接近平直（實體不是尖角），只用 cos 補償讓它成一條直線
-      const rr=rOut/Math.cos(a);
-      sh.lineTo(Math.sin(a)*rr, -Math.cos(a)*rr);
-    }
-    sh.closePath();
-    const g=new T.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,
-      bevelSize:th*0.20,bevelThickness:th*0.20,bevelSegments:1,curveSegments:2});
-    g.rotateX(-Math.PI/2); g.translate(0,th/2,0);
-    return g;
-  }
-  // 等寬帶頭：外緣一條直邊，內緣照錶殼圓弧凹進去，兩側平行。
-  // （舊版用張角畫，內窄外寬＝扇形，實體帶頭不是那樣。）
-  function endLinkGeo2(rIn, zOut, hw, th){
-    const sh=new T.Shape(), N=24;
-    for(let i=0;i<=N;i++){                       // 內緣：貼著錶殼的圓弧
-      const x=-hw+2*hw*i/N;
-      const z=Math.sqrt(Math.max(rIn*rIn-x*x,0.01));
-      if(i===0) sh.moveTo(x,-z); else sh.lineTo(x,-z);
-    }
-    sh.lineTo(hw,-zOut); sh.lineTo(-hw,-zOut);   // 外緣：直邊，兩側平行
-    sh.closePath();
-    const g=new T.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,
-      bevelSize:th*0.20,bevelThickness:th*0.20,bevelSegments:1,curveSegments:2});
-    g.rotateX(-Math.PI/2); g.translate(0,th/2,0);
-    return g;
-  }
-  [-1,1].forEach(function(dir){
-    // 帶頭要填滿兩支錶耳之間的槽（等寬 0.98 unit ≈ 20mm），
-    // 高度落在彈簧棒(y=-0.143)上，內緣照錶殼圓弧凹進去。
-    const lo=new T.Mesh(endLinkGeo2(0.90,1.02,0.490,0.058),polM);
-    lo.position.y=-0.177; lo.rotation.y=(dir<0?Math.PI:0); parts.loop.add(lo);
-    const up=new T.Mesh(endLinkGeo2(0.92,1.00,0.470,0.058),brushM);
-    up.position.y=-0.121; up.rotation.y=(dir<0?Math.PI:0); parts.loop.add(up);
-  });
+  const N = 40, segL = LEN/N;                  // 軟帶掃掠用的取樣數
+  const TH=function(u){ return 0.160-0.036*Math.sin(Math.PI*u); };   // 厚：帶頭 3.2mm → 錶扣 2.5mm
+  const HW=function(u){ return 0.500*(1-0.17*Math.sin(Math.PI*u)); }; // 半寬：20mm → 16.6mm
 
   let softM=null;
   const hexc=function(v){ return '#'+v.toString(16).padStart(6,'0'); };
@@ -1753,7 +1739,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     }
     // 扣具（皮＝針扣、橡膠／尼龍＝插扣）放在最底
     const bt=0.5, bp=curve.getPointAt(bt), btan=curve.getTangentAt(bt).normalize();
-    const byA=new T.Vector3().crossVectors(btan,new T.Vector3(1,0,0)).normalize();
+    const byA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),btan).normalize();
     const bxA=new T.Vector3().crossVectors(byA,btan).normalize();
     const bg=new T.Group(); bg.position.copy(bp);
     bg.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(bxA,byA,btan));
@@ -1770,7 +1756,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     for(let k=0;k<keepN;k++){
       const kt=0.5 + (0.055 + k*0.055);
       const kp=curve.getPointAt(kt), ktan=curve.getTangentAt(kt).normalize();
-      const kyA=new T.Vector3().crossVectors(ktan,new T.Vector3(1,0,0)).normalize();
+      const kyA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),ktan).normalize();
       const kxA=new T.Vector3().crossVectors(kyA,ktan).normalize();
       const kg=new T.Group(); kg.position.copy(kp);
       kg.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(kxA,kyA,ktan));
@@ -1784,7 +1770,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       for(let k=0;k<6;k++){
         const ht=0.5-(0.016+k*0.026);
         const hp=curve.getPointAt(ht), htan=curve.getTangentAt(ht).normalize();
-        const hyA=new T.Vector3().crossVectors(htan,new T.Vector3(1,0,0)).normalize();
+        const hyA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),htan).normalize();
         const h=new T.Mesh(new T.CylinderGeometry(0.030,0.030,TH*1.45,14),holeM);
         h.position.copy(hp).addScaledVector(hyA,0);
         h.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(
@@ -1795,102 +1781,124 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     return;
   }
 
-  for(let i=0;i<N;i++){
-    const t=(i+0.5)/N;
-    const p=curve.getPointAt(t), tan=curve.getTangentAt(t).normalize();
-    const g=new T.Group(); g.position.copy(p);
-    const zA=tan, xA=new T.Vector3(1,0,0);
-    const yA=new T.Vector3().crossVectors(zA,xA).normalize();
-    const xA2=new T.Vector3().crossVectors(yA,zA).normalize();
-    g.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(xA2,yA,zA));
-    // 往錶扣方向收窄，跟實體錶帶一樣
-    const hw = 0.50*(1-0.26*Math.sin(Math.PI*t));
-    // 🔴原本寫 |t-0.5| < 0.5/N，但 t=(i+0.5)/N 時兩邊剛好相等 → 條件永遠不成立，
-    //   等於錶扣從來沒被建出來。改成直接指定正中間那一節。
-    const nearClasp = (i === Math.round(N/2)-1);
+  /* ── 金屬帶：照勞力士的鏈節結構 ──────────────────────────────
+     OYS 蠔式（Submariner）：三排平節，中排較寬；頂面全拉絲、側緣拋光；中排跟外排錯開半個節距。
+     JUB 五珠：外側兩排寬平節（拉絲頂面）＋中間三顆半圓拋光珠，同樣錯開半個節距。
+     每節都是剛體、獨立實體；節距＝8mm(蠔式)／6.2mm(五珠)，跟實錶同比例。 */
+  const jub = bd.code==='JUB';
+  const P   = jub?0.31:0.40, GAP=0.007, CGAP=0.007;
+  const cols= jub ? [0.25,0.155,0.19,0.155,0.25] : [0.29,0.42,0.29];
+  const off = jub ? [0,0.5,0.5,0.5,0]           : [0,0.5,0];
+  const dm  = jub ? [0,1,1,1,0]                 : [0,0,0];
+  const ctr = jub ? [0,1,1,1,0]                 : [0,1,0];    // 雙色款鍍金的欄（Rolesor＝中排金）
+  const vc=function(m){ const c=m.clone(); c.vertexColors=true; c.side=T.FrontSide; return c; };  // 封閉實體只畫正面
+  const M_pol=vc(polM), M_br=vc(brushM), M_gpol=vc(accM), M_gbr=vc(accBrush);
+  const matFor=function(ci){ const gold=!!(mt.two&&ctr[ci]), dome=!!dm[ci];
+    if(gold) return [M_gpol, dome?M_gpol:M_gbr];
+    return [M_pol, dome?M_pol:M_br]; };
 
-    if(bd.type==='metal'){
-      if(nearClasp){    // 摺疊式錶扣：長蓋＋凸起拋光蓋緣＋兩道側牆＋前端翻蓋扣
-        const cl=new T.Mesh(new T.BoxGeometry(hw*2.06,0.056,segL*7.4),brushM);
-        cl.position.y=-0.006; g.add(cl);
-        const lid=new T.Mesh(new T.BoxGeometry(hw*1.74,0.026,segL*6.1),polM);
-        lid.position.y=0.038; g.add(lid);
-        [-1,1].forEach(function(sg){
-          const sr=new T.Mesh(new T.BoxGeometry(hw*0.14,0.046,segL*7.2),polM);
-          sr.position.set(sg*hw*0.96,0.008,0); g.add(sr);
-        });
-        // 翻蓋安全扣（實體 Oyster 有這一片，掀開才能鬆開）
-        const flip=new T.Mesh(new T.BoxGeometry(hw*1.32,0.024,segL*2.0),polM);
-        flip.position.set(0,0.052,-segL*2.4); g.add(flip);
-        const flipLip=new T.Mesh(new T.BoxGeometry(hw*1.32,0.030,segL*0.28),polM);
-        flipLip.position.set(0,0.044,-segL*3.35); g.add(flipLip);
-        // 摺疊臂：蓋子底下折回去的兩片（實體是 Z 字折疊）
-        [-1,1].forEach(function(sg){
-          const arm=new T.Mesh(new T.BoxGeometry(hw*1.70,0.030,segL*5.4),brushM);
-          arm.position.set(0,-0.050+sg*0.030,sg*segL*0.5); g.add(arm);
-        });
-        // 兩端鉸鏈銷
-        [-1,1].forEach(function(sg){
-          const hp=new T.Mesh(new T.CylinderGeometry(0.022,0.022,hw*2.0,12),polM);
-          hp.rotation.z=Math.PI/2; hp.position.set(0,-0.020,sg*segL*3.5); g.add(hp);
-        });
-      }
-      // 平鏈節不再逐節蓋章式建方塊——迴圈外一次性連續掃描整條，見下方。
-    }
-    parts.loop.add(g);
-    // 兩端固定在錶耳，中段最自由 → 擺動權重 sin(πt)
-    parts.loopRows.push({g:g, t:t, w:Math.sin(Math.PI*t), by:g.rotation.y});
+  // 帶頭 SEL：實心一整塊夾在兩支錶耳之間，內緣照錶殼圓弧、外緣是第一個鉸鏈；
+  // 頂面照欄寬分三段（跟鏈節對齊），整塊跟著錶耳一起往下彎（curved end link）。
+  { const TH0=TH(0), HW0=HW(0), dep=TH0-0.024;
+    [-1,1].forEach(function(dir){
+      let xb=-HW0;
+      cols.forEach(function(f,ci){
+        const xa=xb+CGAP/2, xc=xb+2*HW0*f-CGAP/2; xb+=2*HW0*f;
+        const sh=new T.Shape(), NS=16, Rc=0.96;             // 內緣略小於錶殼半徑：交界藏在殼裡，不留縫
+        for(let i=0;i<=NS;i++){ const xx=xa+(xc-xa)*i/NS, zz=Math.sqrt(Math.max(Rc*Rc-xx*xx,0.05));
+          if(i===0) sh.moveTo(xx,zz); else sh.lineTo(xx,zz); }
+        sh.lineTo(xc,LUG.selZ); sh.lineTo(xa,LUG.selZ); sh.closePath();
+        const g=new T.ExtrudeGeometry(sh,{depth:dep,bevelEnabled:true,bevelSize:0.012,
+          bevelThickness:0.012,bevelSegments:2,curveSegments:2});
+        g.rotateX(Math.PI/2);                                // 形狀 y → 世界 z；擠出方向 → 世界 −y
+        const pa=g.attributes.position;
+        for(let i=0;i<pa.count;i++){ const z=pa.getZ(i);
+          pa.setY(i, pa.getY(i)+dep/2+LUG.selY+lugTop(z)-lugTop(LUG.selZ)); }
+        pa.needsUpdate=true; g.computeVertexNormals();
+        const gold=!!(mt.two&&ctr[ci]);
+        const m=new T.Mesh(g, gold?[accM,accM]:[brushM,polM]);   // ExtrudeGeometry：群組 0＝上下蓋、1＝側牆
+        if(dir<0) m.rotation.y=Math.PI;
+        parts.loop.add(m);
+      });
+    });
   }
 
-  if(bd.type==='metal'){
-    // JUB＝Jubilee 五珠：外側兩節大、拉絲、方斷面；中間三顆小、拋光、**半圓珠**（竹節感）。
-    // OYS＝Oyster 蠔式：三節全平，中珠略寬；頂面拉絲、側邊倒角拋光（兩層疊出來）。
-    const jub  = bd.code==='JUB';
-    const cols = jub ? [1.50,0.82,0.92,0.82,1.50] : [1,1.35,1];
-    const dm   = jub ? [0,1,1,1,0]                : [0,0,0];
-    const sum  = cols.reduce((a,b)=>a+b,0);
-    const claspI = Math.round(N/2)-1;               // 錶扣佔中間那節
-    const skip = function(i){ return Math.abs(i-claspI)<=2; };   // 錶扣底下不長鏈節
-    let x=-0.50;                                    // 參考尺度＝ hw 在 t=0.5(無收窄)時的值
-    cols.forEach((f,ci)=>{
-      const w=1.0*f/sum, dome=!!dm[ci], cx0=x+w/2;
-      const gold=(mt.two&&dome);
-      // 🔴 端部收太薄＋重疊不夠＝節與節之間露出端面陰影，又變回「疊鐵板」。
-      //    要靠「重疊多、端部只微收」讓鄰居把凹口填掉，只留一道細分界線。
-      if(dome){                                     // 半圓拋光珠：一顆一顆獨立實體
-        const th=0.062, hh=th*0.42;
-        const geo=buildLinkColumn(curve,N,cx0,w*0.86,0.004,hh,segL*0.10,segL,
-          {dome:true,overlap:1.04,rings:11,crown:0.42,endScaleX:0.93,skip:skip});
-        const m=new T.Mesh(geo, gold?accM:polM);
-        parts.loop.add(m); parts.loopSweeps.push(m);
-      }else{                                        // 平節：下層拋光側邊＋上層拉絲頂面
-        const th=0.052, bw0=w*0.95;
-        // 🔴 淺 V 凹槽在拋光/拉絲金屬上「照樣反光」，肉眼還是一條連續鋼帶——這是實測結論。
-        //    真錶的分節之所以看得見，是**頂片本身就是分開的、中間看得到下沉的凹處**。
-        //    所以：下層 overlap>1 連成不透光的底，上層 overlap<1 留真實間隙露出底層陰影。
-        const loGeo=buildLinkColumn(curve,N,cx0,bw0,     -th*0.24,th*0.26,segL*0.11,segL,
-          {overlap:1.10,rings:5,crown:0.18,endScaleX:0.99,skip:skip});
-        const upGeo=buildLinkColumn(curve,N,cx0,bw0*0.86, th*0.24,th*0.26,segL*0.13,segL,
-          {overlap:1.02,rings:9,crown:0.55,endScaleX:0.94,skip:skip});
-        const loMesh=new T.Mesh(loGeo, gold?accM:polM), upMesh=new T.Mesh(upGeo, gold?accBrush:brushM);
-        parts.loop.add(loMesh); parts.loop.add(upMesh);
-        parts.loopSweeps.push(loMesh,upMesh);
+  // 鏈節：兩側各自從帶頭外緣（s=0）往下排到錶扣；中排先出一小段（半節距）再開始排，
+  // 這樣中排跟外排自然錯開半節——實錶的錯位就是這樣來的。
+  const Lc=1.80, sMax=LEN/2-Lc/2;
+  [0,1].forEach(function(side){
+    const toU=function(s){ return side===0 ? s/LEN : 1-s/LEN; };
+    let x=-1;
+    cols.forEach(function(f,ci){
+      const cxN=x+f; x+=2*f;                                 // 欄中心（半寬正規化成 1）
+      let sa=0, sb=off[ci]>0?off[ci]*P:P;
+      while(sa<sMax-0.05){
+        sb=Math.min(sb,sMax);
+        const L=(sb-sa)-GAP;
+        if(L>=0.10){
+          const u=toU((sa+sb)/2), fr=frameAt(curve,u), hw=HW(u), th=TH(u);
+          parts.loop.add(new T.Mesh(linkGeo(fr,L,hw*f-CGAP/2,th/2,cxN*hw,!!dm[ci]),matFor(ci)));
+        }
+        sa=sb; sb=sa+P;
       }
-      x+=w;
     });
+  });
+
+  // 摺疊扣（Oysterlock 造型）：整塊順著手腕弧度的長蓋（不是直板，直板會像一片木板伸出圈外），
+  // 頂面拉絲、側緣拋光；一端翻蓋安全扣＋小皇冠。用沿曲線放樣，v 用弧長，拉絲密度跟鏈節一致。
+  { const curvedBlock=function(u0,u1,K,hwF,hhF,rc,crown,yOff,mats){
+      const rings=[],shade=[],vAt=[]; let tags=null;
+      for(let k=0;k<=K;k++){
+        const u=u0+(u1-u0)*k/K, fr=frameAt(curve,u), pr=rrProfile(hwF(u),hhF(u),rc,crown,4);
+        if(!tags) tags=pr.isTop.map(function(t,j){ return (t&&pr.isTop[(j+1)%pr.isTop.length])?1:0; });
+        const e=Math.min(k,K-k), sy=e===0?0.62:(e===1?0.92:1);        // 頭尾兩環收薄＝端部倒角
+        rings.push(pr.pts.map(function(q){ return new T.Vector3().copy(fr.p)
+          .addScaledVector(fr.xA,q[0]).addScaledVector(fr.yA,q[1]*sy+yOff(u)); }));
+        shade.push(e===0?0.8:1); vAt.push((u-u0)*LEN);
+      }
+      return new T.Mesh(loftRings(rings,tags,shade,vAt),mats);
+    };
+    const u0=(LEN/2-Lc/2+GAP/2)/LEN, u1=(LEN/2+Lc/2-GAP/2)/LEN, dU=0.01/LEN;
+    parts.loop.add(curvedBlock(u0,u1,16,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},
+      0.020,0.010,function(){return 0;},[polM,brushM]));
+    // 翻蓋安全扣：貼在蓋子上的一片薄板（靠 12 點那一端）
+    const f0=u0+6*dU, f1=u0+66*dU;
+    parts.loop.add(curvedBlock(f0,f1,6,function(u){return HW(u)*0.80;},function(){return 0.015;},
+      0.012,0.004,function(u){return TH(u)/2+0.014;},[polM,brushM]));
+    const lipU=f1-4*dU, fr=frameAt(curve,lipU);
+    const lip=new T.Mesh(rbox(HW(lipU)*1.60,0.036,0.05,0.012),polM);
+    lip.position.copy(fr.p).addScaledVector(fr.yA,TH(lipU)/2+0.026);
+    lip.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); parts.loop.add(lip);
+    const cu=u0+34*dU, fc=frameAt(curve,cu);
+    const crown=new T.Mesh(new T.CylinderGeometry(0.040,0.040,0.010,16),polM);
+    crown.position.copy(fc.p).addScaledVector(fc.yA,TH(cu)/2+0.034);
+    crown.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fc.xA,fc.yA,fc.tan)); parts.loop.add(crown);
   }
 }
 
 /* ── 情境 ────────────────────────────────────────────── */
+// 把實拍 HDRI 依情境染色／調亮暗（r134 沒有 env tint，只能自己複製一份像素乘上去）
+function tintHDR(srcT,sc){
+  const im=srcT.image, w=im.width, h=im.height, d=im.data, n=w*h, ch=d.length/n;
+  const tt=(ENV_TINT[sc.code]||[[1,1,1],1]), tint=tt[0], k=tt[1];
+  const out=new Float32Array(d.length);
+  for(let i=0;i<n;i++){ const o=i*ch;
+    out[o]=d[o]*tint[0]*k; out[o+1]=d[o+1]*tint[1]*k; out[o+2]=d[o+2]*tint[2]*k; if(ch===4) out[o+3]=d[o+3]; }
+  const t=new T.DataTexture(out,w,h,srcT.format,T.FloatType);
+  t.mapping=T.EquirectangularReflectionMapping; t.encoding=T.LinearEncoding; t.flipY=srcT.flipY;
+  t.minFilter=T.LinearFilter; t.magFilter=T.LinearFilter; t.generateMipmaps=false; t.needsUpdate=true;
+  return t;
+}
 function applyEnvToAll(){
   root.traverse(o=>{ if(o.material&&'envMap' in o.material){ o.material.envMap=envRT; o.material.needsUpdate=true; } });
 }
 function applyScene(){
   const sc=SCENES[S.scene];
   if(envRT) envRT.dispose&&envRT.dispose();
-  const cube=envCube(sc);
-  const rt=pmrem.fromCubemap(cube);
-  envRT=rt.texture; scene.environment=envRT; cube.dispose();
+  let rt;
+  if(hdrTex){ const eq=tintHDR(hdrTex,sc); rt=pmrem.fromEquirectangular(eq); eq.dispose(); }
+  else { const cube=envCube(sc); rt=pmrem.fromCubemap(cube); cube.dispose(); }
+  envRT=rt.texture; scene.environment=envRT;
   // 🔴之前 fog 密度算成 sc.fog*22（0.13~1.1），等於把產品埋進色霧 → 整支錶變剪影。
   //   改成不打霧，情境改用「背景漸層＋環境貼圖＋光色＋粒子」表現。
   scene.fog=null;
@@ -1914,10 +1922,12 @@ function applyScene(){
     g.fillStyle=lg; g.fillRect(0,0,8,512);
     const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding;
     fx.bg=t; scene.background=t; }
-  keyLight.color.setHex(sc.key); keyLight.intensity=sc.keyI;
-  rimLight.color.setHex(sc.key); rimLight.intensity=sc.keyI*0.35;
-  fillLight.color.setHex(sc.key); fillLight.intensity=sc.keyI*0.30;
-  backFill.color.setHex(sc.key); backFill.intensity=sc.keyI*0.20;
+  // 有實拍 HDRI 之後，環境光已經扛掉大部分照明；直接光只留來打陰影跟一點點高光
+  const LK=hdrTex?0.55:1.0;
+  keyLight.color.setHex(sc.key); keyLight.intensity=sc.keyI*LK;
+  rimLight.color.setHex(sc.key); rimLight.intensity=sc.keyI*0.35*LK;
+  fillLight.color.setHex(sc.key); fillLight.intensity=sc.keyI*0.30*LK;
+  backFill.color.setHex(sc.key); backFill.intensity=sc.keyI*0.20*LK;
   renderer.toneMappingExposure=sc.exp;
   // 粒子
   if(fx.ground){ scene.remove(fx.ground); fx.ground.geometry.dispose(); fx.ground.material.map.dispose(); fx.ground.material.dispose(); }
@@ -1971,7 +1981,9 @@ function init(){
   camera=new T.PerspectiveCamera(27,1,0.1,80);
   camera.position.set(0,4.0,7.8); camera.lookAt(0,-0.72,0);
   root=new T.Group(); root.rotation.x=-0.13; root.rotation.y=-0.50; scene.add(root);
-  pmrem=new T.PMREMGenerator(renderer); pmrem.compileCubemapShader();
+  pmrem=new T.PMREMGenerator(renderer); pmrem.compileCubemapShader(); pmrem.compileEquirectangularShader();
+  if(T.RGBELoader){ new T.RGBELoader().setDataType(T.FloatType).load('assets/studio_small_09_1k.hdr',
+    function(tx){ hdrTex=tx; if(ok) applyScene(); }, undefined, function(){ hdrTex=null; }); }
   keyLight=new T.DirectionalLight(0xffffff,2.2); keyLight.position.set(-2.6,4.2,2.2);
   keyLight.castShadow=true;
   keyLight.shadow.mapSize.set(2048,2048);
