@@ -558,7 +558,7 @@ const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D9EDC0',glow:0x74E8A8}
 const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,amp:1.00,wave:1.0},
              {code:'JUB',name:'五珠鋼帶',add:400, type:'metal',k:.13,d:.892,amp:1.10,wave:1.2},
              {code:'RUB',name:'潛水橡膠',add:-300,type:'soft',col:0x15191B,rough:.72,k:.20,d:.902,amp:.78,wave:0},
-             {code:'LEA',name:'鱷魚紋真皮',add:-100,type:'soft',col:0x24150B,rough:.52,k:.28,d:.800,amp:.55,wave:0},
+             {code:'LEA',name:'鱷魚紋真皮',add:-100,type:'soft',col:0x24150B,rough:.52,k:.42,d:.72,amp:.22,wave:0},   // 皮帶偏硬：擺幅小、回正快（用戶：皮帶不是軟的）
              {code:'NAT',name:'NATO 尼龍',add:-400,type:'soft',col:0x3A444F,rough:.86,k:.24,d:.840,amp:.62,wave:0}];
 /* 情境光線：天空／地平線／柔光箱強度／主光色溫／霧／特效 */
 const SCENES=[
@@ -665,6 +665,84 @@ function gearGeo(rOut, teeth, th, rIn){
   g.rotateX(-Math.PI/2); g.translate(0,-th/2,0);
   return g;
 }
+// 阿基米德螺線管（發條、游絲）
+function spiralGeo(r0,r1,turns,tube,segs){
+  const pts=[], N=segs||160;
+  for(let i=0;i<=N;i++){ const t=i/N, a=t*turns*Math.PI*2, r=r0+(r1-r0)*t; pts.push(new T.Vector3(Math.cos(a)*r,0,Math.sin(a)*r)); }
+  return new T.TubeGeometry(new T.CatmullRomCurve3(pts),N,tube,6,false);
+}
+/* ── 鏤空機芯（正面）：照 ICH.co Skeleton（Seiko NH70）──────────────────────
+   真的穿透：前夾板、中夾板、背面機芯板三層都在同一組位置開孔，孔重疊的地方光線直接從錶鏡穿到透底背蓋。
+   開孔裡放輪系（發條盒＋真的發條圈、二番／三番／四番、擒縱輪＋擒縱叉）、擺輪＋會呼吸的游絲、
+   紅寶石軸承、拋光夾橋＋藍鋼螺絲。自動盤在背面，透過開孔看得到它甩＝自動上鍊的感覺。 */
+const SK_HOLES=[[0.02,0.40,0.175],[-0.30,-0.12,0.115],[0.28,-0.24,0.105],[0.36,0.16,0.08],
+                [-0.27,0.30,0.19],[0.06,-0.46,0.11],[-0.48,0.06,0.085],[0.48,-0.02,0.08],[-0.10,-0.31,0.07]];
+function skPlate(r,y,th,pk,hk,mat){
+  const sh=new T.Shape(); sh.absarc(0,0,r,0,Math.PI*2,false);
+  SK_HOLES.forEach(function(h){ const x=h[0]*pk, z=h[1]*pk, rr=h[2]*hk;
+    if(Math.hypot(x,z)+rr>r-0.012) return;                       // 孔不能切到板子外緣（擠出會壞）
+    const p=new T.Path(); p.absarc(x,z,rr,0,Math.PI*2,true); sh.holes.push(p); });
+  const g=new T.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelSize:0.005,bevelThickness:0.005,bevelSegments:1,curveSegments:28});
+  g.rotateX(-Math.PI/2); const m=new T.Mesh(g,mat); m.position.y=y; return m;
+}
+function buildSkeletonFront(){
+  const G=new T.Group(), s=1.02;
+  const plateM=brushMat(0xC6CACF,0.40);
+  const polE=metalMat(0xDADEE2,0.06);
+  const steel=new T.MeshPhysicalMaterial({color:0xB9BDC2,metalness:1,roughness:.30,envMapIntensity:1.2,side:T.DoubleSide});
+  const brass=new T.MeshPhysicalMaterial({color:0xC9A44E,metalness:1,roughness:.28,envMapIntensity:1.3,side:T.DoubleSide});
+  const dark =new T.MeshPhysicalMaterial({color:0x4A4E52,metalness:1,roughness:.45,envMapIntensity:.8,side:T.DoubleSide});
+  const blue =new T.MeshPhysicalMaterial({color:0x2A4FB8,metalness:1,roughness:.14,envMapIntensity:1.2});
+  const ruby =new T.MeshPhysicalMaterial({color:0x8A1024,metalness:0,roughness:.18,envMapIntensity:1.0,clearcoat:1,clearcoatRoughness:.1});
+  // 三層夾板：前板孔最大、中板孔略小（透光處＝孔重疊處，看得出層次）
+  G.add(skPlate(0.70, 0.012,0.026,1.0,1.00,plateM));
+  G.add(skPlate(0.72,-0.118,0.030,1.0,0.90,plateM));
+  const gears=[];
+  // [x, z, 外徑, 齒數, 每秒轉速(弧度), 材質, 高度]
+  const LAY=[[0.00,0.00,0.19,30, 0.0175,brass,0.050],   // 中心輪：一小時一圈
+             [-0.30,-0.12,0.155,24,-0.105,steel,0.046],  // 三番車
+             [0.28,-0.24,0.125,20, 0.1047,brass,0.050],  // 四番車：一分鐘一圈
+             [0.36,0.16,0.075,15,-0.85, steel,0.046],    // 擒縱輪
+             [0.02,0.40,0.205,34, 0.008, brass,0.044]];  // 發條盒齒
+  LAY.forEach(function(q){
+    const m=new T.Mesh(gearGeo(q[2]*s,q[3],0.018,q[2]*s*0.30),q[5]);
+    m.position.set(q[0]*s,q[6],q[1]*s); m.userData.spd=q[4]; G.add(m); gears.push(m);
+    const j=new T.Mesh(new T.CylinderGeometry(q[2]*s*0.13,q[2]*s*0.13,0.024,14),ruby);
+    j.position.set(q[0]*s,q[6]+0.016,q[1]*s); G.add(j);
+    const ch=new T.Mesh(new T.CylinderGeometry(q[2]*s*0.20,q[2]*s*0.20,0.010,18),brass);   // 金色寶石座
+    ch.position.set(q[0]*s,q[6]+0.010,q[1]*s); G.add(ch);
+  });
+  // 發條盒：開口盒身＋裡面一圈圈真的發條（跟盒子一起慢慢轉）
+  { const bx=0.02*s, bz=0.40*s;
+    const wall=new T.Mesh(new T.CylinderGeometry(0.185*s,0.185*s,0.040,48,1,true),brass); wall.position.set(bx,0.020,bz); G.add(wall);
+    const spring=new T.Mesh(spiralGeo(0.035*s,0.165*s,4.5,0.0045,220),dark); spring.position.set(bx,0.018,bz);
+    spring.userData.spd=0.008; G.add(spring); gears.push(spring);
+    const arbor=new T.Mesh(new T.CylinderGeometry(0.03*s,0.03*s,0.06,16),steel); arbor.position.set(bx,0.03,bz); G.add(arbor); }
+  // 擺輪：圓環＋橫樑＋會呼吸的游絲（3Hz）
+  let balance=null, hair=null;
+  { const bg=new T.Group(); bg.position.set(-0.27*s,0.040,0.30*s); G.add(bg);
+    const ring=new T.Mesh(new T.TorusGeometry(0.15*s,0.014*s,8,48),steel); ring.rotation.x=Math.PI/2; bg.add(ring);
+    [0,Math.PI/2].forEach(function(a){ const sp=new T.Mesh(new T.BoxGeometry(0.29*s,0.010,0.020*s),steel); sp.rotation.y=a; bg.add(sp); });
+    const hub=new T.Mesh(new T.CylinderGeometry(0.022*s,0.022*s,0.05,14),steel); bg.add(hub);
+    balance=bg;
+    hair=new T.Mesh(spiralGeo(0.022*s,0.115*s,6,0.0028,240),blue); hair.position.set(-0.27*s,0.062,0.30*s); G.add(hair);
+    const stud=new T.Mesh(new T.CylinderGeometry(0.010,0.010,0.03,10),steel); stud.position.set(-0.27*s+0.115*s,0.062,0.30*s); G.add(stud);
+    const bj=new T.Mesh(new T.CylinderGeometry(0.02,0.02,0.02,12),ruby); bj.position.set(-0.27*s,0.070,0.30*s); G.add(bj); }
+  // 擒縱叉：夾在擒縱輪與擺輪之間，跟著擺輪節拍左右撥
+  let pallet=null;
+  { const pg=new T.Group(); pg.position.set(0.06*s,0.046,0.19*s); pg.rotation.y=-0.55; G.add(pg);
+    const arm=new T.Mesh(new T.BoxGeometry(0.30*s,0.010,0.016),steel); pg.add(arm);
+    [-1,1].forEach(function(sg){ const p=new T.Mesh(new T.BoxGeometry(0.04,0.012,0.016),ruby); p.position.set(sg*0.14*s,0,sg*0.02); p.rotation.y=sg*0.6; pg.add(p); });
+    pallet=pg; }
+  // 夾橋：兩片拋光橋跨過輪系，藍鋼螺絲固定
+  [[0.16*s,0.052,-0.02*s,0.62*s,0.20*s,0.55],[-0.14*s,0.052,-0.36*s,0.46*s,0.16*s,-0.35]].forEach(function(b){
+    const br=new T.Mesh(rbox(b[3],0.022,b[4],0.06*s),polE); br.position.set(b[0],b[1],b[2]); br.rotation.y=b[5]; G.add(br);
+    [-1,1].forEach(function(sg){ const sc=new T.Mesh(new T.CylinderGeometry(0.018,0.018,0.012,14),blue);
+      sc.position.set(b[0]+Math.cos(b[5])*sg*b[3]*0.38, b[1]+0.014, b[2]-Math.sin(b[5])*sg*b[3]*0.38); G.add(sc);
+      const slot=new T.Mesh(new T.BoxGeometry(0.026,0.004,0.004),dark); slot.position.copy(sc.position); slot.position.y+=0.007; slot.rotation.y=sg*0.7; G.add(slot); });
+  });
+  return {group:G, gears:gears, balance:balance, hair:hair, pallet:pallet};
+}
 // 鏤空機芯：主夾板＋輪系＋擺輪＋紅寶石，全部是實體零件不是貼圖
 function buildSkeleton(y, scale, forBack){
   const G=new T.Group(); G.position.y=y;
@@ -753,20 +831,14 @@ function dialTexture(d,se){
       g.beginPath(); g.moveTo(0,y-26); g.lineTo(SZ,y); g.stroke();
     } g.restore();
   }
-  if(d.tex==='skeleton'){
-    g.fillStyle='#0A0805'; g.beginPath(); g.arc(R,R,R,0,7); g.fill();
-    [[R,R,R*0.62],[R,R,R*0.40],[R*0.62,R*0.60,R*0.22],[R*1.38,R*1.34,R*0.20]].forEach(([x,y,r])=>{
-      g.strokeStyle='rgba(201,162,39,.45)'; g.lineWidth=SZ*0.008;
-      g.beginPath(); g.arc(x,y,r,0,7); g.stroke();
-      g.strokeStyle='rgba(255,255,255,.10)'; g.lineWidth=SZ*0.003;
-      g.beginPath(); g.arc(x,y,r-SZ*0.008,0,7); g.stroke();
-    });
-    for(let a=0;a<360;a+=10){
-      g.save(); g.translate(R,R); g.rotate(a*Math.PI/180);
-      g.strokeStyle='rgba(180,154,94,.30)'; g.lineWidth=SZ*0.0055;
-      g.beginPath(); g.moveTo(0,-R*0.40); g.lineTo(0,-R*0.62); g.stroke(); g.restore();
-    }
-    g.fillStyle='rgba(201,162,39,.55)'; g.beginPath(); g.arc(R*0.62,R*0.60,SZ*0.026,0,7); g.fill();
+  if(d.tex==='skeleton'){                       // 只畫外圈刻度環：中央是真的鏤空機芯，不畫假齒輪
+    g.fillStyle='#14110C'; g.beginPath(); g.arc(R,R,R,0,7); g.fill();
+    const rg2=g.createRadialGradient(R,R,R*0.66,R,R,R); rg2.addColorStop(0,'#2A241B'); rg2.addColorStop(1,'#0E0C08');
+    g.fillStyle=rg2; g.beginPath(); g.arc(R,R,R,0,7); g.fill();
+    for(let a=0;a<360;a+=6){ const maj=a%30===0; g.save(); g.translate(R,R); g.rotate(a*Math.PI/180);
+      g.strokeStyle=maj?'rgba(236,228,205,.92)':'rgba(236,228,205,.55)'; g.lineWidth=maj?SZ*0.004:SZ*0.0022;
+      g.beginPath(); g.moveTo(0,-R*0.975); g.lineTo(0,-R*(maj?0.905:0.935)); g.stroke(); g.restore(); }
+    g.strokeStyle='rgba(236,228,205,.35)'; g.lineWidth=SZ*0.002; g.beginPath(); g.arc(R,R,R*0.70,0,7); g.stroke();
   }
   // 小錶盤
   if(se.sub){
@@ -1554,19 +1626,25 @@ function buildWatch(){
     rib.rotation.y=-a; root.add(rib);
   }
   // 錶盤
-  // 機芯座：把錶殼內部填實，任何角度都不會看穿（實體錶裡面本來就是滿的）
-  const guts=new T.Mesh(new T.CylinderGeometry(0.762,0.745,0.235,64),
-    new T.MeshStandardMaterial({color:0x1A1E20,roughness:.85,metalness:.2,side:T.DoubleSide}));
-  guts.position.y=-0.075; root.add(guts);
-  parts.skel=null; parts.skelBack=null;
-  if(dl.tex==='skeleton'){
-    const sk=buildSkeleton(0.070,1.02,false);
-    root.add(sk.group); parts.skel=sk;
+  const skel = dl.tex==='skeleton';
+  if(!skel){
+    // 機芯座：把錶殼內部填實，任何角度都不會看穿（實體錶裡面本來就是滿的）
+    const guts=new T.Mesh(new T.CylinderGeometry(0.762,0.745,0.235,64),
+      new T.MeshStandardMaterial({color:0x1A1E20,roughness:.85,metalness:.2,side:T.DoubleSide}));
+    guts.position.y=-0.075; root.add(guts);
+  } else {
+    // 鏤空：不填實，只留一圈內壁，機芯三層夾板都開孔 → 從錶鏡看得穿到透底背蓋
+    const wall=new T.Mesh(new T.CylinderGeometry(0.762,0.745,0.235,64,1,true),
+      new T.MeshStandardMaterial({color:0x2A2E31,roughness:.7,metalness:.6,side:T.BackSide}));
+    wall.position.y=-0.075; root.add(wall);
   }
+  parts.skel=null; parts.skelBack=null;
+  if(skel){ const sk=buildSkeletonFront(); root.add(sk.group); parts.skel=sk; }
   // 透底背蓋下方也有輪系（自動盤底下看得到）
   { const skb=buildSkeleton(-0.216,0.80,true);
     root.add(skb.group); parts.skelBack=skb; }
-  const dial=new T.Mesh(new T.CircleGeometry(0.745,128),
+  // 鏤空款的錶盤只剩外圈刻度環（chapter ring），中央整個打開
+  const dial=new T.Mesh(skel? new T.RingGeometry(0.50,0.745,128) : new T.CircleGeometry(0.745,128),
     new T.MeshPhysicalMaterial({map:dialTexture(dl,se),metalness:.05,
       roughness:.30,envMapIntensity:0.6,clearcoat:.6,clearcoatRoughness:.12,
       side:T.DoubleSide}));
@@ -1715,9 +1793,13 @@ function buildWatch(){
     metalMat(mt.base,Math.min(.55,mt.rough+.1)));
   backBezel.material.side=T.DoubleSide;
   backBezel.rotation.x=Math.PI/2; backBezel.position.y=-0.2376; root.add(backBezel);
-  const mvPlate=new T.Mesh(new T.CircleGeometry(0.515,72),
-    new T.MeshPhysicalMaterial({color:0x3E443F,metalness:1,roughness:.55,envMapIntensity:.75}));
-  mvPlate.rotation.x=Math.PI/2; mvPlate.position.y=-0.196; root.add(mvPlate);
+  if(dl.tex==='skeleton'){                        // 鏤空：背面機芯板也開孔，孔對齊正面 → 真的透光
+    const mp=skPlate(0.515,-0.216,0.020,1.0,0.70,brushMat(0xB9BDC2,0.42)); root.add(mp);
+  } else {
+    const mvPlate=new T.Mesh(new T.CircleGeometry(0.515,72),
+      new T.MeshPhysicalMaterial({color:0x3E443F,metalness:1,roughness:.55,envMapIntensity:.75}));
+    mvPlate.rotation.x=Math.PI/2; mvPlate.position.y=-0.196; root.add(mvPlate);
+  }
   // 玻璃到機芯板之間的內壁 —— 有這一圈才看得出「往裡面看」的深度
   const mvWall=new T.Mesh(new T.CylinderGeometry(0.517,0.517,0.041,48,1,true),
     new T.MeshPhysicalMaterial({color:0x2E332F,metalness:1,roughness:.62,
@@ -2441,8 +2523,10 @@ function animate(){
   // 輪系：每個齒輪照自己的轉速轉；擺輪 3Hz 左右擺（NH35 是 21600 bph）
   [parts.skel,parts.skelBack].forEach(function(sk){
     if(!sk) return;
-    sk.gears.forEach(function(m){ m.rotation.y += m.userData.spd*0.016; });
+    sk.gears.forEach(function(m){ m.rotation.y += m.userData.spd*0.016*fr; });
     if(sk.balance) sk.balance.rotation.y=Math.sin(t*Math.PI*2*3)*0.62;
+    if(sk.hair){ const k=1+0.07*Math.sin(t*Math.PI*2*3); sk.hair.scale.set(k,1,k); }      // 游絲跟著擺輪一收一放
+    if(sk.pallet) sk.pallet.rotation.y=-0.55+0.28*Math.sign(Math.sin(t*Math.PI*2*3));        // 擒縱叉左右撥（一格一格）
   });
   // 自動盤受重力：把世界的「下」轉進錶的區域座標，投影到底蓋平面 → 擺陀永遠朝下，
   // 再加彈簧阻尼，所以轉動手錶時它會甩過去、慢慢停住（實體自動上鍊就是這樣）。
