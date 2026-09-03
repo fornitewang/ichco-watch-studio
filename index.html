@@ -1623,9 +1623,11 @@ function buildWatch(){
   // 🔴 原本(0.985,0.115)→(0.90,0.13)→(0.78,0.13)是兩段近乎水平的直線，
   //    錶圈內緣跟錶鏡之間看起來像一刀切下去的平台。改成連續弧線落到錶鏡起點附近，
   //    肉眼才看得出弧度，不是直角。
-  const caseGeo=latheProfile([
-    [0,-0.20],[0.55,-0.21],[0.85,-0.205],[0.94,-0.185],[0.975,-0.12],[0.985,0.02],
-    [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]],128);
+  // 🔴 車削剖面從 r=0 起算＝錶殼有一片實心底板（y −0.20）。鏤空款要看得穿，底板必須拿掉（從 r 0.56 起算，底是開的），
+  //    否則從正面看開孔、從背面看透底，都只會看到這片灰色底板。
+  const caseGeo=latheProfile((dl.tex==='skeleton'?[[0.56,-0.21]]:[[0,-0.20],[0.55,-0.21]]).concat([
+    [0.85,-0.205],[0.94,-0.185],[0.975,-0.12],[0.985,0.02],
+    [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]]),128);
   root.add(new T.Mesh(caseGeo,baseM));
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
   const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
@@ -1680,7 +1682,7 @@ function buildWatch(){
   parts.skel=null; parts.skelBack=null;
   if(skel){ const sk=buildSkeletonFront(); root.add(sk.group); parts.skel=sk; }
   // 透底背蓋下方也有輪系（自動盤底下看得到）
-  { const skb=buildSkeleton(-0.216,0.80,true);
+  { const skb=buildSkeleton(dl.tex==='skeleton'?-0.166:-0.216,0.80,true);   // 鏤空：齒輪放在自動盤上面一層（玻璃→自動盤→齒輪→夾板）
     root.add(skb.group); parts.skelBack=skb; }
   // 鏤空款的錶盤只剩外圈刻度環（chapter ring），中央整個打開
   const dial=new T.Mesh(skel? new T.RingGeometry(0.50,0.745,128) : new T.CircleGeometry(0.745,128),
@@ -1828,7 +1830,7 @@ function buildWatch(){
     metalMat(mt.base,Math.min(.55,mt.rough+.1)));
   backRing.position.y=-0.215; backRing.material.flatShading=true; root.add(backRing);
   // 窗框：藍寶石窗(r0.53)到鋼圈外緣(r0.62)之間的那一圈鋼
-  const backBezel=new T.Mesh(new T.RingGeometry(0.528,0.622,64),
+  const backBezel=new T.Mesh(new T.RingGeometry(dl.tex==='skeleton'?0.598:0.528,0.622,64),   // 鏤空：背窗開到最大
     metalMat(mt.base,Math.min(.55,mt.rough+.1)));
   backBezel.material.side=T.DoubleSide;
   backBezel.rotation.x=Math.PI/2; backBezel.position.y=-0.2376; root.add(backBezel);
@@ -1860,7 +1862,7 @@ function buildWatch(){
   const rotorArm=new T.Mesh(new T.BoxGeometry(0.62,0.024,0.075),rotorM);
   rotorArm.position.set(0,0.006,0); rotorPivot.add(rotorArm);
   parts.rotor=rotorPivot;
-  const backGlass=new T.Mesh(new T.CylinderGeometry(0.53,0.53,0.030,64),
+  const backGlass=new T.Mesh(new T.CylinderGeometry(dl.tex==='skeleton'?0.60:0.53,dl.tex==='skeleton'?0.60:0.53,0.030,64),
     new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:.02,transparent:true,
       opacity:.10,clearcoat:0,envMapIntensity:4.0,
       side:T.FrontSide,depthWrite:false}));
@@ -2062,17 +2064,21 @@ function regroupByV(g,v0,v1,remap){
 // 皮帶調整孔的 alpha 遮罩（黑＝挖掉）。真的穿透：頂面、底面各挖一個孔，中間放一截深色管當孔壁。
 // 🔴 r134 所有貼圖共用「第一張 map」的 uv 變換：鱷魚皮面材質有 croc map（repeat 0.46,0.30），
 //    alphaMap 會被一起縮放，所以孔要畫在「貼圖格」座標；裡皮材質沒有 map，alphaMap 就用自己的 repeat。
-function holeAlphaTile(HT,LEN){
+// 🔴 UV 的 u 是「每段剖面各佔 1/13」線性分配，不是照弧長：孔在頂面中央那一段（(0.50,0.86)→(0,0.96)）
+//    的 u/單位長度 ＝ (1/13)/該段長度；底面那一段 ＝ (1/13)/(1.92·hw)。用平均值算會變橢圓（之前就是這樣）。
+const HOLE_R=0.044;
+function holeAlphaTile(HT,LEN,hwF,thF){
   const S=1024, c=ctx2d(S), g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,S,S); g.fillStyle='#000';
-  HT.forEach(function(ht){ const vt=(0.30*ht*LEN)%1, x=0.615*0.46*S, y=(1-vt)*S;   // 頂面中線 u=8/13
-    g.beginPath(); g.ellipse(x,y,0.054*0.72*0.46*S,0.054*0.30*S,0,0,7); g.fill(); });   // 挖孔比孔壁管大一圈，孔心完全通透
+  HT.forEach(function(ht){ const hw=hwF(ht), th=thF(ht), seg=Math.hypot(0.50*hw,0.10*th), uPer=(1/13)/seg;
+    const vt=(0.30*ht*LEN)%1, x=(8/13)*0.46*S, y=(1-vt)*S;                        // 頂面中線 u=8/13
+    g.beginPath(); g.ellipse(x,y,HOLE_R*uPer*0.46*S,HOLE_R*0.30*S,0,0,7); g.fill(); });
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; return t;
 }
-function holeAlphaRaw(HT,LEN){
+function holeAlphaRaw(HT,LEN,hwF){
   const W=512,H=2048, c=ctx2d(W); c.height=H; const g=c.getContext('2d');
   g.fillStyle='#fff'; g.fillRect(0,0,W,H); g.fillStyle='#000';
-  HT.forEach(function(ht){ const x=0.115*W, y=(1-ht)*H;                          // 底面中線 u=1.5/13
-    g.beginPath(); g.ellipse(x,y,0.054*0.31*W,0.054/LEN*H,0,0,7); g.fill(); });
+  HT.forEach(function(ht){ const hw=hwF(ht), uPer=(1/13)/(1.92*hw), x=(1.5/13)*W, y=(1-ht)*H;   // 底面中線 u=1.5/13
+    g.beginPath(); g.ellipse(x,y,HOLE_R*uPer*W,HOLE_R/LEN*H,0,0,7); g.fill(); });
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.repeat.set(1,1/LEN); return t;
 }
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
@@ -2168,9 +2174,9 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       // 帶尾（u 0.30～0.50）的皮面／裡皮換成有打孔的材質：孔是真的挖穿，看得到對面
       const HT=[]; for(let k=0;k<6;k++) HT.push(0.5-(0.016+k*0.026));
       regroupByV(g,0.30*LEN,0.50*LEN,{0:3,2:4});
-      const softHole=softM.clone(); softHole.alphaMap=holeAlphaTile(HT,LEN); softHole.alphaTest=0.5;
+      const softHole=softM.clone(); softHole.alphaMap=holeAlphaTile(HT,LEN,hwF,thF); softHole.alphaTest=0.5;
       const liningHole=new T.MeshPhysicalMaterial({color:0x2E1B10,roughness:.88,metalness:0,clearcoat:0,
-        envMapIntensity:.45,side:T.FrontSide,alphaMap:holeAlphaRaw(HT,LEN),alphaTest:0.5});
+        envMapIntensity:.45,side:T.FrontSide,alphaMap:holeAlphaRaw(HT,LEN,hwF),alphaTest:0.5});
       g.userData={base:Float32Array.from(g.attributes.position.array),N:K,M:PR.length};
       const strap=new T.Mesh(g,[softM,edgeM,liningM,softHole,liningHole]);
       parts.loop.add(strap); parts.softStrap=strap;
@@ -2252,14 +2258,14 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     if(bd.code!=='RUB'){
       // 第 0 孔正對針的位置，扣起來就是穿過那一孔
       const lea=bd.code==='LEA';
-      const holeM=lea? new T.MeshStandardMaterial({color:0x6E4B33,roughness:.9,side:T.BackSide})      // 孔壁：只畫內面，皮的切面色
+      const holeM=lea? new T.MeshStandardMaterial({color:0x8C6B4E,roughness:.92,side:T.BackSide})      // 孔壁：只畫內面，皮切面的淺棕（深色會像很深的洞）
                      : new T.MeshStandardMaterial({color:0x0B0C0D,roughness:.95,side:T.DoubleSide});
       for(let k=0;k<6;k++){
         const ht=0.5-(0.016+k*0.026);
         const hp=curve.getPointAt(ht), htan=curve.getTangentAt(ht).normalize();
         const hyA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),htan).normalize();
         const thL=0.140*(1-0.40*Math.sin(Math.PI*ht));                       // 跟 thF 同公式：這裡的皮厚
-        const h=lea? new T.Mesh(new T.CylinderGeometry(0.048,0.048,thL*1.30,18,1,true),holeM)
+        const h=lea? new T.Mesh(new T.CylinderGeometry(HOLE_R+0.004,HOLE_R+0.004,thL*1.22,18,1,true),holeM)   // 管比挖孔大 0.004，蓋住孔緣；高度比皮薄一點不露頭
                    : new T.Mesh(new T.CylinderGeometry(0.030,0.030,TH*1.45,14),holeM);
         h.position.copy(hp).addScaledVector(hyA,lea?thL*0.28:0);          // 管心在皮的 -0.40th～+0.96th 中點
         h.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(
