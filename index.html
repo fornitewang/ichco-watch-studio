@@ -622,9 +622,11 @@ function buildUI(){
 let renderer,scene,camera,root,pmrem,envRT,keyLight,rimLight,fillLight,backFill,fx={},clock;
 let hdrTex=null;   // 實拍攝影棚 HDRI（Poly Haven studio_small_09，CC0）；載入前先用手繪 cubemap 頂著
 // 每個情境把同一張 HDRI 染色＋調亮暗：[tint rgb, 強度]
-const ENV_TINT={STU:[[1,1,1],0.8], SUN:[[1.05,1.0,0.92],1.05], GLD:[[1.0,0.72,0.48],0.8],
-  RAI:[[0.78,0.84,0.92],0.55], SNW:[[0.88,0.93,1.0],0.80], SEA:[[0.35,0.78,0.85],0.6],
-  SND:[[1.0,0.86,0.64],1.1], NGT:[[0.25,0.35,0.45],0.06]};
+// 第三個值＝整張環境的「底光」（線性值）：鏡面拋光反射的是整個環境，棚拍 HDRI 的牆是黑的，
+// 拋光件在多數角度會反成一片黑；加一層底光就是實體攝影棚裡的反光板，鍍鉻才會是亮銀不是黑鏡。
+const ENV_TINT={STU:[[1,1,1],0.8,0.22], SUN:[[1.05,1.0,0.92],1.05,0.28], GLD:[[1.0,0.72,0.48],0.8,0.08],
+  RAI:[[0.78,0.84,0.92],0.55,0.14], SNW:[[0.88,0.93,1.0],0.80,0.24], SEA:[[0.35,0.78,0.85],0.6,0.05],
+  SND:[[1.0,0.86,0.64],1.1,0.22], NGT:[[0.25,0.35,0.45],0.06,0.0]};
 const T=THREE;
 const cv=$('gl');
 let ok=true;
@@ -1365,8 +1367,8 @@ function santosDial(){
 }
 function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
   parts.skel=null; parts.skelBack=null; parts.rotor=null; parts.subHands=[]; parts.lumeM=null;
-  const blueM=new T.MeshPhysicalMaterial({color:0x3A63D6,metalness:1,roughness:.12,envMapIntensity:1.3});   // 藍鋼
-  const darkM=new T.MeshStandardMaterial({color:0x15171A,roughness:.6,metalness:.4});
+  const blueM=new T.MeshPhysicalMaterial({color:0x2247B4,metalness:1,roughness:.12,envMapIntensity:1.2});   // 藍鋼（環境有底光後要壓深一點）
+  const darkM=new T.MeshStandardMaterial({color:0x6E7378,roughness:.45,metalness:.9});   // 一字槽：拋光頭上一道細陰影溝，不是黑色
   // 錶殼中層：圓角方形、拉絲側面、平底
   const body=new T.Mesh(extrudeUp(roundedRectShape(1.88,2.08,0.40),0.30,0.02,2),[brushM,brushM]);
   body.position.y=-0.20; root.add(body);
@@ -1379,8 +1381,8 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
   // 八顆一字螺絲：每邊兩顆靠角落，拋光頭＋深色一字槽（槽向交錯 45°）
   const SCREW=[[-0.60,-0.94],[0.60,-0.94],[-0.60,0.94],[0.60,0.94],[-0.82,-0.52],[-0.82,0.52],[0.82,-0.52],[0.82,0.52]];
   SCREW.forEach(function(q,i){ const x=q[0], z=q[1], k=Math.max(0,Math.abs(z)-0.84), y=0.24-1.2*k*k-0.15*k;
-    const head=new T.Mesh(new T.CylinderGeometry(0.066,0.066,0.018,28),polM); head.position.set(x,y+0.004,z); root.add(head);
-    const slot=new T.Mesh(new T.BoxGeometry(0.100,0.006,0.010),darkM); slot.position.set(x,y+0.012,z); slot.rotation.y=(i%2?0.78:-0.78)+0.35*Math.sin(i*2.1); root.add(slot); });
+    const head=new T.Mesh(new T.SphereGeometry(0.066,28,12,0,Math.PI*2,0,Math.PI/2),polM); head.scale.y=0.30; head.position.set(x,y+0.004,z); root.add(head);
+    const slot=new T.Mesh(new T.BoxGeometry(0.096,0.004,0.007),darkM); slot.position.set(x,y+0.012,z); slot.rotation.y=(i%2?0.78:-0.78)+0.35*Math.sin(i*2.1); root.add(slot); });
   // 面盤：銀白乳光＋羅馬字；固定在方形開口下
   const dial=new T.Mesh(new T.PlaneGeometry(1.44,1.44),new T.MeshPhysicalMaterial({map:santosDial(),metalness:0,
     roughness:.42,envMapIntensity:.45,clearcoat:.35,clearcoatRoughness:.25}));
@@ -1440,7 +1442,8 @@ function buildSantosBand(polM,brushM){
   const TH=function(u){ return 0.150-0.030*Math.sin(Math.PI*u); };
   const HW=function(u){ return 0.520*(1-0.16*Math.sin(Math.PI*u)); };
   const vc=function(m){ const c=m.clone(); c.vertexColors=true; c.side=T.FrontSide; return c; };
-  const M_pol=vc(polM), M_br=vc(brushM), darkM=new T.MeshStandardMaterial({color:0x15171A,roughness:.6,metalness:.4});
+  // 🔴 用戶對照實品照片：Santos 這款鏈帶是「鍍鉻光亮」，頂面沒有髮絲紋 → 全拋光，不吃 brushM
+  const M_pol=vc(polM), darkM=new T.MeshStandardMaterial({color:0x6E7378,roughness:.45,metalness:.9});
   const P=0.44, GAP=0.012, CGAP=0.012, cols=[0.27,0.46,0.27], Lc=1.70, sMax=LEN/2-Lc/2;
   [0,1].forEach(function(side){
     const toU=function(s){ return side===0 ? s/LEN : 1-s/LEN; };
@@ -1452,12 +1455,12 @@ function buildSantosBand(polM,brushM){
         let x=-1;
         cols.forEach(function(f,ci){
           const cxN=x+f; x+=2*f;
-          parts.loop.add(new T.Mesh(linkGeo(fr,L,hw*f-CGAP/2,th/2,cxN*hw,false),[M_pol,M_br]));
+          parts.loop.add(new T.Mesh(linkGeo(fr,L,hw*f-CGAP/2,th/2,cxN*hw,false),[M_pol,M_pol]));
           if(ci!==1){                                     // 外側片：螺絲頭＋一字槽
             const q=new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan));
-            const head=new T.Mesh(new T.CylinderGeometry(0.056,0.056,0.014,24),polM);
+            const head=new T.Mesh(new T.SphereGeometry(0.056,24,12,0,Math.PI*2,0,Math.PI/2),polM); head.scale.y=0.30;
             head.position.copy(fr.p).addScaledVector(fr.xA,cxN*hw).addScaledVector(fr.yA,th/2+0.004); head.quaternion.copy(q);
-            const slot=new T.Mesh(new T.BoxGeometry(0.084,0.006,0.009),darkM);
+            const slot=new T.Mesh(new T.BoxGeometry(0.080,0.004,0.006),darkM);
             slot.position.copy(fr.p).addScaledVector(fr.xA,cxN*hw).addScaledVector(fr.yA,th/2+0.011); slot.quaternion.copy(q);
             slot.rotateY(side?0.6:-0.6);
             parts.loop.add(head,slot);
@@ -1480,9 +1483,9 @@ function buildSantosBand(polM,brushM){
     return new T.Mesh(loftRings(rings,tags,shade,vAt),mats);
   };
   const u0=(LEN/2-Lc/2+GAP/2)/LEN, u1=(LEN/2+Lc/2-GAP/2)/LEN;
-  parts.loop.add(curvedBlock(u0,u1,16,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
+  parts.loop.add(curvedBlock(u0,u1,16,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,polM]));
   const cu=LEN/2/LEN, fc=frameAt(curve,cu);          // 蓋子中央一顆小螺絲（Santos 扣蓋的識別）
-  const head=new T.Mesh(new T.CylinderGeometry(0.046,0.046,0.014,20),polM);
+  const head=new T.Mesh(new T.SphereGeometry(0.046,20,10,0,Math.PI*2,0,Math.PI/2),polM); head.scale.y=0.30;
   head.position.copy(fc.p).addScaledVector(fc.yA,TH(cu)/2+0.004);
   head.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fc.xA,fc.yA,fc.tan)); parts.loop.add(head);
 }
@@ -2198,10 +2201,11 @@ function buildDune(){
 // 把實拍 HDRI 依情境染色／調亮暗（r134 沒有 env tint，只能自己複製一份像素乘上去）
 function tintHDR(srcT,sc){
   const im=srcT.image, w=im.width, h=im.height, d=im.data, n=w*h, ch=d.length/n;
-  const tt=(ENV_TINT[sc.code]||[[1,1,1],1]), tint=tt[0], k=tt[1];
+  const tt=(ENV_TINT[sc.code]||[[1,1,1],1,0]), tint=tt[0], k=tt[1], lift=tt[2]||0;
   const out=new Float32Array(d.length);
   for(let i=0;i<n;i++){ const o=i*ch;
-    out[o]=d[o]*tint[0]*k; out[o+1]=d[o+1]*tint[1]*k; out[o+2]=d[o+2]*tint[2]*k; if(ch===4) out[o+3]=d[o+3]; }
+    out[o]=d[o]*tint[0]*k+lift*tint[0]; out[o+1]=d[o+1]*tint[1]*k+lift*tint[1]; out[o+2]=d[o+2]*tint[2]*k+lift*tint[2];
+    if(ch===4) out[o+3]=d[o+3]; }
   const t=new T.DataTexture(out,w,h,srcT.format,T.FloatType);
   t.mapping=T.EquirectangularReflectionMapping; t.encoding=T.LinearEncoding; t.flipY=srcT.flipY;
   t.minFilter=T.LinearFilter; t.magFilter=T.LinearFilter; t.generateMipmaps=false; t.needsUpdate=true;
