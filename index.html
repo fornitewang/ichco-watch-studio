@@ -1872,7 +1872,9 @@ function domeProfile(hw,hh,nArc){
 // 通用放樣：rings＝每一環的 3D 點（同點數、逆時針），兩端封蓋。
 // tags[j]＝第 j 段（點 j→j+1）的材質群組；shade[r]＝每環頂點色；vAt[r]＝每環的 v。
 function loftRings(rings,tags,shade,vAt){
-  const K=rings.length, M=rings[0].length, pos=[], uv=[], col=[], tri=[[],[]];
+  const K=rings.length, M=rings[0].length, pos=[], uv=[], col=[];
+  const NG=1+(tags?Math.max.apply(null,tags):0);      // 材質群組數＝tags 最大值+1（皮帶用到 3 組：皮面／邊油／裡皮）
+  const tri=[]; for(let g=0;g<NG;g++) tri.push([]);
   for(let r=0;r<K;r++){ const s=shade?shade[r]:1, v=vAt?vAt[r]:r/(K-1);
     for(let j=0;j<M;j++){ const p=rings[r][j]; pos.push(p.x,p.y,p.z); uv.push(j/M,v); col.push(s,s,s); } }
   // 側面法線要朝外 → (a,b,c)/(b,d,c)，寫成 (a,c,b) 會整條翻黑
@@ -1890,8 +1892,9 @@ function loftRings(rings,tags,shade,vAt){
   g.setAttribute('position',new T.Float32BufferAttribute(pos,3));
   g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));
   g.setAttribute('color',new T.Float32BufferAttribute(col,3));
-  g.setIndex(tri[0].concat(tri[1]));
-  g.addGroup(0,tri[0].length,0); g.addGroup(tri[0].length,tri[1].length,1);
+  let idx=[], start=0;
+  tri.forEach(function(t,gi){ idx=idx.concat(t); g.addGroup(start,t.length,gi); start+=t.length; });
+  g.setIndex(idx);
   g.computeVertexNormals();
   return g;
 }
@@ -1926,7 +1929,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   const TH=function(u){ return 0.160-0.036*Math.sin(Math.PI*u); };   // 厚：帶頭 3.2mm → 錶扣 2.5mm
   const HW=function(u){ return 0.500*(1-0.17*Math.sin(Math.PI*u)); }; // 半寬：20mm → 16.6mm
 
-  let softM=null, edgeM=null, keepLea=null;
+  let softM=null, edgeM=null, liningM=null, keepLea=null;
   const hexc=function(v){ return '#'+v.toString(16).padStart(6,'0'); };
   const TL=parts.texLoader||(parts.texLoader=new T.TextureLoader());
   const load=function(u){ const t=TL.load(u); t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -1946,6 +1949,10 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       // 邊油：皮帶側緣上的深色亮漆
       edgeM=new T.MeshPhysicalMaterial({color:0x1C0F09,roughness:.32,metalness:0,clearcoat:.7,
         clearcoatRoughness:.18,envMapIntensity:.8,side:T.FrontSide});
+      // 裡皮：貼皮膚那一面，素面小牛皮、霧面無漆（跟邊油完全不同處理，別搞混）
+      liningM=new T.MeshPhysicalMaterial({color:0x2E1B10,normalMap:loadLin(T_LEA_N),
+        normalScale:new T.Vector2(0.8,0.8),roughness:.88,metalness:0,clearcoat:0,
+        envMapIntensity:.45,side:T.FrontSide});
       // 皮環：素面小牛皮（實拍細紋法線），不是鋼環
       keepLea=new T.MeshPhysicalMaterial({color:0x3B2314,normalMap:loadLin(T_LEA_N),
         normalScale:new T.Vector2(1.2,1.2),roughness:.62,metalness:0,clearcoat:.25,clearcoatRoughness:.4,
@@ -1975,12 +1982,17 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     const TH = bd.code==='LEA'?0.115 : (bd.code==='RUB'?0.098:0.062);
     const VR = bd.code==='LEA'?30 : (bd.code==='RUB'?34:26);
     if(bd.code==='LEA'){
-      // 墊型鱷魚皮帶：剖面中央隆起（填充棉）、兩側平肩、側緣垂直（邊油）、底面平；
-      // 帶頭 3.8mm 厚往帶尾收到 2.3mm，寬 20mm 收到 15mm。整條用放樣（含材質群組：0 皮面／1 邊油）。
+      // 墊型鱷魚皮帶：剖面中央隆起（填充棉）、兩側平肩、側緣垂直（邊油）、底面平（裡皮）；
+      // 帶頭 3.8mm 厚往帶尾收到 2.3mm，寬 20mm 收到 15mm。整條用放樣（含材質群組：0 皮面／1 邊油／2 裡皮）。
       // 🔴 剖面一定要逆時針（從 +tan 看）：順時針會把法線翻進去，FrontSide 只剩內壁，整條帶變成半透明的殼。
       const K=160, PR=[[-1,-0.30],[-0.96,-0.40],[0.96,-0.40],[1,-0.30],[1,0.30],[0.96,0.46],[0.80,0.62],
                        [0.50,0.86],[0,0.96],[-0.50,0.86],[-0.80,0.62],[-0.96,0.46],[-1,0.30]];
-      const EDGE=[1,1,1,1,0,0,0,0,0,0,0,0,1];         // 段 j→j+1：底面(0-2)＝素面裡皮、右側(3)、左側(12)＝邊油
+      // EDGE 對照 PR 的 13 個點，段 j→j+1：
+      //   0-2 = 底面主平面 → 2（liningM 裡皮，霧面）
+      //   3   = 右側        → 1（edgeM 邊油亮漆）
+      //   4-11= 上表面弧面  → 0（softM 鱷魚紋，帶面主可視區）
+      //   12  = 左側        → 1（edgeM 邊油亮漆）
+      const EDGE=[2,2,2,1,0,0,0,0,0,0,0,0,1];
       const rings=[], vAt=[];
       const hwF=function(u){ return 0.49*(1-0.26*Math.sin(Math.PI*u)); };
       const thF=function(u){ return 0.140*(1-0.40*Math.sin(Math.PI*u)); };
@@ -1990,7 +2002,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
         vAt.push(u*LEN); }
       const g=loftRings(rings,EDGE,null,vAt);
       g.userData={base:Float32Array.from(g.attributes.position.array),N:K,M:PR.length};
-      const strap=new T.Mesh(g,[softM,edgeM]);
+      const strap=new T.Mesh(g,[softM,edgeM,liningM]);
       parts.loop.add(strap); parts.softStrap=strap;
       // 車線：兩道真的虛線縫線（alphaMap 斷成一針一針），略凸出皮面，沿肩線走
       if(!parts.stitchA){ const c=ctx2d(64), gg=c.getContext('2d');
