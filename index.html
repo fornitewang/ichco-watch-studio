@@ -18,7 +18,7 @@ img{ max-width:100% }
 <title>ICHco 客製錶工作台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&family=Saira+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&family=Saira+Condensed:wght@500;600;700&family=Cinzel:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/RGBELoader.js"></script>
 
@@ -523,7 +523,11 @@ const SERIES=[
  {id:'NH35',code:'PRO',name:'極地探勘者',mv:'Seiko NH35 自動機械',fn:'三針 · 日期',size:43,wr:'200m',base:8980,sub:0},
  {id:'VK63',code:'DAY',name:'迪通拿計時',mv:'Seiko VK63 跑秒計時',fn:'計時碼錶 · 日期',size:40,wr:'100m',base:5880,sub:3},
  /* 皇家計時：規格抄自 ichco.com.tw 商品頁（錶徑42／NVK63／100m／透底鎖式／NT$5,880） */
- {id:'NVK63',code:'ROY',name:'皇家計時',mv:'Seiko NVK63 跑秒計時',fn:'計時碼錶 · 日期',size:42,wr:'100m',base:5880,sub:3}];
+ {id:'NVK63',code:'ROY',name:'皇家計時',mv:'Seiko NVK63 跑秒計時',fn:'計時碼錶 · 日期',size:42,wr:'100m',base:5880,sub:3},
+ /* Santos：照 ICH.CO 實品固定規格（用戶 2026-09-03 拍板「固定照片那樣」），不吃錶殼／錶圈／錶面／指針／錶帶選項。
+    ⚠️ base 是佔位價，蝦皮頁面擋外部抓取（403），等用戶給實價。 */
+ {id:'NH35',code:'SAN',name:'Santos',mv:'Seiko NH35A 自動機械',fn:'三針 · 方殼八螺絲',size:40,wr:'50m',base:6880,sub:0,fixed:1,
+  spec:{metal:'316L 不鏽鋼 · 拉絲',bezel:'方形拉絲錶圈 · 八顆拋光螺絲',dial:'銀白乳光面 · 黑色羅馬字',hands:'藍鋼劍形針',band:'螺絲鏈節鋼帶 · 摺疊扣'}}];
 const METAL=[
  {code:'ST',name:'316L 不鏽鋼',add:0,  base:0xC9CFD4,rough:.24,acc:0xC9CFD4,accR:.14},
  {code:'TT',name:'金銀雙色',  add:800,base:0xC9CFD4,rough:.24,acc:0xD8AE3E,accR:.16,two:1},
@@ -608,6 +612,10 @@ function buildUI(){
   mk('opt-band', BAND, 'band', o=>sw(o.type==='metal'
     ? `linear-gradient(180deg,#fff6,${hex(METAL[S.metal].base)} 45%,#0006)`
     : `linear-gradient(180deg,#ffffff22,${hex(o.col)})`));
+  // 固定規格系列（Santos）：把客製選項整組收起來，只留情境與系列
+  const fixed=!!SERIES[S.series].fixed;
+  ['opt-metal','opt-bezel','opt-dial','opt-hands','opt-band'].forEach(function(id){
+    const sec=$(id)&&$(id).closest('section'); if(sec) sec.hidden=fixed; });
 }
 
 /* ══ 3D ═══════════════════════════════════════════════════ */
@@ -1316,8 +1324,171 @@ function clearGroup(g){
   while(g.children.length) g.children.pop();
 }
 
+/* ── Santos 系列：方殼八螺絲 ─────────────────────────────────
+   照 ICH.CO Santos 實品照片做：圓角方形錶殼（拉絲側面）、錶圈頂面拉絲＋拋光倒角＋八顆拋光一字螺絲、
+   錶圈 12／6 點兩端往下彎接錶帶（Santos 的招牌「彎角」）、銀白乳光面盤＋黑色羅馬字（IIII）＋內圈鐵軌分刻、
+   藍鋼劍形針、七角錶冠嵌藍色凸圓寶石、螺絲鏈節鋼帶（每排三片對齊不錯開、外側兩片各一顆螺絲）、摺疊扣。 */
+function roundedRectShape(w,h,r){
+  const s=new T.Shape(), hw=w/2, hh=h/2; r=Math.min(r,hw,hh);
+  s.moveTo(-hw+r,-hh); s.lineTo(hw-r,-hh); s.absarc(hw-r,-hh+r,r,-Math.PI/2,0,false);
+  s.lineTo(hw,hh-r); s.absarc(hw-r,hh-r,r,0,Math.PI/2,false);
+  s.lineTo(-hw+r,hh); s.absarc(-hw+r,hh-r,r,Math.PI/2,Math.PI,false);
+  s.lineTo(-hw,-hh+r); s.absarc(-hw+r,-hh+r,r,Math.PI,Math.PI*1.5,false); s.closePath(); return s;
+}
+// 往上擠出：形狀 (x,y) → 世界 (x,z)，厚度朝 +y；群組 0＝上下蓋、1＝側牆與倒角
+function extrudeUp(shape,depth,bevel,segs){
+  const g=new T.ExtrudeGeometry(shape,{depth:depth,bevelEnabled:bevel>0,bevelSize:bevel,bevelThickness:bevel,
+    bevelSegments:segs||2,curveSegments:26});
+  g.rotateX(-Math.PI/2); return g;
+}
+function santosDial(){
+  const S=1024, c=ctx2d(S), g=c.getContext('2d');
+  const rg=g.createRadialGradient(S*0.5,S*0.42,S*0.05,S*0.5,S*0.5,S*0.78);
+  rg.addColorStop(0,'#FBFBF8'); rg.addColorStop(1,'#E6E6E0'); g.fillStyle=rg; g.fillRect(0,0,S,S);
+  for(let i=0;i<26000;i++){ g.fillStyle='rgba(0,0,0,'+(Math.random()*0.04).toFixed(3)+')'; g.fillRect(Math.random()*S,Math.random()*S,1.4,1.4); }
+  // 內圈鐵軌分刻（chemin de fer）：兩個方框＋60 格分刻，沿方形周長平均分
+  const C=S/2, H=S*0.205, H2=H+S*0.030;
+  g.strokeStyle='#15161A'; g.lineWidth=S*0.0035;
+  g.strokeRect(C-H,C-H,2*H,2*H); g.strokeRect(C-H2,C-H2,2*H2,2*H2);
+  for(let m=0;m<60;m++){ const a=m*Math.PI/30, dx=Math.sin(a), dy=-Math.cos(a), mx=Math.max(Math.abs(dx),Math.abs(dy));
+    g.lineWidth=(m%5===0)?S*0.006:S*0.0028;
+    g.beginPath(); g.moveTo(C+dx/mx*H,C+dy/mx*H); g.lineTo(C+dx/mx*H2,C+dy/mx*H2); g.stroke(); }
+  // 羅馬數字：直立、沿方形排列；角落的字拉長（Santos 的招牌比例）；4 點用 IIII
+  const NUM=['XII','I','II','III','IIII','V','VI','VII','VIII','IX','X','XI'], R=S*0.362;
+  g.fillStyle='#111216'; g.textAlign='center'; g.textBaseline='middle';
+  for(let h=0;h<12;h++){ const a=h*Math.PI/6, dx=Math.sin(a), dy=-Math.cos(a), mx=Math.max(Math.abs(dx),Math.abs(dy));
+    const px=C+dx/mx*R, py=C+dy/mx*R, card=(h%3===0);
+    const fh=card?S*0.150:S*0.180, sx=card?0.80:0.54;              // 非整點：更高更窄（角落被拉長）
+    g.save(); g.translate(px,py); g.scale(sx,1); g.font='900 '+Math.round(fh)+'px Cinzel, "Times New Roman", serif';
+    g.fillText(NUM[h],0,S*0.004); g.restore(); }
+  const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=16; return t;
+}
+function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
+  parts.skel=null; parts.skelBack=null; parts.rotor=null; parts.subHands=[]; parts.lumeM=null;
+  const blueM=new T.MeshPhysicalMaterial({color:0x3A63D6,metalness:1,roughness:.12,envMapIntensity:1.3});   // 藍鋼
+  const darkM=new T.MeshStandardMaterial({color:0x15171A,roughness:.6,metalness:.4});
+  // 錶殼中層：圓角方形、拉絲側面、平底
+  const body=new T.Mesh(extrudeUp(roundedRectShape(1.88,2.08,0.40),0.30,0.02,2),[brushM,brushM]);
+  body.position.y=-0.20; root.add(body);
+  // 錶圈：圓角方形＋方形開口；頂面拉絲、倒角與側面拋光；12／6 兩端往下彎
+  const bzShape=roundedRectShape(1.96,2.22,0.46); bzShape.holes.push(roundedRectShape(1.42,1.42,0.17));
+  const bezG=extrudeUp(bzShape,0.13,0.030,3);
+  { const p=bezG.attributes.position; for(let i=0;i<p.count;i++){ const z=p.getZ(i), k=Math.max(0,Math.abs(z)-0.84);
+      p.setY(i,p.getY(i)-1.2*k*k-0.15*k); } p.needsUpdate=true; bezG.computeVertexNormals(); }
+  const bez=new T.Mesh(bezG,[brushM,polM]); bez.position.y=0.11; root.add(bez);
+  // 八顆一字螺絲：每邊兩顆靠角落，拋光頭＋深色一字槽（槽向交錯 45°）
+  const SCREW=[[-0.60,-0.94],[0.60,-0.94],[-0.60,0.94],[0.60,0.94],[-0.82,-0.52],[-0.82,0.52],[0.82,-0.52],[0.82,0.52]];
+  SCREW.forEach(function(q,i){ const x=q[0], z=q[1], k=Math.max(0,Math.abs(z)-0.84), y=0.24-1.2*k*k-0.15*k;
+    const head=new T.Mesh(new T.CylinderGeometry(0.066,0.066,0.018,28),polM); head.position.set(x,y+0.004,z); root.add(head);
+    const slot=new T.Mesh(new T.BoxGeometry(0.100,0.006,0.010),darkM); slot.position.set(x,y+0.012,z); slot.rotation.y=(i%2?0.78:-0.78)+0.35*Math.sin(i*2.1); root.add(slot); });
+  // 面盤：銀白乳光＋羅馬字；固定在方形開口下
+  const dial=new T.Mesh(new T.PlaneGeometry(1.44,1.44),new T.MeshPhysicalMaterial({map:santosDial(),metalness:0,
+    roughness:.42,envMapIntensity:.45,clearcoat:.35,clearcoatRoughness:.25}));
+  dial.rotation.x=-Math.PI/2; dial.position.y=0.135; root.add(dial);
+  // 指針：藍鋼劍形（時、分）＋細藍鋼秒針
+  const mk=function(len,w,y){ const g=new T.ExtrudeGeometry(handShape('sword',len,w,false),{depth:0.016,bevelEnabled:true,bevelSize:0.004,bevelThickness:0.004,bevelSegments:2});
+    const m=new T.Mesh(g,blueM); m.rotation.x=-Math.PI/2; m.position.y=y; return m; };
+  parts.hourG=new T.Group(); parts.minG=new T.Group(); parts.secG=new T.Group();
+  parts.hourG.add(mk(0.40,0.066,0.150)); parts.minG.add(mk(0.60,0.050,0.170));
+  const sec=new T.Mesh(new T.BoxGeometry(0.012,0.008,0.70),blueM); sec.position.set(0,0.190,-0.24);
+  const secTail=new T.Mesh(new T.CylinderGeometry(0.040,0.040,0.008,18),blueM); secTail.position.set(0,0.190,0.12);
+  parts.secG.add(sec,secTail); root.add(parts.hourG,parts.minG,parts.secG);
+  const pin=new T.Mesh(new T.CylinderGeometry(0.030,0.034,0.07,20),polM); pin.position.y=0.165; root.add(pin);
+  // 錶冠：七角拋光冠身＋藍色凸圓寶石
+  const cr=new T.Group(); cr.position.set(1.00,-0.04,0); cr.rotation.z=-Math.PI/2; root.add(cr);
+  const crownBody=new T.Mesh(new T.CylinderGeometry(0.088,0.082,0.13,7),polM); crownBody.position.y=0.065; cr.add(crownBody);
+  const stem=new T.Mesh(new T.CylinderGeometry(0.05,0.05,0.06,16),polM); stem.position.y=0.0; cr.add(stem);
+  const gem=new T.Mesh(new T.SphereGeometry(0.072,28,20),new T.MeshPhysicalMaterial({color:0x1E2F9C,metalness:0,roughness:.04,
+    clearcoat:1,clearcoatRoughness:.02,envMapIntensity:1.6,emissive:0x060B30,emissiveIntensity:.6}));
+  gem.scale.set(0.82,1,1); gem.position.y=0.135; cr.add(gem);
+  // 錶鏡：圓角方形平板、中央微拱；黑色只留菲涅耳反射；UV 平面投影給雨雪模擬用
+  const crystalM=new T.MeshPhysicalMaterial({color:0x000000,metalness:0,roughness:0.02,transparent:true,opacity:0.12,
+    clearcoat:0,envMapIntensity:4.0,side:T.FrontSide,depthWrite:false});
+  if(wet){ parts.dropSim=parts.dropSim||makeDropSim();
+    if(parts.dropSim.mode!==scn.fx){ parts.dropSim.drops=[]; parts.dropSim.flakes=[]; parts.dropSim.splash=[];
+      parts.dropSim.tg.clearRect(0,0,parts.dropSim.SZ,parts.dropSim.SZ); }
+    parts.dropSim.mode=scn.fx; crystalM.normalMap=parts.dropSim.tex; crystalM.normalScale=new T.Vector2(1.6,1.6);
+    crystalM.opacity=0.18; crystalM.roughness=0.03; crystalM.envMapIntensity=5.0; }
+  const cg=extrudeUp(roundedRectShape(1.44,1.44,0.17),0.10,0,1);
+  { const p=cg.attributes.position, uv=cg.attributes.uv;
+    for(let i=0;i<p.count;i++){ const x=p.getX(i), z=p.getZ(i);
+      if(p.getY(i)>0.05) p.setY(i,p.getY(i)+0.022*(1-Math.min(1,(x*x+z*z)/1.04)));
+      uv.setXY(i,x/1.44+0.5,z/1.44+0.5); }
+    p.needsUpdate=true; uv.needsUpdate=true; cg.computeVertexNormals(); }
+  const crystal=new T.Mesh(cg,crystalM); crystal.position.y=0.135; crystal.renderOrder=12; root.add(crystal); parts.crystal=crystal;
+  parts.wetLayer=null;
+  if(scn.fx==='snow'||scn.fx==='rain'){
+    const sl=new T.Mesh(cg,new T.MeshStandardMaterial({map:parts.dropSim.snowTex,transparent:true,depthWrite:false,roughness:.95,metalness:0,side:T.FrontSide}));
+    sl.position.y=0.139; sl.renderOrder=13; root.add(sl); parts.wetLayer=sl; }
+  buildSantosBand(polM,brushM);
+  root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
+  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh) o.castShadow=false; });
+  applyEnvToAll();
+}
+// 螺絲鏈節鋼帶：每排三片（外 27％／中 46％／外 27％）對齊不錯開，外側兩片各一顆拋光一字螺絲；
+// 第一排直接塞在錶圈彎角底下（Santos 是一體式，沒有傳統錶耳）
+function buildSantosBand(polM,brushM){
+  parts.loop=new T.Group(); root.add(parts.loop);
+  parts.loopRows=[]; parts.softStrap=null; parts.threads=null;
+  const Z0=1.12, Y0=-0.145;
+  const pts=[
+    new T.Vector3(0,Y0,-Z0), new T.Vector3(0,-0.40,-1.54), new T.Vector3(0,-0.98,-1.64),
+    new T.Vector3(0,-1.56,-1.32), new T.Vector3(0,-1.98,-0.76), new T.Vector3(0,-2.08,0.00),
+    new T.Vector3(0,-1.98, 0.76), new T.Vector3(0,-1.56, 1.32), new T.Vector3(0,-0.98, 1.64),
+    new T.Vector3(0,-0.40, 1.54), new T.Vector3(0,Y0, Z0)];
+  const curve=new T.CatmullRomCurve3(pts,false,'catmullrom',0.5), LEN=curve.getLength();
+  const TH=function(u){ return 0.150-0.030*Math.sin(Math.PI*u); };
+  const HW=function(u){ return 0.520*(1-0.16*Math.sin(Math.PI*u)); };
+  const vc=function(m){ const c=m.clone(); c.vertexColors=true; c.side=T.FrontSide; return c; };
+  const M_pol=vc(polM), M_br=vc(brushM), darkM=new T.MeshStandardMaterial({color:0x15171A,roughness:.6,metalness:.4});
+  const P=0.44, GAP=0.012, CGAP=0.012, cols=[0.27,0.46,0.27], Lc=1.70, sMax=LEN/2-Lc/2;
+  [0,1].forEach(function(side){
+    const toU=function(s){ return side===0 ? s/LEN : 1-s/LEN; };
+    let sa=0;
+    while(sa<sMax-0.05){
+      const sb=Math.min(sa+P,sMax), L=(sb-sa)-GAP;
+      if(L>=0.12){
+        const u=toU((sa+sb)/2), fr=frameAt(curve,u), hw=HW(u), th=TH(u);
+        let x=-1;
+        cols.forEach(function(f,ci){
+          const cxN=x+f; x+=2*f;
+          parts.loop.add(new T.Mesh(linkGeo(fr,L,hw*f-CGAP/2,th/2,cxN*hw,false),[M_pol,M_br]));
+          if(ci!==1){                                     // 外側片：螺絲頭＋一字槽
+            const q=new T.Quaternion().setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan));
+            const head=new T.Mesh(new T.CylinderGeometry(0.056,0.056,0.014,24),polM);
+            head.position.copy(fr.p).addScaledVector(fr.xA,cxN*hw).addScaledVector(fr.yA,th/2+0.004); head.quaternion.copy(q);
+            const slot=new T.Mesh(new T.BoxGeometry(0.084,0.006,0.009),darkM);
+            slot.position.copy(fr.p).addScaledVector(fr.xA,cxN*hw).addScaledVector(fr.yA,th/2+0.011); slot.quaternion.copy(q);
+            slot.rotateY(side?0.6:-0.6);
+            parts.loop.add(head,slot);
+          }
+        });
+      }
+      sa=sb;
+    }
+  });
+  // 摺疊扣：順著手腕弧度的長蓋
+  const curvedBlock=function(u0,u1,K,hwF,hhF,rc,crown,yOff,mats){
+    const rings=[],shade=[],vAt=[]; let tags=null;
+    for(let k=0;k<=K;k++){
+      const u=u0+(u1-u0)*k/K, fr=frameAt(curve,u), pr=rrProfile(hwF(u),hhF(u),rc,crown,4);
+      if(!tags) tags=pr.isTop.map(function(t,j){ return (t&&pr.isTop[(j+1)%pr.isTop.length])?1:0; });
+      const e=Math.min(k,K-k), sy=e===0?0.62:(e===1?0.92:1);
+      rings.push(pr.pts.map(function(q){ return new T.Vector3().copy(fr.p).addScaledVector(fr.xA,q[0]).addScaledVector(fr.yA,q[1]*sy+yOff(u)); }));
+      shade.push(e===0?0.8:1); vAt.push((u-u0)*LEN);
+    }
+    return new T.Mesh(loftRings(rings,tags,shade,vAt),mats);
+  };
+  const u0=(LEN/2-Lc/2+GAP/2)/LEN, u1=(LEN/2+Lc/2-GAP/2)/LEN;
+  parts.loop.add(curvedBlock(u0,u1,16,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
+  const cu=LEN/2/LEN, fc=frameAt(curve,cu);          // 蓋子中央一顆小螺絲（Santos 扣蓋的識別）
+  const head=new T.Mesh(new T.CylinderGeometry(0.046,0.046,0.014,20),polM);
+  head.position.copy(fc.p).addScaledVector(fc.yA,TH(cu)/2+0.004);
+  head.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fc.xA,fc.yA,fc.tan)); parts.loop.add(head);
+}
+
 function buildWatch(){
-  const se=SERIES[S.series], mt=METAL[S.metal], bz=BEZEL[S.bezel],
+  const se=SERIES[S.series], mt=(se.fixed?METAL[0]:METAL[S.metal]), bz=BEZEL[S.bezel],
         dl=DIAL[S.dial], hs=HANDS[S.hands], lm=LUME[S.lume], bd=BAND[S.band],
         scn=SCENES[S.scene];
   clearGroup(root);
@@ -1328,6 +1499,7 @@ function buildWatch(){
   const wet = scn.fx==='rain'||scn.fx==='bubble'||scn.fx==='snow';
   if(wet){ [baseM,accM,polM,brushM,accBrush].forEach(m=>{m.roughness*=.45; m.clearcoat=1;}); }
   if(scn.fx==='sand'){ baseM.roughness=Math.min(.8,baseM.roughness*1.9); }
+  if(se.code==='SAN'){ buildSantos(se,scn,wet,baseM,accM,polM,brushM); return; }
 
   // 錶殼（車削剖面）
   // 🔴 原本(0.985,0.115)→(0.90,0.13)→(0.78,0.13)是兩段近乎水平的直線，
@@ -2165,6 +2337,7 @@ function init(){
   clock=new T.Clock();
   resize(); addEventListener('resize',resize);
   if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(resize).catch(function(){}); }
+  if(document.fonts&&document.fonts.load){ document.fonts.load('900 100px Cinzel').then(function(){ if(ok&&SERIES[S.series].code==='SAN') apply(); }).catch(function(){}); }
   setTimeout(resize,300);
   drag(); apply(); animate();
 }
@@ -2329,16 +2502,18 @@ function apply(){
   if(ok){ buildWatch(); applyScene(); }
   const se=SERIES[S.series],mt=METAL[S.metal],bz=BEZEL[S.bezel],dl=DIAL[S.dial],
         hs=HANDS[S.hands],lm=LUME[S.lume],bd=BAND[S.band],sc=SCENES[S.scene];
-  const price=se.base+mt.add+bz.add+dl.add+hs.add+lm.add+bd.add;
-  const sku=`${se.id}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
+  const fixed=!!se.fixed;                         // Santos：固定規格，不吃選項加價
+  const price=fixed? se.base : se.base+mt.add+bz.add+dl.add+hs.add+lm.add+bd.add;
+  const sku=fixed? `${se.id}-${se.code}` : `${se.id}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
+  const spec=fixed? se.spec : {metal:mt.name,bezel:bz.name,dial:dl.name,hands:hs.name+'（'+lm.name+'）',band:bd.name};
   $('priceOut').textContent=nf(price); $('skuOut').textContent=sku;
   $('pk-scene').textContent=sc.name;   $('pk-series').textContent=se.name;
-  $('pk-metal').textContent=mt.name;   $('pk-bezel').textContent=bz.name;
-  $('pk-dial').textContent=dl.name;    $('pk-hands').textContent=hs.name+' · '+lm.name;
-  $('pk-band').textContent=bd.name;
+  $('pk-metal').textContent=spec.metal;   $('pk-bezel').textContent=spec.bezel;
+  $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(hs.name+' · '+lm.name);
+  $('pk-band').textContent=spec.band;
   const rows=[['系列',se.name],['機芯',se.mv],['功能',se.fn],['錶徑',se.size+'mm'],
-    ['防水',se.wr],['錶殼',mt.name],['錶框',bz.name],['錶面',dl.name],
-    ['指針',hs.name+'（'+lm.name+'）'],['錶帶',bd.name],['SKU',sku],['參考價','NT$ '+nf(price)]];
+    ['防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
+    ['指針',spec.hands],['錶帶',spec.band],['SKU',sku],['參考價','NT$ '+nf(price)]];
   const L=$('specList'); L.textContent='';
   rows.forEach(([k,v])=>{const dt=document.createElement('dt'); dt.textContent=k;
     const dd=document.createElement('dd'); dd.textContent=v; if(k==='SKU') dd.className='mono';
