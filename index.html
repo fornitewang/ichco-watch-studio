@@ -562,7 +562,7 @@ const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,
              {code:'NAT',name:'NATO 尼龍',add:-400,type:'soft',col:0x3A444F,rough:.86,k:.24,d:.840,amp:.62,wave:0}];
 /* 情境光線：天空／地平線／柔光箱強度／主光色溫／霧／特效 */
 const SCENES=[
- {code:'STU',name:'紙棚',   sw:'#E8DCC4',sky:'#3A4247',hor:'#0E1214',bgTop:'#FBF5E9',bgBot:'#EFE3CE',box:'#FFFFFF',boxI:1.7,key:0xFFFFFF,keyI:2.8,fx:'none',  exp:0.92},
+ {code:'STU',name:'紙棚',   sw:'#E8DCC4',sky:'#3A4247',hor:'#0E1214',bgTop:'#FBF5E9',bgBot:'#EFE3CE',box:'#FFFFFF',boxI:1.7,key:0xFFF3E4,keyI:2.8,fx:'none',  exp:0.88},
  {code:'SUN',name:'正午陽光',sw:'#9CCBF2',sky:'#4E8FD6',hor:'#9FC4E2',box:'#FFF9EC',boxI:1.8,key:0xFFF6E2,keyI:3.6,fx:'none',  exp:0.95},
  {code:'GLD',name:'黃昏',    sw:'#F0A05A',sky:'#2A2038',hor:'#C97A38',box:'#FFCE8A',boxI:1.5,key:0xFFAE60,keyI:3.0,fx:'none',  exp:1.00},
  {code:'RAI',name:'雨天',    sw:'#5F6C74',sky:'#39434A',hor:'#525F68',box:'#D6E2E8',boxI:1.3,key:0xCBDCE6,keyI:2.2,fx:'rain',  exp:1.02},
@@ -625,7 +625,7 @@ let hdrTex=null;   // 實拍攝影棚 HDRI（Poly Haven studio_small_09，CC0）
 // 每個情境把同一張 HDRI 染色＋調亮暗：[tint rgb, 強度]
 // 第三個值＝整張環境的「底光」（線性值）：鏡面拋光反射的是整個環境，棚拍 HDRI 的牆是黑的，
 // 拋光件在多數角度會反成一片黑；加一層底光就是實體攝影棚裡的反光板，鍍鉻才會是亮銀不是黑鏡。
-const ENV_TINT={STU:[[1,1,1],0.8,0.22], SUN:[[1.05,1.0,0.92],1.05,0.28], GLD:[[1.0,0.72,0.48],0.8,0.08],
+const ENV_TINT={STU:[[1.0,0.955,0.885],0.62,0.12], SUN:[[1.05,1.0,0.92],0.95,0.22], GLD:[[1.0,0.72,0.48],0.8,0.08],
   RAI:[[0.78,0.84,0.92],0.55,0.14], SNW:[[0.88,0.93,1.0],0.80,0.24], SEA:[[0.35,0.78,0.85],0.6,0.05],
   SND:[[1.0,0.86,0.64],1.1,0.22], NGT:[[0.25,0.35,0.45],0.06,0.0]};
 const T=THREE;
@@ -675,72 +675,90 @@ function spiralGeo(r0,r1,turns,tube,segs){
    真的穿透：前夾板、中夾板、背面機芯板三層都在同一組位置開孔，孔重疊的地方光線直接從錶鏡穿到透底背蓋。
    開孔裡放輪系（發條盒＋真的發條圈、二番／三番／四番、擒縱輪＋擒縱叉）、擺輪＋會呼吸的游絲、
    紅寶石軸承、拋光夾橋＋藍鋼螺絲。自動盤在背面，透過開孔看得到它甩＝自動上鍊的感覺。 */
-const SK_HOLES=[[0.02,0.40,0.175],[-0.30,-0.12,0.115],[0.28,-0.24,0.105],[0.36,0.16,0.08],
-                [-0.27,0.30,0.19],[0.06,-0.46,0.11],[-0.48,0.06,0.085],[0.48,-0.02,0.08],[-0.10,-0.31,0.07]];
-function skPlate(r,y,th,pk,hk,mat){
-  const sh=new T.Shape(); sh.absarc(0,0,r,0,Math.PI*2,false);
-  SK_HOLES.forEach(function(h){ const x=h[0]*pk, z=h[1]*pk, rr=h[2]*hk;
-    if(Math.hypot(x,z)+rr>r-0.012) return;                       // 孔不能切到板子外緣（擠出會壞）
-    const p=new T.Path(); p.absarc(x,z,rr,0,Math.PI*2,true); sh.holes.push(p); });
-  const g=new T.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelSize:0.005,bevelThickness:0.005,bevelSegments:1,curveSegments:28});
-  g.rotateX(-Math.PI/2); const m=new T.Mesh(g,mat); m.position.y=y; return m;
+/* 鏤空不是在一片板上挖洞。真的機芯是一層一層疊上去的：
+   ① 背面機芯框（自動盤在它底下甩）→ ② 下層骨架 → ③ 主夾板：一圈邊框＋幾根細臂連到每個軸位（其餘全空）
+   → ④ 輪系一顆一顆放在不同高度（發條盒最低、四番／擒縱最高）→ ⑤ 夾橋：一片片有形狀的拋光橋壓住上軸，
+   橋上有寶石座＋紅寶石、邊上有藍鋼螺絲 → ⑥ 擺輪＋游絲，最上面是擺輪夾板。
+   臂與橋之間全是空的，光線從錶鏡直接穿到透底背蓋。 */
+const SK_P={ctr:[0,0],bar:[0.02,0.40],thr:[-0.30,-0.12],fou:[0.28,-0.24],esc:[0.36,0.16],bal:[-0.27,0.30]};
+function skRim(p,r){ const L=Math.hypot(p[0],p[1]); return [p[0]/L*r,p[1]/L*r]; }
+function skArm(a,b,w,th,y,mat){ const dx=b[0]-a[0], dz=b[1]-a[1], L=Math.hypot(dx,dz);
+  const m=new T.Mesh(rbox(w,th,L+w*0.9,w*0.45),mat); m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2); m.rotation.y=Math.atan2(dx,dz); return m; }
+function skRing(rIn,rOut,th,y,mat){ const sh=new T.Shape(); sh.absarc(0,0,rOut,0,Math.PI*2,false);
+  const h=new T.Path(); h.absarc(0,0,rIn,0,Math.PI*2,true); sh.holes.push(h);
+  const g=new T.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelSize:0.004,bevelThickness:0.004,bevelSegments:1,curveSegments:48});
+  g.rotateX(-Math.PI/2); const m=new T.Mesh(g,mat); m.position.y=y; return m; }
+function skBoss(p,r,th,y,mat){ const m=new T.Mesh(new T.CylinderGeometry(r,r,th,20),mat); m.position.set(p[0],y,p[1]); return m; }
+// 背面機芯框：一圈＋四根臂，自動盤在它下面甩（從正面開口看得到）
+function skBackFrame(){
+  const G=new T.Group(), m=new T.MeshPhysicalMaterial({color:0x8E9297,metalness:1,roughness:.48,envMapIntensity:.8,side:T.DoubleSide});
+  G.add(skRing(0.455,0.515,0.018,-0.19,m));
+  for(let k=0;k<4;k++){ const a=k*Math.PI/2+0.5; G.add(skArm([0,0],[Math.cos(a)*0.47,Math.sin(a)*0.47],0.055,0.018,-0.181,m)); }
+  G.add(skBoss([0,0],0.07,0.018,-0.181,m));
+  return G;
 }
 function buildSkeletonFront(){
-  const G=new T.Group(), s=1.02;
-  const plateM=brushMat(0xC6CACF,0.40);
-  const polE=metalMat(0xDADEE2,0.06);
+  const G=new T.Group(), P=SK_P;
+  const plateM=brushMat(0xC2C6CB,0.42);
+  const lowM=new T.MeshPhysicalMaterial({color:0x9A9EA3,metalness:1,roughness:.46,envMapIntensity:.85,side:T.DoubleSide});
+  const polE=metalMat(0xDCE0E4,0.06);
   const steel=new T.MeshPhysicalMaterial({color:0xB9BDC2,metalness:1,roughness:.30,envMapIntensity:1.2,side:T.DoubleSide});
   const brass=new T.MeshPhysicalMaterial({color:0xC9A44E,metalness:1,roughness:.28,envMapIntensity:1.3,side:T.DoubleSide});
   const dark =new T.MeshPhysicalMaterial({color:0x4A4E52,metalness:1,roughness:.45,envMapIntensity:.8,side:T.DoubleSide});
   const blue =new T.MeshPhysicalMaterial({color:0x2A4FB8,metalness:1,roughness:.14,envMapIntensity:1.2});
   const ruby =new T.MeshPhysicalMaterial({color:0x8A1024,metalness:0,roughness:.18,envMapIntensity:1.0,clearcoat:1,clearcoatRoughness:.1});
-  // 三層夾板：前板孔最大、中板孔略小（透光處＝孔重疊處，看得出層次）
-  G.add(skPlate(0.70, 0.012,0.026,1.0,1.00,plateM));
-  G.add(skPlate(0.72,-0.118,0.030,1.0,0.90,plateM));
+  const RIM=0.47;
+  // ② 下層骨架（y −0.13）：基座環＋五根細臂，角度跟主夾板的臂錯開 → 看得出兩層
+  G.add(skRing(0.58,0.72,0.05,-0.085,lowM));                                    // 藏在刻度環底下的基座環
+  for(let k=0;k<5;k++){ const a=k*Math.PI*2/5+0.95; G.add(skArm([0,0],[Math.cos(a)*0.62,Math.sin(a)*0.62],0.055,0.026,-0.13,lowM)); }
+  G.add(skBoss([0,0],0.085,0.026,-0.13,lowM));
+  // ③ 主夾板（y −0.02）：內緣一圈邊框 ＋ 細臂連到每個軸位 ＋ 軸位凸台
+  G.add(skRing(0.44,0.50,0.05,-0.045,plateM));
+  [[P.ctr,P.bar],[P.ctr,P.thr],[P.ctr,P.fou],[P.fou,P.esc],[P.thr,P.bal],
+   [P.bar,skRim(P.bar,RIM)],[P.thr,skRim(P.thr,RIM)],[P.fou,skRim(P.fou,RIM)],[P.bal,skRim(P.bal,RIM)],[P.esc,skRim(P.esc,RIM)]]
+    .forEach(function(q){ G.add(skArm(q[0],q[1],0.075,0.034,-0.02,plateM)); });
+  G.add(skBoss(P.ctr,0.10,0.036,-0.02,plateM));
+  [P.bar,P.thr,P.fou,P.esc,P.bal].forEach(function(p){ G.add(skBoss(p,0.052,0.040,-0.016,plateM)); });
+  // ④ 輪系：每顆放在不同高度（發條盒最低 → 中心輪 → 三番 → 四番／擒縱最高）
   const gears=[];
-  // [x, z, 外徑, 齒數, 每秒轉速(弧度), 材質, 高度]
-  const LAY=[[0.00,0.00,0.19,30, 0.0175,brass,0.050],   // 中心輪：一小時一圈
-             [-0.30,-0.12,0.155,24,-0.105,steel,0.046],  // 三番車
-             [0.28,-0.24,0.125,20, 0.1047,brass,0.050],  // 四番車：一分鐘一圈
-             [0.36,0.16,0.075,15,-0.85, steel,0.046],    // 擒縱輪
-             [0.02,0.40,0.205,34, 0.008, brass,0.044]];  // 發條盒齒
+  const LAY=[[P.bar,0.205,34, 0.008, brass,0.004],   // 發條盒齒
+             [P.ctr,0.19, 30, 0.0175,brass,0.018],   // 中心輪：一小時一圈
+             [P.thr,0.155,24,-0.105, steel,0.030],   // 三番車
+             [P.fou,0.125,20, 0.1047,brass,0.042],   // 四番車：一分鐘一圈
+             [P.esc,0.075,15,-0.85,  steel,0.042]];  // 擒縱輪
   LAY.forEach(function(q){
-    const m=new T.Mesh(gearGeo(q[2]*s,q[3],0.018,q[2]*s*0.30),q[5]);
-    m.position.set(q[0]*s,q[6],q[1]*s); m.userData.spd=q[4]; G.add(m); gears.push(m);
-    const j=new T.Mesh(new T.CylinderGeometry(q[2]*s*0.13,q[2]*s*0.13,0.024,14),ruby);
-    j.position.set(q[0]*s,q[6]+0.016,q[1]*s); G.add(j);
-    const ch=new T.Mesh(new T.CylinderGeometry(q[2]*s*0.20,q[2]*s*0.20,0.010,18),brass);   // 金色寶石座
-    ch.position.set(q[0]*s,q[6]+0.010,q[1]*s); G.add(ch);
+    const m=new T.Mesh(gearGeo(q[1],q[2],0.016,q[1]*0.30),q[4]); m.position.set(q[0][0],q[5],q[0][1]); m.userData.spd=q[3]; G.add(m); gears.push(m);
+    const ax=new T.Mesh(new T.CylinderGeometry(0.014,0.014,0.09,10),steel); ax.position.set(q[0][0],q[5]+0.03,q[0][1]); G.add(ax);   // 軸
   });
-  // 發條盒：開口盒身＋裡面一圈圈真的發條（跟盒子一起慢慢轉）
-  { const bx=0.02*s, bz=0.40*s;
-    const wall=new T.Mesh(new T.CylinderGeometry(0.185*s,0.185*s,0.040,48,1,true),brass); wall.position.set(bx,0.020,bz); G.add(wall);
-    const spring=new T.Mesh(spiralGeo(0.035*s,0.165*s,4.5,0.0045,220),dark); spring.position.set(bx,0.018,bz);
-    spring.userData.spd=0.008; G.add(spring); gears.push(spring);
-    const arbor=new T.Mesh(new T.CylinderGeometry(0.03*s,0.03*s,0.06,16),steel); arbor.position.set(bx,0.03,bz); G.add(arbor); }
-  // 擺輪：圓環＋橫樑＋會呼吸的游絲（3Hz）
-  let balance=null, hair=null;
-  { const bg=new T.Group(); bg.position.set(-0.27*s,0.040,0.30*s); G.add(bg);
-    const ring=new T.Mesh(new T.TorusGeometry(0.15*s,0.014*s,8,48),steel); ring.rotation.x=Math.PI/2; bg.add(ring);
-    [0,Math.PI/2].forEach(function(a){ const sp=new T.Mesh(new T.BoxGeometry(0.29*s,0.010,0.020*s),steel); sp.rotation.y=a; bg.add(sp); });
-    const hub=new T.Mesh(new T.CylinderGeometry(0.022*s,0.022*s,0.05,14),steel); bg.add(hub);
-    balance=bg;
-    hair=new T.Mesh(spiralGeo(0.022*s,0.115*s,6,0.0028,240),blue); hair.position.set(-0.27*s,0.062,0.30*s); G.add(hair);
-    const stud=new T.Mesh(new T.CylinderGeometry(0.010,0.010,0.03,10),steel); stud.position.set(-0.27*s+0.115*s,0.062,0.30*s); G.add(stud);
-    const bj=new T.Mesh(new T.CylinderGeometry(0.02,0.02,0.02,12),ruby); bj.position.set(-0.27*s,0.070,0.30*s); G.add(bj); }
-  // 擒縱叉：夾在擒縱輪與擺輪之間，跟著擺輪節拍左右撥
-  let pallet=null;
-  { const pg=new T.Group(); pg.position.set(0.06*s,0.046,0.19*s); pg.rotation.y=-0.55; G.add(pg);
-    const arm=new T.Mesh(new T.BoxGeometry(0.30*s,0.010,0.016),steel); pg.add(arm);
-    [-1,1].forEach(function(sg){ const p=new T.Mesh(new T.BoxGeometry(0.04,0.012,0.016),ruby); p.position.set(sg*0.14*s,0,sg*0.02); p.rotation.y=sg*0.6; pg.add(p); });
+  // 發條盒：開口盒身＋裡面真的發條圈（跟盒子一起慢慢轉）
+  { const wall=new T.Mesh(new T.CylinderGeometry(0.185,0.185,0.040,48,1,true),brass); wall.position.set(P.bar[0],0.020,P.bar[1]); G.add(wall);
+    const spring=new T.Mesh(spiralGeo(0.035,0.165,4.5,0.0045,220),dark); spring.position.set(P.bar[0],0.018,P.bar[1]); spring.userData.spd=0.008; G.add(spring); gears.push(spring); }
+  // ⑤ 夾橋（y 0.070）：發條橋（邊框→發條盒→中心）、輪系橋（邊框→四番→三番、四番→擒縱），拋光有倒角
+  const BR=0.070;
+  [[skRim(P.bar,RIM),P.bar,0.10],[P.bar,P.ctr,0.10],[skRim(P.fou,RIM),P.fou,0.09],[P.fou,P.thr,0.09],[P.fou,P.esc,0.065]]
+    .forEach(function(q){ G.add(skArm(q[0],q[1],q[2],0.024,BR,polE)); });
+  // 橋上的寶石座＋紅寶石（上軸承）
+  [P.bar,P.ctr,P.thr,P.fou,P.esc].forEach(function(p){
+    G.add(skBoss(p,0.040,0.010,BR+0.016,brass)); const j=skBoss(p,0.022,0.012,BR+0.024,ruby); G.add(j); });
+  // 藍鋼螺絲：橋靠邊框那一端各一顆＋橋中段一顆
+  const screw=function(p,y){ const s=new T.Mesh(new T.CylinderGeometry(0.020,0.020,0.010,14),blue); s.position.set(p[0],y,p[1]); G.add(s);
+    const slot=new T.Mesh(new T.BoxGeometry(0.028,0.004,0.004),dark); slot.position.set(p[0],y+0.006,p[1]); slot.rotation.y=p[0]*3+p[1]*5; G.add(slot); };
+  [skRim(P.bar,RIM-0.03),skRim(P.fou,RIM-0.03),skRim(P.bal,RIM-0.03),[ (P.bar[0]+P.ctr[0])/2+0.04,(P.bar[1]+P.ctr[1])/2 ],[ (P.fou[0]+P.thr[0])/2,(P.fou[1]+P.thr[1])/2+0.04 ]]
+    .forEach(function(p){ screw(p,BR+0.016); });
+  // ⑥ 擺輪（y 0.058）＋ 游絲 ＋ 擺輪夾板（最上層 y 0.078）＋ 擒縱叉
+  let balance=null, hair=null, pallet=null;
+  { const bg=new T.Group(); bg.position.set(P.bal[0],0.058,P.bal[1]); G.add(bg);
+    const ring=new T.Mesh(new T.TorusGeometry(0.15,0.013,8,48),steel); ring.rotation.x=Math.PI/2; bg.add(ring);
+    [0,Math.PI/2].forEach(function(a){ const sp=new T.Mesh(new T.BoxGeometry(0.29,0.010,0.020),steel); sp.rotation.y=a; bg.add(sp); });
+    bg.add(new T.Mesh(new T.CylinderGeometry(0.02,0.02,0.05,14),steel)); balance=bg;
+    hair=new T.Mesh(spiralGeo(0.022,0.115,6,0.0028,240),blue); hair.position.set(P.bal[0],0.068,P.bal[1]); G.add(hair);
+    G.add(skArm(skRim(P.bal,RIM),P.bal,0.115,0.024,0.078,polE));                   // 擺輪夾板
+    G.add(skBoss(P.bal,0.046,0.010,0.094,brass)); G.add(skBoss(P.bal,0.024,0.012,0.102,ruby));
+    const reg=new T.Mesh(new T.BoxGeometry(0.11,0.008,0.016),steel); reg.position.set(P.bal[0]+0.05,0.096,P.bal[1]-0.03); reg.rotation.y=0.6; G.add(reg);
+    const pg=new T.Group(); pg.position.set(0.06,0.050,0.19); pg.rotation.y=-0.55; G.add(pg);
+    pg.add(new T.Mesh(new T.BoxGeometry(0.30,0.010,0.016),steel));
+    [-1,1].forEach(function(sg){ const p=new T.Mesh(new T.BoxGeometry(0.04,0.012,0.016),ruby); p.position.set(sg*0.14,0,sg*0.02); p.rotation.y=sg*0.6; pg.add(p); });
     pallet=pg; }
-  // 夾橋：兩片拋光橋跨過輪系，藍鋼螺絲固定
-  [[0.16*s,0.052,-0.02*s,0.62*s,0.20*s,0.55],[-0.14*s,0.052,-0.36*s,0.46*s,0.16*s,-0.35]].forEach(function(b){
-    const br=new T.Mesh(rbox(b[3],0.022,b[4],0.06*s),polE); br.position.set(b[0],b[1],b[2]); br.rotation.y=b[5]; G.add(br);
-    [-1,1].forEach(function(sg){ const sc=new T.Mesh(new T.CylinderGeometry(0.018,0.018,0.012,14),blue);
-      sc.position.set(b[0]+Math.cos(b[5])*sg*b[3]*0.38, b[1]+0.014, b[2]-Math.sin(b[5])*sg*b[3]*0.38); G.add(sc);
-      const slot=new T.Mesh(new T.BoxGeometry(0.026,0.004,0.004),dark); slot.position.copy(sc.position); slot.position.y+=0.007; slot.rotation.y=sg*0.7; G.add(slot); });
-  });
   return {group:G, gears:gears, balance:balance, hair:hair, pallet:pallet};
 }
 // 鏤空機芯：主夾板＋輪系＋擺輪＋紅寶石，全部是實體零件不是貼圖
@@ -1794,7 +1812,7 @@ function buildWatch(){
   backBezel.material.side=T.DoubleSide;
   backBezel.rotation.x=Math.PI/2; backBezel.position.y=-0.2376; root.add(backBezel);
   if(dl.tex==='skeleton'){                        // 鏤空：背面機芯板也開孔，孔對齊正面 → 真的透光
-    const mp=skPlate(0.515,-0.216,0.020,1.0,0.70,brushMat(0xB9BDC2,0.42)); root.add(mp);
+    root.add(skBackFrame());
   } else {
     const mvPlate=new T.Mesh(new T.CircleGeometry(0.515,72),
       new T.MeshPhysicalMaterial({color:0x3E443F,metalness:1,roughness:.55,envMapIntensity:.75}));
@@ -1830,6 +1848,9 @@ function buildWatch(){
   // 錶帶
   buildBand(bd,baseM,accM,polM,brushM,accBrush,mt);
   root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
+  // 小零件（螺絲、內圈細紋、字釘、寶石）不投影：一百多個小 mesh 各投一次影是陰影通道最大的開銷
+  root.traverse(function(o){ if(o.isMesh&&o.castShadow){ const g=o.geometry; if(!g.boundingSphere) g.computeBoundingSphere();
+    if(g.boundingSphere&&g.boundingSphere.radius<0.12) o.castShadow=false; } });
   // 🔴 每節鏈節都會互相投影，就算幾何咬合了，陰影還是在接縫處畫出一條硬黑線，
   //    看起來像懸空。鏈節本身還是接光（receiveShadow 留著），只是不再互相投影。
   if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh) o.castShadow=false; });
@@ -2023,14 +2044,14 @@ function regroupByV(g,v0,v1,remap){
 function holeAlphaTile(HT,LEN){
   const S=1024, c=ctx2d(S), g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,S,S); g.fillStyle='#000';
   HT.forEach(function(ht){ const vt=(0.30*ht*LEN)%1, x=0.615*0.46*S, y=(1-vt)*S;   // 頂面中線 u=8/13
-    g.beginPath(); g.ellipse(x,y,0.042*0.72*0.46*S,0.042*0.30*S,0,0,7); g.fill(); });
+    g.beginPath(); g.ellipse(x,y,0.054*0.72*0.46*S,0.054*0.30*S,0,0,7); g.fill(); });   // 挖孔比孔壁管大一圈，孔心完全通透
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; return t;
 }
 function holeAlphaRaw(HT,LEN){
   const W=512,H=2048, c=ctx2d(W); c.height=H; const g=c.getContext('2d');
   g.fillStyle='#fff'; g.fillRect(0,0,W,H); g.fillStyle='#000';
   HT.forEach(function(ht){ const x=0.115*W, y=(1-ht)*H;                          // 底面中線 u=1.5/13
-    g.beginPath(); g.ellipse(x,y,0.042*0.31*W,0.042/LEN*H,0,0,7); g.fill(); });
+    g.beginPath(); g.ellipse(x,y,0.054*0.31*W,0.054/LEN*H,0,0,7); g.fill(); });
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.repeat.set(1,1/LEN); return t;
 }
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
@@ -2186,14 +2207,14 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     if(bd.code!=='RUB'){
       // 第 0 孔正對針的位置，扣起來就是穿過那一孔
       const lea=bd.code==='LEA';
-      const holeM=lea? new T.MeshStandardMaterial({color:0x2B1B12,roughness:.92,side:T.BackSide})     // 孔壁：只畫內面
+      const holeM=lea? new T.MeshStandardMaterial({color:0x6E4B33,roughness:.9,side:T.BackSide})      // 孔壁：只畫內面，皮的切面色
                      : new T.MeshStandardMaterial({color:0x0B0C0D,roughness:.95,side:T.DoubleSide});
       for(let k=0;k<6;k++){
         const ht=0.5-(0.016+k*0.026);
         const hp=curve.getPointAt(ht), htan=curve.getTangentAt(ht).normalize();
         const hyA=new T.Vector3().crossVectors(new T.Vector3(1,0,0),htan).normalize();
         const thL=0.140*(1-0.40*Math.sin(Math.PI*ht));                       // 跟 thF 同公式：這裡的皮厚
-        const h=lea? new T.Mesh(new T.CylinderGeometry(0.042,0.042,thL*1.36,18,1,true),holeM)
+        const h=lea? new T.Mesh(new T.CylinderGeometry(0.048,0.048,thL*1.30,18,1,true),holeM)
                    : new T.Mesh(new T.CylinderGeometry(0.030,0.030,TH*1.45,14),holeM);
         h.position.copy(hp).addScaledVector(hyA,lea?thL*0.28:0);          // 管心在皮的 -0.40th～+0.96th 中點
         h.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(
@@ -2388,7 +2409,7 @@ function applyScene(){
     const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding;
     fx.bg=t; scene.background=t; }
   // 有實拍 HDRI 之後，環境光已經扛掉大部分照明；直接光只留來打陰影跟一點點高光
-  const LK=hdrTex?0.32:1.0;                  // 直接光只留一點點：亮到刺眼就假
+  const LK=hdrTex?0.24:1.0;                  // 直接光只留一點點：亮到刺眼就假
   keyLight.color.setHex(sc.key); keyLight.intensity=sc.keyI*LK;
   rimLight.color.setHex(sc.key); rimLight.intensity=sc.keyI*0.35*LK;
   fillLight.color.setHex(sc.key); fillLight.intensity=sc.keyI*0.30*LK;
@@ -2457,10 +2478,12 @@ function applyScene(){
 
 /* ── 初始化 ───────────────────────────────────────────── */
 function init(){
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  // 解析度上限 1.5 倍（2 倍在 4K／高 DPI 手機上每格要算 400 萬像素，這是卡頓的主因）；
+  // 之後 animate() 會依實際幀時間自動降／升解析度（adaptive resolution）
+  parts.prBase=Math.min(devicePixelRatio, matchMedia('(max-width:1000px)').matches?1.25:1.5); parts.prScale=1; renderer.setPixelRatio(parts.prBase);   // 手機再低一級
   renderer.outputEncoding=T.sRGBEncoding;
   renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=T.PCFSoftShadowMap;
+  renderer.shadowMap.type=T.PCFShadowMap;            // PCFSoft 貴很多，柔邊靠 normalBias 就夠
   renderer.toneMapping=T.ACESFilmicToneMapping;
   renderer.physicallyCorrectLights=false;
   scene=new T.Scene();
@@ -2472,7 +2495,7 @@ function init(){
     function(tx){ hdrTex=tx; if(ok) applyScene(); }, undefined, function(){ hdrTex=null; }); }
   keyLight=new T.DirectionalLight(0xffffff,2.2); keyLight.position.set(-2.6,4.2,2.2);
   keyLight.castShadow=true;
-  keyLight.shadow.mapSize.set(2048,2048);
+  keyLight.shadow.mapSize.set(1024,1024);
   const sc0=keyLight.shadow.camera;
   sc0.left=-4.2; sc0.right=4.2; sc0.top=4.2; sc0.bottom=-4.2; sc0.near=0.5; sc0.far=22;
   keyLight.shadow.bias=-0.0016; keyLight.shadow.normalBias=0.02;
@@ -2512,6 +2535,12 @@ function animate(){
   const t=clock.getElapsedTime();
   // fr＝這一格相當於幾個 60fps 的格：所有動態都乘它，掉格或高更新率螢幕上速度才一致、看起來才順
   const fr=Math.min(3,Math.max(0.05,(t-(parts.lastT==null?t-1/60:parts.lastT))*60)); parts.lastT=t;
+  // 自動解析度：連續量 45 格的平均幀時間，太慢就把像素比降一級、夠快再升回來（每 1.5 秒最多調一次）
+  { parts.ftAcc=(parts.ftAcc||0)+fr; parts.ftN=(parts.ftN||0)+1;
+    if(parts.ftN>=45){ const avg=parts.ftAcc/parts.ftN; parts.ftAcc=0; parts.ftN=0;
+      const now=t; if(now-(parts.prT||0)>1.5){ let sc=parts.prScale;
+        if(avg>1.5&&sc>0.6) sc=Math.max(0.6,sc-0.15); else if(avg<1.08&&sc<1) sc=Math.min(1,sc+0.1);
+        if(sc!==parts.prScale){ parts.prScale=sc; parts.prT=now; renderer.setPixelRatio(parts.prBase*sc); resize(); } } } }
   const n=new Date();
   if(parts.hourG){
     parts.hourG.rotation.y=-(10+10/60)*Math.PI/6;      // 10:10 商業攝影姿勢
