@@ -2873,15 +2873,18 @@ function apply(){
   const se=SERIES[S.series],mt=METAL[S.metal],bz=BEZEL[S.bezel],dl=DIAL[S.dial],
         hs=HANDS[S.hands],lm=LUME[S.lume],bd=BAND[S.band],sc=SCENES[S.scene];
   const fixed=!!se.fixed;                         // Santos：固定規格，不吃選項加價
+  // 鏤空錶盤＝Seiko NH70 鏤空機芯（無日期、無計時）：規格表的機芯／功能與 SKU 前綴照 NH70 走（用戶 2026-09-04）
+  const skel=!fixed&&dl.tex==='skeleton';
+  const mvId=skel?'NH70':se.id, mvName=skel?'Seiko NH70 自動機械':se.mv, fnName=skel?'三針 · 鏤空':se.fn;
   const price=fixed? se.base : se.base+mt.add+bz.add+dl.add+hs.add+lm.add+bd.add;
-  const sku=fixed? `${se.id}-${se.code}` : `${se.id}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
+  const sku=fixed? `${se.id}-${se.code}` : `${mvId}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
   const spec=fixed? se.spec : {metal:mt.name,bezel:bz.name,dial:dl.name,hands:hs.name+'（'+lm.name+'）',band:bd.name};
   $('priceOut').textContent=nf(price); $('skuOut').textContent=sku;
   $('pk-scene').textContent=sc.name;   $('pk-series').textContent=se.name;
   $('pk-metal').textContent=spec.metal;   $('pk-bezel').textContent=spec.bezel;
   $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(hs.name+' · '+lm.name);
   $('pk-band').textContent=spec.band;
-  const rows=[['系列',se.name],['機芯',se.mv],['功能',se.fn],['錶徑',se.size+'mm'],
+  const rows=[['系列',se.name],['機芯',mvName],['功能',fnName],['錶徑',se.size+'mm'],
     ['防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
     ['指針',spec.hands],['錶帶',spec.band],['SKU',sku],['參考價','NT$ '+nf(price)]];
   const L=$('specList'); L.textContent='';
