@@ -115,7 +115,7 @@ header{position:sticky; top:0; z-index:40;
 #gl{display:block; width:100%; height:100%; touch-action:none; cursor:grab; transition:opacity .35s}
 #gl:active{cursor:grabbing}
 #heroImg{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
-  background:transparent; pointer-events:none; z-index:3}
+  background:transparent; pointer-events:none; z-index:3; transition:opacity .35s}
 .hint{position:absolute; left:16px; top:15px; font-size:11.5px; letter-spacing:.05em;
   color:var(--ink-3); pointer-events:none; z-index:8;
   font-family:"LXGW WenKai TC","Noto Sans TC",serif}
@@ -2839,6 +2839,7 @@ function animate(){
       p.array[i-1]+=Math.sin(t*1.6+i)*0.0022; if(p.array[i]>4.5) p.array[i]=-4.5; }
     p.needsUpdate=true; }
   renderer.render(scene,camera);
+  parts.frames=(parts.frames||0)+1; if(parts.frames===4) onScroll();   // 3D 畫過幾格 → 影格交棒（見 onScroll 的 glReady）
 }
 
 /* ── 套用選項 ─────────────────────────────────────────── */
@@ -2886,7 +2887,7 @@ let tRotY=CH[0].rotY, tRotX=CH[0].rotX, tDist=CH[0].dist;
 // glide＝進出 mini 時讓鏡頭用阻尼滑過去的格數（故事外平常不追目標）。
 let glide=0, lookY=-0.72, tLookY=-0.72;
 const MINI_CAM={rotX:0.40, dist:5.5, lookY:-0.32};
-let storyOn=true, curCh=-1, heroP=0;
+let storyOn=true, storyDone=false, curCh=-1, heroP=0;   // storyDone＝故事捲到底過一次，之後不再重播
 const heroImgs=[];
 // Hero 影格是在紙色背景上算的 → 深色主題不要用，直接走即時 3D。
 // 判斷方式＝看頁面 --paper 的亮度，跟著主題走，不必再猜 media query。
@@ -2954,11 +2955,16 @@ function onScroll(){
   const f=u-idx;
   const a=CH[idx], b=CH[idx+1];
   const e=f<0.5?2*f*f:1-Math.pow(-2*f+2,2)/2;          // easeInOutQuad
-  tRotY=a.rotY+(b.rotY-a.rotY)*e;
-  tRotX=a.rotX+(b.rotX-a.rotX)*e;
-  tDist=a.dist+(b.dist-a.dist)*e;
-  tLookY=-0.72;
-  storyOn=p<0.999;
+  // 🔴 故事只播一次：捲到底（p≥0.999）之後往回捲，鏡頭／情境／錶帶淡出都不再跟章節走，
+  //    保留使用者在配置器選好的情境與角度（用戶 0904：往上滑會被還原成棚拍＋夜晚）。
+  if(p>=0.999) storyDone=true;
+  if(!storyDone){
+    tRotY=a.rotY+(b.rotY-a.rotY)*e;
+    tRotX=a.rotX+(b.rotX-a.rotX)*e;
+    tDist=a.dist+(b.dist-a.dist)*e;
+    tLookY=-0.72;
+  }
+  storyOn=!storyDone&&p<0.999;
 
   // 手機版：桌機靠雙欄撐高讓 sticky 有空間可放，單欄沒有那個高度可借，
   // 改成量 .stage-col 原生位置手動判斷該不該釘住（釘住只維持到故事讀完）。
@@ -2979,6 +2985,7 @@ function onScroll(){
       if(wantMini!==hadMini) glide=110;
     }
     if(wantMini){ tRotX=MINI_CAM.rotX; tDist=MINI_CAM.dist; tLookY=MINI_CAM.lookY; }
+    else if(storyDone&&hadMini){ const L=CH[CH.length-1]; tRotX=L.rotX; tDist=L.dist; tLookY=-0.72; }   // 故事完成後往上捲離開矮版：回整支錶的框
   } else if(stageCol&&(stageCol.classList.contains('pin')||stageCol.classList.contains('mini'))){
     stageCol.classList.remove('pin'); stageCol.classList.remove('mini');
     if(ok) resize();
@@ -2987,20 +2994,25 @@ function onScroll(){
   // Hero 影格：第 0 章刷完 72 格，最後 25% 交棒給即時 3D
   heroP=Math.max(0,Math.min(1,u));
   const hi=$('heroImg');
-  if(heroImgs.length&&hi&&!paperDark){
+  // 🔴 影格只當「WebGL 還沒畫出第一格」的佔位圖：3D 畫過幾格就整段交棒，不再等第 0 章 75%。
+  //    原本最後 25% 兩層各半透明交叉淡入淡出，紙色從縫裡透出來 → 手機淺色模式整個舞台泛白一格（用戶 0904 實測抓到）；
+  //    而且影格是 620×620 正方形、舞台是直框，contain 會在上下留紙色帶，看起來像貼了一張圖。
+  //    深色主題本來就全程 3D，用戶沒抱怨過 → 淺色照同一條路走。交棒時 3D 先整個不透明（關掉 transition），
+  //    再讓上面的影格淡出，兩層永遠不會同時半透明。
+  const glReady=ok&&(parts.frames||0)>3;
+  if(heroImgs.length&&hi&&!paperDark&&!glReady){
     const k=Math.min(heroImgs.length-1,Math.round(heroP*(heroImgs.length-1)));
     hi.src=heroImgs[k].src;                       // 不等 complete，瀏覽器解碼好會自己畫
-    const fade=Math.max(0,Math.min(1,(heroP-0.75)/0.25));
-    hi.style.opacity=(1-fade).toFixed(3);
-    hi.style.display=fade>=1?'none':'block';
-    $('gl').style.opacity=fade.toFixed(3);
-  } else if(hi){                       // 深色主題：不放影格，3D 直接全程接手
-    hi.style.display='none'; $('gl').style.opacity='1';
+    hi.style.opacity='1'; hi.style.display='block'; $('gl').style.opacity='0';
+  } else if(hi&&hi.style.display!=='none'){       // 深色主題／3D 已就緒：3D 先實心，影格淡出後拿掉
+    const g=$('gl'); g.style.transition='none'; g.style.opacity='1';
+    hi.style.opacity='0';
+    if(!hi._hideT) hi._hideT=setTimeout(function(){ hi.style.display='none'; g.style.transition=''; },420);
   }
   const sh=$('scrollHint'); if(sh) sh.style.opacity=u>0.22?0:1;
 
   // 第 4 章翻面看透底：錶帶是閉合的一圈，不淡出就會擋在背蓋正前方
-  setBandFade(Math.max(0,Math.min(1,(Math.abs(u-4)-0.30)/0.45)));
+  setBandFade(storyDone?1:Math.max(0,Math.min(1,(Math.abs(u-4)-0.30)/0.45)));
 
   // 文字卡：離自己那一章越近越亮
   const near=Math.round(u);
@@ -3014,7 +3026,7 @@ function onScroll(){
   //    （夜卡置中時 p/seg 實測只有 4.3）。直接量夜卡在不在畫面上才會同步。
   const NGT=SCENES.findIndex(function(x){return x.code==='NGT';});
   const nc=cards[5], nb=nc&&nc.getBoundingClientRect();
-  setSceneOnly((nb && nb.top<vh*0.74 && nb.bottom>vh*0.26)?NGT:0);
+  if(!storyDone) setSceneOnly((nb && nb.top<vh*0.74 && nb.bottom>vh*0.26)?NGT:0);   // 故事完成後不再自動切情境
 
   // 功能標註點（橘色圓點＋脈衝圈）已整個拿掉：用戶 0904 說手機捲動時橘點礙眼。
   //   CH[].hot 座標留著沒用到，之後要做別的標註再拿來用。
