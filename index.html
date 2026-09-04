@@ -112,7 +112,7 @@ header{position:sticky; top:0; z-index:40;
 .stage::before{left:26px; transform:rotate(-6deg)}
 .stage::after{right:26px; transform:rotate(5deg)}
 @media(max-width:1000px){ .stage{position:absolute; inset:0} }
-#gl{display:block; width:100%; height:100%; touch-action:none; cursor:grab; transition:opacity .35s}
+#gl{display:block; width:100%; height:100%; touch-action:pan-y; cursor:grab; transition:opacity .35s}   /* pan-y：手指上下滑＝捲頁、左右拖＝轉錶（用戶 0904：錶佔滿手機畫面時 none 會讓整頁捲不動） */
 #gl:active{cursor:grabbing}
 #heroImg{position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
   background:transparent; pointer-events:none; z-index:3; transition:opacity .35s}
@@ -345,7 +345,7 @@ header{position:sticky; top:0; z-index:40;
     <img id="heroImg" alt="">
     <div id="scrollHint">往下捲</div>
     <div id="chronoCtl" hidden><button type="button" id="chStart">▶ 計時</button><button type="button" id="chReset">↺ 歸零</button></div>
-    <div class="hint">拖曳可轉動 · 滾輪縮放</div>
+    <div class="hint">拖曳可轉動 · Ctrl+滾輪縮放</div>
     <div class="fallback" id="fallback">這台裝置的瀏覽器不支援 3D 顯示，請改用較新的 Chrome、Edge 或 Safari。</div>
     <div class="readout">
       <div class="sku" id="skuOut">NH35-SUB-BLKBK-STOYS</div>
@@ -2663,12 +2663,16 @@ let rotorAng=0,rotorVel=0;
 function drag(){
   cv.addEventListener('pointerdown',e=>{drg=true;storyOn=false;glide=0;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});
   cv.addEventListener('pointerup',()=>drg=false);
+  cv.addEventListener('pointercancel',()=>drg=false);   // 手機 pan-y：瀏覽器接手垂直捲動時會取消指標，要把拖曳狀態放掉
   cv.addEventListener('pointermove',e=>{ if(!drg) return;
     const dY=(e.clientX-px)*0.0075, dX=(e.clientY-py)*0.006;
     rotY+=dY; rotX=Math.max(-1.62,Math.min(1.62,rotX+dX));
     spinVel+=dY; tiltVel+=dX;
     px=e.clientX; py=e.clientY; });
-  cv.addEventListener('wheel',e=>{ e.preventDefault(); glide=0;
+  // 🔴 滾輪停在錶上照常捲頁；按住 Ctrl 滾（觸控板兩指縮放也會帶 ctrlKey）才縮放錶。
+  //    原本無條件 preventDefault，手機模擬視窗錶佔滿畫面時整頁捲不動（用戶 0904）。拖曳轉錶不受影響。
+  cv.addEventListener('wheel',e=>{ if(!(e.ctrlKey||e.metaKey)) return;
+    e.preventDefault(); glide=0;
     dist=Math.max(3.6,Math.min(11,dist+e.deltaY*0.0028)); },{passive:false});
 }
 function animate(){
