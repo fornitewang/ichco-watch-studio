@@ -1531,6 +1531,23 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
   // 錶殼中層：圓角方形、拉絲側面、平底
   const body=new T.Mesh(extrudeUp(roundedRectShape(1.88,2.08,0.40),0.30,0.02,2),[brushM,brushM]);
   body.position.y=-0.20; root.add(body);
+  // 錶耳座（12／6 兩端）：機身只到 z ±1.06、錶圈卻伸到 ±1.14 且往下彎，之前鏈帶第一節從 z 1.12 懸空起算，
+  // 側看錶帶跟錶殼中間是一道黑縫（用戶 0904：錶耳與錶帶沒有連接）。
+  // 補一塊寬 1.10（比鏈帶 1.04 各寬 0.03）的拉絲座：頂面貼著錶圈底面的下彎曲線（錶圈底 y=0.08−下彎量），
+  // 底面從機身底 −0.22 順著鏈帶方向斜到 −0.26，外端 z 1.17；鏈帶曲線起點改埋進座裡（z 1.06），第一節從座的端面長出來。
+  { const B=0.015, bzBot=function(z){ const k=Math.max(0,z-0.84); return 0.08-1.2*k*k-0.15*k; };
+    [-1,1].forEach(function(sg){
+      const s=new T.Shape();
+      s.moveTo(sg*0.90,-0.22+B); s.lineTo(sg*1.06,-0.22+B); s.lineTo(sg*(1.17-B),-0.26+B); s.lineTo(sg*(1.17-B),bzBot(1.17-B)-0.006-B);
+      for(let i=1;i<=9;i++){ const z=(1.17-B)-((1.17-B)-0.90)*i/9; s.lineTo(sg*z,bzBot(z)-0.006-B); }
+      s.closePath();
+      const g=new T.ExtrudeGeometry(s,{depth:1.10-2*B,bevelEnabled:true,bevelSize:B,bevelThickness:B,bevelSegments:2,curveSegments:8});
+      g.rotateY(-Math.PI/2);                                            // 剖面 (z,y) 沿 x 擠出
+      g.computeBoundingBox(); g.translate(-(g.boundingBox.min.x+g.boundingBox.max.x)/2,0,0);
+      g.computeVertexNormals();
+      root.add(new T.Mesh(g,[brushM,brushM]));
+    });
+  }
   // 錶圈：圓角方形＋方形開口；頂面拉絲、倒角與側面拋光；12／6 兩端往下彎
   const bzShape=roundedRectShape(1.96,2.22,0.46); bzShape.holes.push(roundedRectShape(1.42,1.42,0.17));
   const bezG=extrudeUp(bzShape,0.13,0.030,3);
@@ -1591,12 +1608,12 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
 function buildSantosBand(polM,brushM){
   parts.loop=new T.Group(); root.add(parts.loop);
   parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[];
-  const Z0=1.12, Y0=-0.145;
+  const Z0=1.06, Y0=-0.14;                 // 起點埋在錶耳座裡（座 z 0.90–1.17、y −0.22 起）
   const pts=[
-    new T.Vector3(0,Y0,-Z0), new T.Vector3(0,-0.40,-1.54), new T.Vector3(0,-0.98,-1.64),
+    new T.Vector3(0,Y0,-Z0), new T.Vector3(0,-0.32,-1.55), new T.Vector3(0,-0.98,-1.64),
     new T.Vector3(0,-1.56,-1.32), new T.Vector3(0,-1.98,-0.76), new T.Vector3(0,-2.08,0.00),
     new T.Vector3(0,-1.98, 0.76), new T.Vector3(0,-1.56, 1.32), new T.Vector3(0,-0.98, 1.64),
-    new T.Vector3(0,-0.40, 1.54), new T.Vector3(0,Y0, Z0)];
+    new T.Vector3(0,-0.32, 1.55), new T.Vector3(0,Y0, Z0)];
   const curve=new T.CatmullRomCurve3(pts,false,'catmullrom',0.5), LEN=curve.getLength();
   const TH=function(u){ return 0.150-0.030*Math.sin(Math.PI*u); };
   const HW=function(u){ return 0.520*(1-0.16*Math.sin(Math.PI*u)); };
@@ -2849,7 +2866,7 @@ let tRotY=CH[0].rotY, tRotX=CH[0].rotX, tDist=CH[0].dist;
 // 手機矮版預覽（.mini）的鏡頭：拉近到錶殼填滿矮框、視線中心從 -0.72 抬到錶殼；
 // glide＝進出 mini 時讓鏡頭用阻尼滑過去的格數（故事外平常不追目標）。
 let glide=0, lookY=-0.72, tLookY=-0.72;
-const MINI_CAM={rotX:0.40, dist:5.2, lookY:-0.35};
+const MINI_CAM={rotX:0.40, dist:5.5, lookY:-0.32};
 let storyOn=true, curCh=-1, heroP=0;
 const heroImgs=[];
 // Hero 影格是在紙色背景上算的 → 深色主題不要用，直接走即時 3D。
