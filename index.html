@@ -133,22 +133,11 @@ header{position:sticky; top:0; z-index:40;
 #scrollHint{position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:8;
   font-family:"LXGW WenKai TC","Noto Sans TC",serif; font-size:12.5px;
   letter-spacing:.1em; color:var(--ink-3); transition:opacity .4s}
-#hot{position:absolute; inset:0; pointer-events:none; z-index:6}
 /* 計時碼錶按鈕：只有三眼款出現 */
 #chronoCtl{position:absolute; right:14px; bottom:54px; z-index:9; display:flex; gap:6px}
 #chronoCtl button{font:600 12px/1 'Saira Condensed',system-ui; letter-spacing:.06em; padding:9px 13px; border-radius:999px;
   border:1px solid rgba(255,255,255,.35); background:rgba(20,24,28,.55); color:#F2EFE9; backdrop-filter:blur(6px); cursor:pointer}
 #chronoCtl button:active{transform:translateY(1px)}
-#hot .dot{position:absolute; width:10px; height:10px; margin:-5px 0 0 -5px;
-  border-radius:50%; background:var(--apricot);
-  box-shadow:0 0 0 4px rgba(224,134,74,.26);
-  box-shadow:0 0 0 4px color-mix(in srgb,var(--apricot) 26%,transparent);
-  opacity:0; transition:opacity .4s}
-#hot .dot.on{opacity:1}
-#hot .ring{position:absolute; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:50%;
-  border:1.5px solid var(--apricot); opacity:0; transition:opacity .4s}
-#hot .ring.on{opacity:.6; animation:pulse 2.4s ease-out infinite}
-@keyframes pulse{0%{transform:scale(.6);opacity:.65}100%{transform:scale(1.5);opacity:0}}
 
 /* ── 筆記本內頁：一章一則 ─────────────────── */
 #story{padding:0}
@@ -245,12 +234,27 @@ header{position:sticky; top:0; z-index:40;
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 
 @media(max-width:1000px){
+  /* 頁首收成一行：藏 build 章（窄螢幕再藏副標），不然 390px 寬會折成兩行、
+     把釘在 top:58px 的舞台上緣蓋掉 40px（用戶 0904 iPhone 14 實測） */
+  .bar{padding:12px 16px; flex-wrap:nowrap; gap:10px}
+  .brand .mono{display:none}
+  .ghost{padding:6px 12px; font-size:12.5px; white-space:nowrap; flex:none}
   .stage-col{position:relative; aspect-ratio:1/0.86; height:auto}
   .stage-col.pin .stage{position:fixed; top:58px; left:22px; right:22px; bottom:auto;
     aspect-ratio:1/0.86; height:auto; z-index:5}
+  /* 故事讀完進配置器：舞台不放走，改成矮版 .mini 繼續釘在頁首下，
+     選項在下面捲、換了什麼隨時看得到（用戶 0904：iPhone 捲到底選配置時看不到 3D 預覽） */
+  .stage-col.pin.mini .stage{aspect-ratio:auto; height:clamp(190px,34vh,290px); border-radius:18px}
+  .stage-col.pin.mini .hint, .stage-col.pin.mini #scrollHint{display:none}
+  .stage-col.pin.mini .readout{padding:8px 13px; gap:10px}
+  .stage-col.pin.mini .readout .sku{font-size:11px}
+  .stage-col.pin.mini .readout .price{font-size:20px}
+  .stage-col.pin.mini .readout .price small{font-size:11px}
+  .stage-col.pin.mini #chronoCtl{bottom:auto; top:10px; right:10px}
   .chapter{min-height:74vh}
   .card.night{padding:22px}
 }
+@media(max-width:480px){ .brand .hand{display:none} }
 @media (prefers-reduced-motion:reduce){ *{transition:none !important; animation:none !important}
   .card{opacity:1;transform:none} }
 
@@ -339,7 +343,6 @@ header{position:sticky; top:0; z-index:40;
   <div class="stage-col"><div class="stage">
     <canvas id="gl"></canvas>
     <img id="heroImg" alt="">
-    <div id="hot"><div class="ring" id="hotRing"></div><div class="dot" id="hotDot"></div></div>
     <div id="scrollHint">往下捲</div>
     <div id="chronoCtl" hidden><button type="button" id="chStart">▶ 計時</button><button type="button" id="chReset">↺ 歸零</button></div>
     <div class="hint">拖曳可轉動 · 滾輪縮放</div>
@@ -2622,14 +2625,14 @@ let rotY=-0.50,rotX=-0.13,dist=7.8,drg=false,px=0,py=0,spinVel=0,tiltVel=0;
 let loopTwist=0,loopTwistV=0,loopSway=0,loopSwayV=0;
 let rotorAng=0,rotorVel=0;
 function drag(){
-  cv.addEventListener('pointerdown',e=>{drg=true;storyOn=false;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointerdown',e=>{drg=true;storyOn=false;glide=0;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});
   cv.addEventListener('pointerup',()=>drg=false);
   cv.addEventListener('pointermove',e=>{ if(!drg) return;
     const dY=(e.clientX-px)*0.0075, dX=(e.clientY-py)*0.006;
     rotY+=dY; rotX=Math.max(-1.62,Math.min(1.62,rotX+dX));
     spinVel+=dY; tiltVel+=dX;
     px=e.clientX; py=e.clientY; });
-  cv.addEventListener('wheel',e=>{ e.preventDefault();
+  cv.addEventListener('wheel',e=>{ e.preventDefault(); glide=0;
     dist=Math.max(3.6,Math.min(11,dist+e.deltaY*0.0028)); },{passive:false});
 }
 function animate(){
@@ -2758,12 +2761,13 @@ function animate(){
   // 🔴 鋼錶帶不是皮帶，不該跟著甩動變軟——metal band 完全靜止，不掛 flexStrap。
   if(parts.loop) parts.loop.rotation.z = loopSway*0.22;
   // 故事模式：鏡頭用阻尼追目標；一旦使用者拖曳就把控制權交出去
-  if(storyOn&&!drg){
-    rotY+=(tRotY-rotY)*0.075; rotX+=(tRotX-rotX)*0.075; dist+=(tDist-dist)*0.075;
+  if((storyOn||glide>0)&&!drg){
+    rotY+=(tRotY-rotY)*0.075; rotX+=(tRotX-rotX)*0.075; dist+=(tDist-dist)*0.075; lookY+=(tLookY-lookY)*0.075;
+    if(glide>0) glide--;
   }
   root.rotation.y=rotY; root.rotation.x=rotX;
   camera.position.set(0,dist*0.51,dist);
-  camera.lookAt(0,-0.72,0);
+  camera.lookAt(0,lookY,0);
   if(fx.rain){ const p=fx.rain.geometry.attributes.position;
     for(let i=1;i<p.array.length;i+=3){ p.array[i]-=0.16*fr; if(p.array[i]<-5.5) p.array[i]=5.5; }
     p.needsUpdate=true; }
@@ -2842,6 +2846,10 @@ const CH=[
  {rotY:-0.60, rotX: 0.22, dist:11.0}   // 「換你了」：拉遠到整支錶（含整圈錶帶）都在畫面內，帶一點角度
 ];
 let tRotY=CH[0].rotY, tRotX=CH[0].rotX, tDist=CH[0].dist;
+// 手機矮版預覽（.mini）的鏡頭：拉近到錶殼填滿矮框、視線中心從 -0.72 抬到錶殼；
+// glide＝進出 mini 時讓鏡頭用阻尼滑過去的格數（故事外平常不追目標）。
+let glide=0, lookY=-0.72, tLookY=-0.72;
+const MINI_CAM={rotX:0.40, dist:5.2, lookY:-0.35};
 let storyOn=true, curCh=-1, heroP=0;
 const heroImgs=[];
 // Hero 影格是在紙色背景上算的 → 深色主題不要用，直接走即時 3D。
@@ -2913,6 +2921,7 @@ function onScroll(){
   tRotY=a.rotY+(b.rotY-a.rotY)*e;
   tRotX=a.rotX+(b.rotX-a.rotX)*e;
   tDist=a.dist+(b.dist-a.dist)*e;
+  tLookY=-0.72;
   storyOn=p<0.999;
 
   // 手機版：桌機靠雙欄撐高讓 sticky 有空間可放，單欄沒有那個高度可借，
@@ -2920,15 +2929,22 @@ function onScroll(){
   // 🔴 .pin 一切換，.stage 的實際渲染框（inset:0 填滿 vs fixed+aspect-ratio）跟著換，
   //    three.js 的渲染緩衝跟 camera.aspect 卻還停在切換前那個尺寸沒更新，
   //    畫面會被拉伸／裁切（錶殼被推出框外只剩錶帶）。切換當下必須重新 resize() 一次。
+  // 🔴 釘住不只維持到故事讀完：故事之後（配置器）改成矮版 .mini 繼續釘，
+  //    否則捲到下面選配置時 3D 預覽早就捲出畫面外（用戶 0904 iPhone 實測）。
+  //    進出 mini 鏡頭用 glide 滑到 MINI_CAM；使用者一拖曳／滾輪 glide 就歸零交出控制權。
+  //    mini 期間每次捲動都要重新蓋掉故事算出的目標，不然 glide 還沒跑完就被拉回整支錶遠景。
   if(mqMobile.matches&&stageCol){
     const scTop=stageCol.getBoundingClientRect().top;
-    const wantPin=storyOn&&scTop<=58;
-    if(wantPin!==stageCol.classList.contains('pin')){
-      stageCol.classList.toggle('pin', wantPin);
+    const wantPin=scTop<=58, wantMini=wantPin&&!storyOn;
+    const hadPin=stageCol.classList.contains('pin'), hadMini=stageCol.classList.contains('mini');
+    if(wantPin!==hadPin||wantMini!==hadMini){
+      stageCol.classList.toggle('pin', wantPin); stageCol.classList.toggle('mini', wantMini);
       if(ok) resize();
+      if(wantMini!==hadMini) glide=110;
     }
-  } else if(stageCol&&stageCol.classList.contains('pin')){
-    stageCol.classList.remove('pin');
+    if(wantMini){ tRotX=MINI_CAM.rotX; tDist=MINI_CAM.dist; tLookY=MINI_CAM.lookY; }
+  } else if(stageCol&&(stageCol.classList.contains('pin')||stageCol.classList.contains('mini'))){
+    stageCol.classList.remove('pin'); stageCol.classList.remove('mini');
     if(ok) resize();
   }
 
@@ -2964,18 +2980,9 @@ function onScroll(){
   const nc=cards[5], nb=nc&&nc.getBoundingClientRect();
   setSceneOnly((nb && nb.top<vh*0.74 && nb.bottom>vh*0.26)?NGT:0);
 
-  // 功能標註點
+  // 功能標註點（橘色圓點＋脈衝圈）已整個拿掉：用戶 0904 說手機捲動時橘點礙眼。
+  //   CH[].hot 座標留著沒用到，之後要做別的標註再拿來用。
   if(near!==curCh){ curCh=near; }
-  const hotCfg=CH[Math.min(CH.length-1,near)].hot;
-  const dot=$('hotDot'), ring=$('hotRing');
-  if(ok&&hotCfg&&storyOn&&heroP>=1){
-    const v=new T.Vector3(hotCfg[0],hotCfg[1],hotCfg[2]);
-    root.localToWorld(v); v.project(camera);
-    const rc=$('gl').getBoundingClientRect();
-    const x=(v.x*0.5+0.5)*rc.width, y=(-v.y*0.5+0.5)*rc.height;
-    [dot,ring].forEach(function(el){ el.style.left=x+'px'; el.style.top=y+'px';
-      el.classList.add('on'); });
-  } else { dot.classList.remove('on'); ring.classList.remove('on'); }
 }
 addEventListener('scroll', onScroll, {passive:true});
 addEventListener('resize', onScroll);
