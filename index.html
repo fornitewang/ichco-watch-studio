@@ -1600,7 +1600,8 @@ function buildSantos(se,scn,wet,baseM,accM,polM,brushM){
     sl.position.y=0.139; sl.renderOrder=13; root.add(sl); parts.wetLayer=sl; }
   buildSantosBand(polM,brushM);
   root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
-  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh) o.castShadow=false; });
+  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh&&!o.userData.shadowProxy) o.castShadow=false; });   // 鏈節不互投（見 buildWatch 尾端紅字）
+  addBandShadow();
   applyEnvToAll();
 }
 // 螺絲鏈節鋼帶：每排三片（外 27％／中 46％／外 27％）對齊不錯開，外側兩片各一顆拋光一字螺絲；
@@ -1617,6 +1618,7 @@ function buildSantosBand(polM,brushM){
   const curve=new T.CatmullRomCurve3(pts,false,'catmullrom',0.5), LEN=curve.getLength();
   const TH=function(u){ return 0.150-0.030*Math.sin(Math.PI*u); };
   const HW=function(u){ return 0.520*(1-0.16*Math.sin(Math.PI*u)); };
+  parts.loop.userData.shadowCurve={curve:curve,hw:HW(0),th:TH(0)};   // 給 addBandShadow 做投影代理體
   const vc=function(m){ const c=m.clone(); c.vertexColors=true; c.side=T.FrontSide; return c; };
   // 🔴 用戶對照實品照片：Santos 這款鏈帶是「鍍鉻光亮」，頂面沒有髮絲紋 → 全拋光，不吃 brushM
   const M_pol=vc(polM), darkM=new T.MeshStandardMaterial({color:0x6E7378,roughness:.45,metalness:.9});
@@ -1939,7 +1941,9 @@ function buildWatch(){
     if(g.boundingSphere&&g.boundingSphere.radius<0.12) o.castShadow=false; } });
   // 🔴 每節鏈節都會互相投影，就算幾何咬合了，陰影還是在接縫處畫出一條硬黑線，
   //    看起來像懸空。鏈節本身還是接光（receiveShadow 留著），只是不再互相投影。
-  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh) o.castShadow=false; });
+  //    錶帶的地面影子改由 addBandShadow 的隱形代理體負責（用戶 0904 抓到錶帶沒影子）。
+  if(parts.loop) parts.loop.traverse(function(o){ if(o.isMesh&&!o.userData.shadowProxy) o.castShadow=false; });
+  addBandShadow();
   applyEnvToAll();
 }
 
@@ -2144,6 +2148,20 @@ function holeAlphaRaw(HT,LEN,hwF){
     g.beginPath(); g.ellipse(x,y,HOLE_R*uPer*W,HOLE_R/LEN*H,0,0,7); g.fill(); });
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.repeat.set(1,1/LEN); return t;
 }
+// 錶帶的地面影子。鏈節互相投影會在每個接縫畫出硬黑線（見 buildWatch 尾端紅字），所以鏈節本身不投影；
+// 改用一條看不見的連續代理體（沿同一條曲線、比鏈節稍薄）只負責投影：地面與錶殼收得到錶帶的影子，
+// 鏈節表面不會多出陰影痕。軟帶本來就是一整條 sweep，直接讓它投影（會跟著 flexStrap 一起擺）。
+// 用戶 2026-09-04：「情境光線下手錶的影子只有錶身、錶帶的影子不見了」。
+function addBandShadow(){
+  parts.bandShadow=null;
+  if(!parts.loop) return;
+  if(parts.softStrap){ parts.softStrap.castShadow=true; return; }
+  const d=parts.loop.userData.shadowCurve; if(!d) return;
+  const g=sweepStrap(d.curve,[[-1,-0.5],[-1,0.5],[1,0.5],[1,-0.5],[-1,-0.5]],60,d.hw,d.th*0.75,1);
+  const m=new T.Mesh(g,new T.MeshBasicMaterial({colorWrite:false,depthWrite:false}));
+  m.castShadow=true; m.receiveShadow=false; m.renderOrder=-5; m.frustumCulled=false; m.userData.shadowProxy=true;
+  parts.loop.add(m); parts.bandShadow=m;
+}
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
@@ -2161,6 +2179,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   const N = 40, segL = LEN/N;                  // 軟帶掃掠用的取樣數
   const TH=function(u){ return 0.160-0.036*Math.sin(Math.PI*u); };   // 厚：帶頭 3.2mm → 錶扣 2.5mm
   const HW=function(u){ return 0.500*(1-0.17*Math.sin(Math.PI*u)); }; // 半寬：20mm → 16.6mm
+  parts.loop.userData.shadowCurve={curve:curve,hw:HW(0),th:TH(0)};   // 給 addBandShadow 做投影代理體
 
   let softM=null, edgeM=null, liningM=null, keepLea=null;
   const hexc=function(v){ return '#'+v.toString(16).padStart(6,'0'); };
@@ -2788,6 +2807,7 @@ function animate(){
     for(let i=0;i<n;i++){ RW[i].g.rotation.y=RW[i].by+RW[i].sy; RW[i].g.rotation.x=RW[i].sx; }
   }
   if(parts.softStrap) flexStrap(parts.softStrap, loopTwist, loopSway);
+  if(parts.bandShadow) flexStrap(parts.bandShadow, loopTwist, loopSway);   // 投影代理體跟鏈節同步擺，影子才不會脫節
   // 針扣、皮環、調整孔是剛體，套 flexStrap 同一組旋轉（先繞世界 Y 再繞世界 X，權重 sin(πt)）才會跟皮帶同步搖
   if(parts.softAtt&&parts.softAtt.length){
     const Yw=new T.Vector3(0,1,0), Xw2=new T.Vector3(1,0,0), qy=new T.Quaternion(), qx=new T.Quaternion();
