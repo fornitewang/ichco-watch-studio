@@ -624,7 +624,7 @@ function buildUI(){
     : `linear-gradient(180deg,#ffffff22,${hex(o.col)})`));
   // 固定規格系列（Santos）：把客製選項整組收起來，只留情境與系列
   const fixed=!!SERIES[S.series].fixed;
-  if($('chronoCtl')) $('chronoCtl').hidden=!SERIES[S.series].sub;   // 三眼款才有計時按鈕
+  if($('chronoCtl')) $('chronoCtl').hidden=!SERIES[S.series].sub || DIAL[S.dial].tex==='skeleton';   // 三眼款才有計時按鈕；鏤空機芯（NH70）沒有計時功能→按鈕一併收起（用戶 2026-09-04）
   ['opt-metal','opt-bezel','opt-dial','opt-hands','opt-band'].forEach(function(id){
     const sec=$(id)&&$(id).closest('section'); if(sec) sec.hidden=fixed; });
 }
@@ -1788,7 +1788,7 @@ function buildWatch(){
   // 把冠（車削本體＋滾花＋端面）與護橋
   root.add(buildCrown3D(accM, polM));
   parts.pushers=null;
-  if(se.sub){                                 // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）
+  if(se.sub && !skel){                         // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）；鏤空機芯沒有計時功能→不做按把（用戶 2026-09-04）
     const p1=buildPusher(accM, polM, 1), p2=buildPusher(accM, polM, -1);
     root.add(p1,p2); parts.pushers=[p1,p2];
   }
