@@ -69,13 +69,19 @@ body{
   font-size:15px; line-height:1.8; -webkit-font-smoothing:antialiased;
 }
 /* ── 系列油畫背景（火焰光影）：只在客人「選系列」時切換，滾動不變 ── */
-#artBg{position:fixed; inset:0; z-index:-1; opacity:0; transition:opacity .5s; pointer-events:none; display:none}
+#artBg{position:fixed; top:-2px; left:-2px; width:calc(100vw + 4px); height:calc(100vh + 4px); height:calc(100lvh + 4px); z-index:-1; opacity:0; transition:opacity .5s; pointer-events:none; display:none}   /* 出血＋100lvh：iOS 工具列收合視口長高時不留白邊（用戶 0905：沒滿版） */
+html[data-art]{background:#0b0b0d}
 html[data-art] #artBg{display:block}
 #artBg canvas{display:block; width:100%; height:100%}
 #artBg::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.26),rgba(0,0,0,.48))}   /* 壓一層讓文字讀得清楚 */
 html[data-art] body{background-color:transparent; background-image:none}   /* 方眼紙讓位 */
 /* ── AR 試戴（後鏡頭＋MediaPipe Hands）── */
 #arBtn{position:absolute; right:14px; top:12px; z-index:9; font:600 12px/1 'Saira Condensed',system-ui; letter-spacing:.06em; padding:8px 12px; border-radius:999px; border:1px solid var(--rule); background:var(--card); color:var(--ink); cursor:pointer}
+#miniFold{display:none; position:absolute; left:14px; top:12px; z-index:9; font:600 12px/1 'Saira Condensed',system-ui; letter-spacing:.06em; padding:8px 12px; border-radius:999px; border:1px solid var(--rule); background:var(--card); color:var(--ink); cursor:pointer}
+.stage-col.pin.mini #miniFold{display:block}   /* 只在手機矮版預覽出現（用戶 0905：預覽圖要能關能開） */
+.stage-col.pin.mini.fold .stage{height:46px!important}
+.stage-col.pin.mini.fold #gl, .stage-col.pin.mini.fold #heroImg, .stage-col.pin.mini.fold .readout, .stage-col.pin.mini.fold #chronoCtl, .stage-col.pin.mini.fold #arBtn{display:none!important}
+.stage-col.pin.mini.fold #miniFold{left:50%; top:50%; transform:translate(-50%,-50%)}
 #arMsg{position:absolute; left:50%; top:16px; transform:translateX(-50%); z-index:9; font-size:13px; color:#fff; background:rgba(0,0,0,.45); padding:6px 12px; border-radius:999px; display:none; white-space:nowrap}
 html[data-ar] .stage-col{position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; aspect-ratio:auto!important; z-index:1000; border:0!important; border-radius:0!important; box-shadow:none!important; background:#000!important; transform:none!important}
 html[data-ar] .stage-col.pin, html[data-ar] .stage-col.pin.mini{position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; aspect-ratio:auto!important; transform:none!important}
@@ -375,7 +381,7 @@ header{position:sticky; top:0; z-index:40;
     <div id="scrollHint">往下捲</div>
     <div id="chronoCtl" hidden><button type="button" id="chStart">▶ 計時</button><button type="button" id="chReset">↺ 歸零</button></div>
     <div class="hint">拖曳可轉動 · Ctrl+滾輪縮放</div>
-    <button type="button" id="arBtn">📷 AR 試戴</button><div id="arMsg"></div><canvas id="arDbg"></canvas><button type="button" id="arDbgBtn">偵錯</button><div id="arTools"><button type="button" id="arHandBtn">換手</button><button type="button" id="arSizeDn">－</button><span id="arSizeVal">100%</span><button type="button" id="arSizeUp">＋</button></div>
+    <button type="button" id="arBtn">📷 AR 試戴</button><button type="button" id="miniFold">收起預覽 ▴</button><div id="arMsg"></div><canvas id="arDbg"></canvas><button type="button" id="arDbgBtn">偵錯</button><div id="arTools"><button type="button" id="arHandBtn">翻面</button><button type="button" id="arSizeDn">－</button><span id="arSizeVal">100%</span><button type="button" id="arSizeUp">＋</button></div>
     <div class="fallback" id="fallback">這台裝置的瀏覽器不支援 3D 顯示，請改用較新的 Chrome、Edge 或 Safari。</div>
     <div class="readout">
       <div class="sku" id="skuOut">NH35-SUB-BLKBK-STOYS</div>
@@ -2711,9 +2717,18 @@ let rotY=-0.50,rotX=-0.13,dist=7.8,drg=false,px=0,py=0,spinVel=0,tiltVel=0;
 let loopTwist=0,loopTwistV=0,loopSway=0,loopSwayV=0;
 let rotorAng=0,rotorVel=0;
 function drag(){
-  cv.addEventListener('pointerdown',e=>{drg=true;storyOn=false;glide=0;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch') return; drg=true;storyOn=false;glide=0;px=e.clientX;py=e.clientY;cv.setPointerCapture(e.pointerId);});   // 觸控走下面的 touch 路徑，滑鼠／觸控筆才走指標
   cv.addEventListener('pointerup',()=>drg=false);
   cv.addEventListener('pointercancel',()=>drg=false);   // 手機 pan-y：瀏覽器接手垂直捲動時會取消指標，要把拖曳狀態放掉
+// 🔴 iOS Safari：#gl 設 touch-action:pan-y 後手指一動 Safari 就把指標事件 cancel 掉（橫向也是）→ iPhone 上拖曳轉錶整個失效（用戶 0905：「手錶轉動也被你鎖住了」）。
+//    改用 touch 事件自己判方向：頭 8px 偏橫向就接手（preventDefault 擋捲頁、轉錶），偏縱向就放給瀏覽器捲頁；監聽必須 passive:false 才擋得住。
+let tch=null;
+cv.addEventListener('touchstart',e=>{ if(e.touches.length!==1){ tch=null; return; } const t=e.touches[0]; tch={x:t.clientX,y:t.clientY,ax:0}; },{passive:true});
+cv.addEventListener('touchmove',e=>{ if(!tch||e.touches.length!==1) return; const t=e.touches[0]; const dx=t.clientX-tch.x, dy=t.clientY-tch.y;
+  if(tch.ax===0){ if(Math.abs(dx)+Math.abs(dy)<8) return; tch.ax=Math.abs(dx)>Math.abs(dy)*1.2?1:-1; if(tch.ax===1){ storyOn=false; glide=0; } }
+  if(tch.ax!==1) return; if(e.cancelable) e.preventDefault();
+  const dY=dx*0.0075, dX=dy*0.006; rotY+=dY; rotX=Math.max(-1.62,Math.min(1.62,rotX+dX)); spinVel+=dY; tiltVel+=dX; tch.x=t.clientX; tch.y=t.clientY; },{passive:false});
+cv.addEventListener('touchend',()=>{ tch=null; }); cv.addEventListener('touchcancel',()=>{ tch=null; });
   cv.addEventListener('pointermove',e=>{ if(!drg) return;
     const dY=(e.clientX-px)*0.0075, dX=(e.clientY-py)*0.006;
     rotY+=dY; rotX=Math.max(-1.62,Math.min(1.62,rotX+dX));
@@ -2725,8 +2740,11 @@ function drag(){
     e.preventDefault(); glide=0;
     dist=Math.max(3.6,Math.min(11,dist+e.deltaY*0.0028)); },{passive:false});
 }
+const _szChk=new THREE.Vector2();
+[300,1000,2500].forEach(ms=>setTimeout(()=>{ if(ok){ resize(); onScroll(); } },ms));   // 載入後多補幾次：字型／工具列定型後尺寸會變（iOS 首次載入沒錶的保險）
+addEventListener('pageshow',()=>{ if(ok){ resize(); onScroll(); } });
 function animate(){
-  requestAnimationFrame(animate);
+requestAnimationFrame(animate);
   const t=clock.getElapsedTime();
   // fr＝這一格相當於幾個 60fps 的格：所有動態都乘它，掉格或高更新率螢幕上速度才一致、看起來才順
   const fr=Math.min(3,Math.max(0.05,(t-(parts.lastT==null?t-1/60:parts.lastT))*60)); parts.lastT=t;
@@ -2894,7 +2912,9 @@ function animate(){
       p.array[i-1]+=Math.sin(t*1.6+i)*0.0022; if(p.array[i]>4.5) p.array[i]=-4.5; }
     p.needsUpdate=true; }
   renderer.render(scene,camera);
-  parts.frames=(parts.frames||0)+1; if(parts.frames===4) onScroll();   // 3D 畫過幾格 → 影格交棒（見 onScroll 的 glReady）
+  parts.frames=(parts.frames||0)+1; if(parts.frames===4) onScroll();
+    // 🔴 iOS 首次載入 3D 有時一片空白、捲一下才出現（用戶 0905）：疑似首次 resize 在版面定型前跑到 0 高 → 每 30 幀對一次繪圖尺寸，不合就重算
+    if(parts.frames%30===0&&!window.arLockRes){ const rr=cv.parentElement.getBoundingClientRect(); renderer.getSize(_szChk); if(rr.width>0&&(Math.abs(rr.width-_szChk.x)>1||Math.abs(rr.height-_szChk.y)>1)){ resize(); onScroll(); } }   // 3D 畫過幾格 → 影格交棒（見 onScroll 的 glReady）
 }
 
 /* ── 套用選項 ─────────────────────────────────────────── */
@@ -2963,6 +2983,7 @@ if(typeof HERO_FRAMES!=='undefined'){
 const cards=[].slice.call(document.querySelectorAll('.card'));
 const chapters=[].slice.call(document.querySelectorAll('.chapter'));
 const stageCol=document.querySelector('.stage-col');
+{ const fb=document.getElementById('miniFold'); if(fb&&stageCol) fb.addEventListener('click',()=>{ const on=!stageCol.classList.contains('fold'); stageCol.classList.toggle('fold',on); fb.textContent=on?'展開手錶預覽 ▾':'收起預覽 ▴'; if(ok) resize(); }); }
 const mqMobile=matchMedia('(max-width:1000px)');
 function setSceneOnly(i){ if(S.scene===i||!ok) return; S.scene=i; applyScene(); buildUI(); }
 
@@ -3163,7 +3184,7 @@ setTimeout(onScroll,300);
        uFS1:{value:new THREE.Vector4(1,0,.4,.6)},uFS2:{value:new THREE.Vector4(1,0,.4,.6)},
        uAmb:{value:.62},uCandle:{value:1.5},uShadow:{value:.65},uLightGain:{value:1.25},uFlameGain:{value:1.1},uFocus:{value:.5}};
     scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:U,vertexShader:VS,fragmentShader:FS})));
-    addEventListener('resize',fit); fit(); }
+    addEventListener('resize',fit); if(window.visualViewport) visualViewport.addEventListener('resize',fit); fit(); }
   function fit(){ if(!R) return; R.setSize(innerWidth,innerHeight,false); U.uRes.value.set(innerWidth,innerHeight); }
   function tex(u,srgb){ const t=new THREE.TextureLoader().load(u); t.minFilter=THREE.LinearFilter; t.generateMipmaps=false; if(srgb) t.encoding=THREE.sRGBEncoding; return t; }
   // 🔴 影片先 fetch 成 blob 再餵 <video>：串流載入的影片在不支援 Range 的伺服器上會被標成不可 seek，循環與第二支火都會壞
@@ -3237,7 +3258,7 @@ setTimeout(onScroll,300);
     const a=(c)=>{ const tau=1/(2*Math.PI*c); return 1/(1+tau/dt); };
     const dxr=(v-this.x)/dt; this.dx+= a(this.dc)*(dxr-this.dx); const cut=this.mc+this.b*Math.abs(this.dx); this.x+= a(cut)*(v-this.x); return this.x; };
   const filt={}; function F(key,v,t){ let f=filt[key]; if(!f) f=filt[key]=new OneEuro(1.5,0.03,1.0); return f.f(v,t); }
-  const sm={x:.5,y:.5,s:.3,ok:false,okq:false,seen:0,sign:0,hand:0,wristW:0,wristPts:null};
+  const sm={x:.5,y:.5,s:.3,ok:false,okq:false,seen:0,sign:0,hand:0,side:0,wristW:0,wristPts:null};
   const AR_FRAG='uniform sampler2D uMask; uniform vec2 uRes; uniform vec4 uCover; uniform float uMaskOn; void main(){ if(uMaskOn>0.5){ vec2 s=gl_FragCoord.xy/uRes; vec2 v=vec2(uCover.x+s.x*uCover.z, uCover.y+(1.0-s.y)*uCover.w); if(v.x<0.0||v.x>1.0||v.y<0.0||v.y>1.0) discard; if(texture2D(uMask,v).r<0.5) discard; } gl_FragColor=vec4(0.0); }';
   const AR_VERT='void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }';
   const AR_FRAG_OLD='uniform sampler2D uMask; uniform vec2 uRes; uniform vec4 uCover; void main(){ vec2 s=gl_FragCoord.xy/uRes; vec2 v=vec2(uCover.x+s.x*uCover.z, uCover.y+(1.0-s.y)*uCover.w); if(v.x<0.0||v.x>1.0||v.y<0.0||v.y>1.0) discard; if(texture2D(uMask,v).r<0.5) discard; gl_FragColor=vec4(0.0); }';
@@ -3285,7 +3306,7 @@ setTimeout(onScroll,300);
     storyOn=false; glide=0; rotY=0; rotX=0; tRotY=0; tRotX=0; dist=10; tDist=10; lookY=0; tLookY=0; spinVel=0; tiltVel=0;
     root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=false;
     renderer.clippingPlanes=[];
-    sm.ok=false; sm.okq=false; sm.seen=0; sm.sign=0; sm.hand=0; sm.wristW=0; handVotes=0; resize(); say('把手腕對準鏡頭');
+    sm.ok=false; sm.okq=false; sm.seen=0; sm.sign=0; sm.hand=0; sm.side=0; sm.wristW=0; handVotes=0; resize(); say('把手腕對準鏡頭');
     loadMP(); loop();
   }
   function stop(){ if(!on) return; on=false; cancelAnimationFrame(raf);
@@ -3298,7 +3319,7 @@ setTimeout(onScroll,300);
     scene.remove(pivot); pivot=null; root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=true;
     renderer.clippingPlanes=[]; rotY=saved.rotY; rotX=saved.rotX; tRotY=rotY; tRotX=rotX; dist=saved.dist; tDist=dist; lookY=saved.lookY; tLookY=lookY;
     window.arLockRes=false; if(saved.prBase){ parts.prBase=saved.prBase; parts.prScale=saved.prScale||1; renderer.setPixelRatio(parts.prBase*parts.prScale); }
-    delete document.documentElement.dataset.ar; btn.textContent='📷 AR 試戴'; say(''); if(vtex){ vtex.dispose(); vtex=null; } resize(); applyScene(); onScroll();   // applyScene 把棚拍環境光換回來
+    delete document.documentElement.dataset.ar; btn.textContent='📷 AR 試戴'; say(''); if(vtex){ vtex.dispose(); vtex=null; } resize(); applyScene(); applyEnvToAll(); onScroll();   // applyScene 把棚拍環境光換回來；🔴 applyEnvToAll 必跑：AR 中 updateEnv 把相機環境貼圖塞進每個材質，上面 dispose 掉後材質仍指著它 → 金屬全黑（用戶 0905：Santos 變黑）
   }
   // ② 鏡頭畫面當環境光：把影片縮成 128×64 全景比例＋模糊，PMREM 後套到錶的每個材質（envRT 是主程式的全域）
   const envC=document.createElement('canvas'); envC.width=128; envC.height=64; const envX=envC.getContext('2d');
@@ -3324,7 +3345,7 @@ setTimeout(onScroll,300);
       // 前臂軸（手腕往手肘）
       const w=toC(L[0].x,L[0].y), m=toC(L[9].x,L[9].y); const dx=w[0]-m[0], dy=w[1]-m[1]; X.strokeStyle='#ffd23b'; X.setLineDash([6,6]); X.beginPath(); X.moveTo(w[0],w[1]); X.lineTo(w[0]+dx*1.2,w[1]+dy*1.2); X.stroke(); X.setLineDash([]); }
     // 數字
-    const d=window.arDebug(); const lines=['hand '+(lastRes?lastRes.hand+' '+lastRes.score.toFixed(2):'-')+'  → 判定 '+(sm.hand>0?'真右手':'真左手'),
+    const d=window.arDebug(); const lines=['hand '+(lastRes?lastRes.hand+' '+lastRes.score.toFixed(2):'-')+'  → 錶在'+((sm.side||1)*handFlip>0?'朝鏡頭面':'背面')+'  標籤票 '+(sm.hand>0?'R':sm.hand<0?'L':'-'),
       '手長(畫布高比) '+(sm.s||0).toFixed(3)+'   手腕寬 '+(sm.wristW||0).toFixed(3)+(sm.wristW?'  比 '+(sm.wristW/(sm.s||1)).toFixed(2):''),
       '錶縮放 sc '+(d.s||0)+'   錶帶圈 '+(d.loopScale?d.loopScale.join('/'):'-'),
       '遮罩 '+(maskReady?'有':'無')+' '+maskW+'x'+maskH+'   偵測 '+sm.seen+'/10   票 '+handVotes+(handFlip<0?' 手動翻':'')+'   尺寸 '+Math.round(sizeAdj*100)+'%'];
@@ -3408,7 +3429,10 @@ setTimeout(onScroll,300);
       if(hand&&hscore>=0.85){ handVotes=Math.max(-60,Math.min(60,handVotes+((hand==='Left')?1:-1))); }
       if(Math.abs(handVotes)>=6) sm.hand=handVotes>0?1:-1;           // 至少 6 票才定、之後要反向累積才會翻（遲滯）
       // 🔴 實機（用戶 iPhone 後鏡頭，2026-09-05 四張截圖）證明方向跟推導相反：手背朝鏡頭時錶殼跑到手心側、手心朝鏡頭反而看到錶面 → 正負號整個翻過來
-      const trueRight=(sm.hand||1)>0; _n.multiplyScalar((trueRight?1:-1)*handFlip);
+      // 🔴 0905 五張實機截圖再翻案：標籤同一隻手 Right 0.92↔Left 0.56 亂跳，三張手背朝鏡頭錶殼被翻到手心側藏進手腕。左右手標籤只留給偵錯看，
+      //    正負號改成「朝鏡頭那一面」＋遲滯 0.25：客人給鏡頭看哪一面，錶就戴在哪一面；手翻過去超過遲滯才換邊，邊緣角度不抖。「翻面」鈕手動換另一側。
+      { const toCam=-_n.dot(_d); if(!sm.side) sm.side=toCam>=0?1:-1; else if(sm.side*toCam<-0.25) sm.side=-sm.side; }
+      _n.multiplyScalar(sm.side*handFlip);
       // 透視縮短校正：2D 長 = 3D 長 × sqrt(1-fz²)，fz＝前臂軸沿視線的分量
       const fz=Math.abs(_f.dot(dir)); const corr=1/Math.max(0.35,Math.sqrt(Math.max(0.05,1-fz*fz)));
       var size=len2*corr; have3d=true;
