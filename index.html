@@ -15,6 +15,7 @@ img{ max-width:100% }
 </style>
 </head>
 <body>
+<div id="artBg" aria-hidden="true"><canvas id="artGl"></canvas></div>
 <title>ICHco 客製錶工作台</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,6 +68,12 @@ body{
   font-family:"Noto Sans TC","LXGW WenKai TC",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:15px; line-height:1.8; -webkit-font-smoothing:antialiased;
 }
+/* ── 系列油畫背景（火焰光影）：只在客人「選系列」時切換，滾動不變 ── */
+#artBg{position:fixed; inset:0; z-index:-1; opacity:0; transition:opacity .5s; pointer-events:none; display:none}
+html[data-art] #artBg{display:block}
+#artBg canvas{display:block; width:100%; height:100%}
+#artBg::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.26),rgba(0,0,0,.48))}   /* 壓一層讓文字讀得清楚 */
+html[data-art] body{background-color:transparent; background-image:none}   /* 方眼紙讓位 */
 .hand{font-family:"LXGW WenKai TC","Noto Sans TC",serif}
 .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
 :focus-visible{outline:2px solid var(--mint); outline-offset:3px; border-radius:8px}
@@ -528,7 +535,7 @@ const T_RUB_N="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAcFBQYFBA
 /* ══ 報價表：上線前只改這一區 ═══════════════════════════════════ */
 const SERIES=[
  {id:'NH35',code:'SUB',name:'潛水系列',  mv:'Seiko NH35 自動機械',fn:'三針 · 日期',size:40,wr:'100m',base:7280,sub:0},
- {id:'NH38',code:'MM', name:'義大利海軍',mv:'Seiko NH38 自動機械',fn:'三針 · 透視機芯',size:42,wr:'100m',base:7580,sub:0},
+ {id:'NH38',code:'MM',art:{dir:'assets/bg/mm/',w:1536,h:864,focus:0.45,r1:[0.351,0.830,0.015,0.042],r2:[0.488,0.731,0.021,0.055]}, name:'義大利海軍',mv:'Seiko NH38 自動機械',fn:'三針 · 透視機芯',size:42,wr:'100m',base:7580,sub:0},
  {id:'NH35',code:'PRO',name:'極地探勘者',mv:'Seiko NH35 自動機械',fn:'三針 · 日期',size:43,wr:'200m',base:8980,sub:0},
  {id:'VK63',code:'DAY',name:'迪通拿計時',mv:'Seiko VK63 跑秒計時',fn:'計時碼錶 · 日期',size:40,wr:'100m',base:5880,sub:3},
  /* 皇家計時：規格抄自 ichco.com.tw 商品頁（錶徑42／NVK63／100m／透底鎖式／NT$5,880） */
@@ -606,7 +613,7 @@ function buildUI(){
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · NT$${nf(o.base)}</span>`;
-    b.onclick=()=>{S.series=i; apply();}; sc.appendChild(b);
+    b.onclick=()=>{S.series=i; apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 只有客人親手選系列才切底圖
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
@@ -3081,6 +3088,98 @@ $('copyBtn').onclick=async()=>{
 if(ok){ init(); } else { $('fallback').style.display='grid'; apply(); }
 onScroll();
 setTimeout(onScroll,300);
+</script>
+<script>
+/* ══ 系列油畫背景（火焰光影）════════════════════════════════════════════════
+   用戶 2026-09-05 定的規則：底圖只在客人於最下面「選系列」的當下切換；切換後上下滾動都不變；
+   只有再選別的系列才換（沒有底圖的系列＝回方眼紙）。載入時永遠是方眼紙。
+   內容＝該系列的油畫（albedo）＋深度＋法線，兩支蠟燭換成真火影片（黑底加法混合），
+   燭光由火焰影片本身驅動（亮度、發光重心、火高），周圍的亮部與影子跟著火走。
+   做法與四個坑見 ~/.claude/skills/flame-relight。 */
+(function(){
+  const box=document.getElementById('artBg'), cv=document.getElementById('artGl');
+  if(!box||!cv||typeof THREE==='undefined') return;
+  let R=null,scene=null,cam=null,U=null,running=false,cur=null,prevTheme=null;
+  const cache={};
+  const VS='varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.0,1.0); }';
+  const FS=`
+  precision highp float; varying vec2 vUv;
+  uniform sampler2D uAlbedo,uNormal,uDepth,uFlame1,uFlame2; uniform vec2 uRes,uImg; uniform vec4 uR1,uR2,uFS1,uFS2;
+  uniform float uAmb,uCandle,uShadow,uLightGain,uFlameGain,uFocus;
+  vec2 cover(vec2 uv){ float ra=uRes.x/uRes.y, ri=uImg.x/uImg.y; vec2 s=vec2(1.0); if(ra>ri) s.y=ri/ra; else s.x=ra/ri;
+    float cx=clamp(uFocus, s.x*0.5, 1.0-s.x*0.5);
+    return (uv-0.5)*s+vec2(cx,0.5); }
+  vec4 realFlame(vec2 uv,vec4 R,sampler2D T,float flip){ vec2 d=(uv-R.xy)/R.zw; if(abs(d.x)>1.0||abs(d.y)>1.0) return vec4(0.0);
+    vec3 c=texture2D(T,vec2(d.x*0.5*flip+0.5, d.y*0.5+0.5)).rgb; c=max(c-vec3(0.06),0.0)/0.94;
+    float edge=smoothstep(1.0,0.7,abs(d.x))*smoothstep(1.0,0.85,abs(d.y))*smoothstep(-1.0,-0.75,d.y); return vec4(c*edge,edge); }
+  vec3 light(vec2 uv,vec3 n,vec3 alb,float dep,vec2 Lp,float f,float hgt){ float asp=uImg.x/uImg.y;
+    vec3 Lv=vec3((Lp-uv)*vec2(asp,1.0),(0.28+0.25*(1.0-dep))*(0.85+0.3*hgt)); float d=length(Lv); vec3 Ld=Lv/d;
+    float att=1.0/(1.0+d*d*7.0); float diff=max(dot(n,Ld),0.0);
+    float sh=1.0; vec2 dir=(Lp-uv);
+    for(int i=1;i<=10;i++){ float t=float(i)/10.0*0.35; vec2 p=uv+dir*t; float dz=texture2D(uDepth,p).r; float hz=dep+t*0.9; sh-=smoothstep(0.02,0.10,dz-hz)*0.14; }
+    sh=clamp(sh,1.0-uShadow,1.0);
+    vec3 warm=vec3(1.0,0.72,0.42); float spec=pow(max(dot(reflect(-Ld,n),vec3(0.0,0.0,1.0)),0.0),18.0)*smoothstep(0.35,0.9,dot(alb,vec3(0.33)));
+    return (alb*warm*diff*att*uCandle+warm*spec*att*0.6)*f*sh; }
+  void main(){ vec2 uv=cover(vUv); vec3 alb=texture2D(uAlbedo,uv).rgb; float dep=texture2D(uDepth,uv).r; vec3 n=normalize(texture2D(uNormal,uv).rgb*2.0-1.0);
+    vec4 rf1=realFlame(uv,uR1,uFlame1,1.0), rf2=realFlame(uv,uR2,uFlame2,-1.0);
+    float c1=smoothstep(1.0,0.6,length((uv-uR1.xy)/uR1.zw*vec2(1.0,0.9))), c2=smoothstep(1.0,0.6,length((uv-uR2.xy)/uR2.zw*vec2(1.0,0.9)));
+    alb*=1.0-max(c1,c2)*0.9;
+    float g1=clamp(uFS1.x,0.6,1.5), g2=clamp(uFS2.x,0.6,1.5);
+    vec2 L1=uR1.xy+vec2(uFS1.y*uR1.z*2.0,(uFS1.z-0.5)*uR1.w*2.0), L2=uR2.xy+vec2(uFS2.y*uR2.z*2.0,(uFS2.z-0.5)*uR2.w*2.0);
+    vec3 col=alb*uAmb*(0.92+0.04*(g1+g2));
+    col+=light(uv,n,alb,dep,L1,g1*uLightGain,uFS1.w); col+=light(uv,n,alb,dep,L2,g2*uLightGain,uFS2.w);
+    col+=(rf1.rgb+rf2.rgb)*vec3(1.0,0.92,0.80)*uFlameGain;
+    float vig=smoothstep(1.25,0.35,length((vUv-0.5)*vec2(1.15,1.0))); col*=0.55+0.45*vig;
+    gl_FragColor=vec4(col,1.0); }`;
+  function ensure(){ if(R) return;
+    R=new THREE.WebGLRenderer({canvas:cv,antialias:false}); R.setPixelRatio(Math.min(devicePixelRatio,1.5));
+    scene=new THREE.Scene(); cam=new THREE.Camera();
+    U={uAlbedo:{value:null},uNormal:{value:null},uDepth:{value:null},uFlame1:{value:null},uFlame2:{value:null},
+       uRes:{value:new THREE.Vector2(1,1)},uImg:{value:new THREE.Vector2(1536,864)},uR1:{value:new THREE.Vector4()},uR2:{value:new THREE.Vector4()},
+       uFS1:{value:new THREE.Vector4(1,0,.4,.6)},uFS2:{value:new THREE.Vector4(1,0,.4,.6)},
+       uAmb:{value:.62},uCandle:{value:1.5},uShadow:{value:.65},uLightGain:{value:1.25},uFlameGain:{value:1.1},uFocus:{value:.5}};
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:U,vertexShader:VS,fragmentShader:FS})));
+    addEventListener('resize',fit); fit(); }
+  function fit(){ if(!R) return; R.setSize(innerWidth,innerHeight,false); U.uRes.value.set(innerWidth,innerHeight); }
+  function tex(u,srgb){ const t=new THREE.TextureLoader().load(u); t.minFilter=THREE.LinearFilter; t.generateMipmaps=false; if(srgb) t.encoding=THREE.sRGBEncoding; return t; }
+  // 🔴 影片先 fetch 成 blob 再餵 <video>：串流載入的影片在不支援 Range 的伺服器上會被標成不可 seek，循環與第二支火都會壞
+  function video(blobUrl,offset){ const v=document.createElement('video'); v.muted=true; v.loop=true; v.playsInline=true; v.setAttribute('playsinline',''); v.crossOrigin='anonymous';
+    v.addEventListener('loadedmetadata',function(){ v.currentTime=offset; }); v.src=blobUrl; v.load();
+    const t=new THREE.VideoTexture(v); t.minFilter=THREE.LinearFilter; t.magFilter=THREE.LinearFilter; t.generateMipmaps=false; t.encoding=THREE.sRGBEncoding; t.video=v; return t; }
+  // 火→光：每格把火焰影片畫到 16×35 讀像素 → 亮度/慢速均值、發光重心、火高
+  const fsC=document.createElement('canvas'); fsC.width=16; fsC.height=35; const fsX=fsC.getContext('2d',{willReadFrequently:true}); const fsMean={};
+  function stats(v,key,flip){ if(!v||v.readyState<2) return null; fsX.drawImage(v,0,0,16,35); const d=fsX.getImageData(0,0,16,35).data;
+    let sum=0,sx=0,sy=0,top=35;
+    for(let y=0;y<35;y++) for(let x=0;x<16;x++){ const i=(y*16+x)*4; const l=(d[i]*0.3+d[i+1]*0.59+d[i+2]*0.11)/255; if(l>0.28){ sum+=l; sx+=l*x; sy+=l*y; if(y<top) top=y; } }
+    if(sum<=0) return null; const inten=sum/(16*35); fsMean[key]=fsMean[key]?fsMean[key]*0.98+inten*0.02:inten;
+    return [inten/fsMean[key], ((sx/sum)/16-0.5)*flip, 1-(sy/sum)/35, 1-top/35]; }
+  function load(art){ if(cache[art.dir]) return Promise.resolve(cache[art.dir]);
+    return fetch(art.dir+'flame_loop.mp4').then(function(r){ return r.blob(); }).then(function(b){ const u=URL.createObjectURL(b);
+      const e={key:art.dir,albedo:tex(art.dir+'albedo.jpg',true),normal:tex(art.dir+'normal.jpg',false),depth:tex(art.dir+'depth.png',false),t1:video(u,0),t2:video(u,1.7)};
+      cache[art.dir]=e; return e; }); }
+  function loop(){ if(!running) return; requestAnimationFrame(loop); if(document.hidden||!cur) return;
+    const a=stats(cur.t1.video,'a'+cur.key,1), b=stats(cur.t2.video,'b'+cur.key,-1);
+    if(a) U.uFS1.value.set(a[0],a[1],a[2],a[3]); if(b) U.uFS2.value.set(b[0],b[1],b[2],b[3]);
+    R.render(scene,cam); }
+  function theme(on){ const h=document.documentElement;
+    if(on){ if(prevTheme===null) prevTheme=h.dataset.theme||''; h.dataset.theme='dark'; }
+    else if(prevTheme!==null){ if(prevTheme) h.dataset.theme=prevTheme; else delete h.dataset.theme; prevTheme=null; }
+    if(typeof applyScene==='function'&&typeof ok!=='undefined'&&ok) applyScene(); }
+  window.setArt=function(se){
+    const art=se&&se.art;
+    if(!art){ if(cur){ cur.t1.video.pause(); cur.t2.video.pause(); cur=null; } running=false;
+      box.style.opacity='0'; setTimeout(function(){ if(!cur) delete document.documentElement.dataset.art; },520); theme(false); return; }
+    ensure();
+    load(art).then(function(e){
+      if(cur&&cur!==e){ cur.t1.video.pause(); cur.t2.video.pause(); }
+      cur=e; U.uAlbedo.value=e.albedo; U.uNormal.value=e.normal; U.uDepth.value=e.depth; U.uFlame1.value=e.t1; U.uFlame2.value=e.t2;
+      U.uImg.value.set(art.w||1536,art.h||864); U.uR1.value.fromArray(art.r1); U.uR2.value.fromArray(art.r2); U.uFocus.value=art.focus||0.5;
+      e.t1.video.play().catch(function(){}); e.t2.video.play().catch(function(){});
+      document.documentElement.dataset.art=se.code; theme(true);
+      void box.offsetWidth; box.style.opacity='1';
+      if(!running){ running=true; loop(); } });
+  };
+})();
 </script>
 </body>
 </html>
