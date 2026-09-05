@@ -598,8 +598,8 @@ const DIAL=[
 const HANDS=[{code:'MB',name:'賓士針',add:0,shape:'mercedes'},
              {code:'SW',name:'劍針',  add:100,shape:'sword'},
              {code:'SN',name:'雪花針',add:200,shape:'snowflake'}];
-const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D9EDC0',glow:0x74E8A8},
-             {code:'BG',name:'BGW9 冰藍',add:100,mat:'#E3EFF7',glow:0x86D6FF}];
+const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D8E8AE',glow:0x6CF03A},
+             {code:'BG',name:'BGW9 冰藍',add:100,mat:'#E3EFF7',glow:0x5EC4FF}];   // glow 要夠飽和，色調映射後才還看得出綠／藍（淡色一亮就變白）
 // k=剛性 d=能量保留 amp=擺幅 wave=波動沿鏈傳遞的程度（只有鋼帶有）
 const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,amp:1.00,wave:1.0},
              {code:'JUB',name:'五珠鋼帶',add:400, type:'metal',k:.13,d:.892,amp:1.10,wave:1.2},
@@ -1728,7 +1728,7 @@ function buildWatch(){
   const caseGeo=latheProfile((dl.tex==='skeleton'?[[0.56,-0.21]]:[[0,-0.20],[0.55,-0.21]]).concat([
     [0.85,-0.205],[0.94,-0.185],[0.975,-0.12],[0.985,0.02],
     [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]]),128);
-  root.add(new T.Mesh(caseGeo,baseM));
+  root.add(new T.Mesh(caseGeo,baseM));   // 錶背本來就是透明底蓋看得到機芯（擺陀），不要再蓋一片刻字錶背（0906 試過會把機芯蓋掉）   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
   const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
   const bezGeo=new T.CylinderGeometry(1.0,0.995,0.115,BEZ_SEGS,1,true);
@@ -1792,8 +1792,8 @@ function buildWatch(){
   dial.rotation.x=-Math.PI/2; dial.position.y=0.055; root.add(dial);
 
   // 立體字釘
-  const lumeM=new T.MeshStandardMaterial({color:new T.Color(lm.mat),
-    emissive:new T.Color(lm.glow),emissiveIntensity:scn.fx==='lume'?2.8:0.95,roughness:.55});
+  const lumeM=new T.MeshStandardMaterial({color:new T.Color(lm.mat).multiplyScalar(scn.fx==='lume'?0.35:1),
+    emissive:new T.Color(lm.glow),emissiveIntensity:scn.fx==='lume'?1.3:0.35,roughness:.55});   // 白天只留顏料色（C3 淡黃綠／BGW9 藍白），夜光情境才發光
   parts.lumeM=lumeM;
   // 12 點＝三角形；其餘＝長條 baton（實拍：金屬外框＋夜光內嵌，往外略寬）
   function triPrism(w,h,d){
@@ -1972,6 +1972,7 @@ function buildWatch(){
 
   // 錶帶
   buildBand(bd,baseM,accM,polM,brushM,accBrush,mt);
+  addLumeHalos();
   root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
   // 小零件（螺絲、內圈細紋、字釘、寶石）不投影：一百多個小 mesh 各投一次影是陰影通道最大的開銷
   root.traverse(function(o){ if(o.isMesh&&o.castShadow){ const g=o.geometry; if(!g.boundingSphere) g.computeBoundingSphere();
@@ -2407,6 +2408,16 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
      OYS 蠔式（Submariner）：三排平節，中排較寬；頂面全拉絲、側緣拋光；中排跟外排錯開半個節距。
      JUB 五珠：外側兩排寬平節（拉絲頂面）＋中間三顆半圓拋光珠，同樣錯開半個節距。
      每節都是剛體、獨立實體；節距＝8mm(蠔式)／6.2mm(五珠)，跟實錶同比例。 */
+  // 圈內反射：CubeCamera 放在圈中心（root 子物件、跟錶一起轉），每幾格從圈內拍一張 128px 立方環境；
+  //   圈內襯與摺臂用它當 envMap（keepEnv：applyEnvToAll 不准覆蓋），從內側看就會映出錶背與對面鏈節。手機／AR 不跑。
+  if(!parts.cubeRT){ parts.cubeRT=new T.WebGLCubeRenderTarget(128,{generateMipmaps:true,minFilter:T.LinearMipmapLinearFilter}); parts.cubeCam=new T.CubeCamera(0.05,40,parts.cubeRT); parts.cubeCam.position.set(0,-1.10,0); }
+  root.add(parts.cubeCam); parts.innerRefl=[];
+  // 圈內從內側拍到的東西本來就暗（實測立方貼圖 +Y 面平均只有 30/255），envMapIntensity 要拉到 5 錶背的倒影才看得見；留一點漫射讓棚燈從開口打進來有光澤
+  //   內面做緞面（roughness .3）不是鏡面：鏡面只有反射向量剛好打到錶背那個角度才看得到，緞面把錶背的亮塊糊成一片柔光，各角度都看得出「裡面映著錶背」
+  parts.innerM=new T.MeshStandardMaterial({color:mt.base,metalness:1,roughness:.30,envMap:parts.cubeRT.texture,envMapIntensity:4.0}); parts.innerM.userData.keepEnv=true;
+  // 第二層：棚光（envRT）低強度疊加——真錶帶內側有環境光從開口漏進來，只靠圈內立方貼圖會黑成一片
+  parts.innerM2=new T.MeshStandardMaterial({color:mt.base,metalness:1,roughness:.24,envMap:envRT,envMapIntensity:.5,transparent:true,blending:T.AdditiveBlending,depthWrite:false});
+  parts.addInnerLayer=function(m){ const d=new T.Mesh(m.geometry,parts.innerM2); d.renderOrder=2; parts.loop.add(d); parts.innerRefl.push(d); return d; };
   const jub = bd.code==='JUB';
   const P   = jub?0.31:0.40, GAP=0.007, CGAP=0.007;
   const cols= jub ? [0.25,0.155,0.19,0.155,0.25] : [0.29,0.42,0.29];
@@ -2466,8 +2477,10 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     });
   });
 
-  // 摺疊扣（Oysterlock 造型）：整塊順著手腕弧度的長蓋（不是直板，直板會像一片木板伸出圈外），
-  // 頂面拉絲、側緣拋光；一端翻蓋安全扣＋小皇冠。用沿曲線放樣，v 用弧長，拉絲密度跟鏈節一致。
+  // 蝴蝶扣（隱藏式雙摺 deployant；用戶 0906 要求，參考網路實拍）：
+  //   外側＝一整塊順著手腕弧度的長蓋（兩半各像一節長鏈節）、中央一道接縫、兩側各一顆按鈕；
+  //   內側＝中央本體（拉絲、ICHco 刻字、按鈕從兩側穿出）＋兩片摺臂（拋光薄板，鉸在本體兩端，貼著蓋子內面）＋三支鉸鏈銷。
+  //   摺臂與圈內襯用 CubeCamera 的環境貼圖（見 innerM）→ 從內側看會映出錶背與對面的鏈節。
   { const curvedBlock=function(u0,u1,K,hwF,hhF,rc,crown,yOff,mats){
       const rings=[],shade=[],vAt=[]; let tags=null;
       for(let k=0;k<=K;k++){
@@ -2480,22 +2493,52 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       }
       return new T.Mesh(loftRings(rings,tags,shade,vAt),mats);
     };
-    const u0=(LEN/2-Lc/2+GAP/2)/LEN, u1=(LEN/2+Lc/2-GAP/2)/LEN, dU=0.01/LEN;
-    parts.loop.add(curvedBlock(u0,u1,16,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},
-      0.020,0.010,function(){return 0;},[polM,brushM]));
-    // 翻蓋安全扣：貼在蓋子上的一片薄板（靠 12 點那一端）
-    const f0=u0+6*dU, f1=u0+66*dU;
-    parts.loop.add(curvedBlock(f0,f1,6,function(u){return HW(u)*0.80;},function(){return 0.015;},
-      0.012,0.004,function(u){return TH(u)/2+0.014;},[polM,brushM]));
-    const lipU=f1-4*dU, fr=frameAt(curve,lipU);
-    const lip=new T.Mesh(rbox(HW(lipU)*1.60,0.036,0.05,0.012),polM);
-    lip.position.copy(fr.p).addScaledVector(fr.yA,TH(lipU)/2+0.026);
-    lip.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); parts.loop.add(lip);
-    const cu=u0+34*dU, fc=frameAt(curve,cu);
-    const crown=new T.Mesh(new T.CylinderGeometry(0.040,0.040,0.010,16),polM);
-    crown.position.copy(fc.p).addScaledVector(fc.yA,TH(cu)/2+0.034);
-    crown.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fc.xA,fc.yA,fc.tan)); parts.loop.add(crown);
+    const placeAt=function(mesh,u,yOffV){ const fr=frameAt(curve,u); mesh.position.copy(fr.p).addScaledVector(fr.yA,yOffV);
+      mesh.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); parts.loop.add(mesh); return mesh; };
+    const u0=(LEN/2-Lc/2+GAP/2)/LEN, u1=(LEN/2+Lc/2-GAP/2)/LEN, uM=(u0+u1)/2, dU=0.01/LEN;
+    const seamM=new T.MeshStandardMaterial({color:0x16181B,roughness:.7,metalness:.3});
+    const innerM=parts.innerM;                                                   // 圈內拋光（CubeCamera 環境）
+    // 外蓋：兩半（中央留 0.006 接縫）
+    parts.loop.add(curvedBlock(u0,uM-0.003/LEN,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
+    parts.loop.add(curvedBlock(uM+0.003/LEN,u1,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
+    // 接縫底：深色薄片，讓縫看起來有深度
+    placeAt(new T.Mesh(rbox(HW(uM)*2-0.02,0.02,0.010,0.004),seamM),uM,TH(uM)/2-0.016);
+    // 兩側按鈕：拋光小圓角塊，從蓋子側面凸出 0.028
+    [-1,1].forEach(function(sg){ const b=new T.Mesh(rbox(0.056,0.052,0.150,0.016),polM);
+      const fr=frameAt(curve,uM); b.position.copy(fr.p).addScaledVector(fr.xA,sg*(HW(uM)+0.010)).addScaledVector(fr.yA,-0.004);
+      b.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); parts.loop.add(b); });
+    // 內側：兩片摺臂（拋光薄板，貼著蓋子內面，各佔一半）
+    const armY=function(u){ return -TH(u)/2-0.024; };
+    [[u0+3*dU,uM-2*dU],[uM+2*dU,u1-3*dU]].forEach(function(r){
+      const arm=curvedBlock(r[0],r[1],8,function(u){return HW(u)*0.80;},function(){return 0.020;},0.008,0.002,armY,[innerM,innerM]);
+      parts.loop.add(arm); parts.innerRefl.push(arm); parts.addInnerLayer(arm); });
+    // 中央本體：拉絲塊，內面貼 ICHco 刻字；摺臂鉤在它兩端
+    const bodyL=0.40, bodyW=HW(uM)*2*0.72, bodyT=0.052;
+    const body=placeAt(new T.Mesh(rbox(bodyW,bodyT,bodyL,0.012),[brushM,brushM,brushM,brushM,brushM,brushM]),uM,-TH(uM)/2-0.029-bodyT/2);
+    const plate=placeAt(new T.Mesh(new T.PlaneGeometry(bodyW*0.86,bodyL*0.80),
+      new T.MeshStandardMaterial({map:claspLogoTex(),metalness:1,roughness:.42,color:mt.base,envMapIntensity:.9})),uM,-TH(uM)/2-0.029-bodyT-0.001);
+    plate.rotateX(Math.PI/2);                                                    // 面朝圈內（−yA）
+    // 鉸鏈銷：本體兩端各一支＋摺臂遠端各一支（橫過整個寬度）
+    [uM-bodyL/2/LEN, uM+bodyL/2/LEN, u0+3*dU, u1-3*dU].forEach(function(u,i){
+      const pg=new T.CylinderGeometry(0.014,0.014,HW(u)*1.70,14); pg.rotateZ(Math.PI/2);   // 🔴 用幾何轉：placeAt 會用 quaternion 蓋掉 mesh.rotation，銷子會變成插出蓋子的直棒
+      const pin=new T.Mesh(pg,polM);
+      placeAt(pin,u,i<2?(-TH(u)/2-0.029-bodyT/2):(armY(u)-0.004)); });
+    // 按鈕的另一端從本體側面露出一小截
+    [-1,1].forEach(function(sg){ const stub=new T.Mesh(new T.CylinderGeometry(0.020,0.020,0.06,12),polM); stub.rotation.z=Math.PI/2;
+      const fr=frameAt(curve,uM); stub.position.copy(fr.p).addScaledVector(fr.xA,sg*(bodyW/2+0.02)).addScaledVector(fr.yA,-TH(uM)/2-0.029-bodyT/2);
+      stub.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); stub.rotateZ(Math.PI/2); parts.loop.add(stub); });
   }
+  // ③ 圈內襯：整圈鏈節內面一條拋光薄板（實錶鏈節內面是拋光的，會映出錶背），用 CubeCamera 環境 → 真的映出錶背與對面鏈節
+  { const K=120, rings=[], vAt=[], PRF=[[-1,-0.5],[1,-0.5],[1,0.5],[-1,0.5]];
+    for(let k=0;k<=K;k++){ const u=0.015+0.97*k/K, fr=frameAt(curve,u), hw=HW(u)*0.94, th=0.010;
+      rings.push(PRF.map(function(q){ return new T.Vector3().copy(fr.p).addScaledVector(fr.xA,q[0]*hw).addScaledVector(fr.yA,-TH(u)/2-0.012+q[1]*th); }));   // 整條藏在鏈節內面之內，不能跟內面共面（會 z-fight、藏進鏈節裡）
+      vAt.push(u*LEN); }
+    const strip=new T.Mesh(loftRings(rings,null,null,vAt),parts.innerM); parts.loop.add(strip); parts.innerRefl.push(strip); parts.addInnerLayer(strip);
+    // 內面每個鏈節之間一道細縫（深色薄片），內側看起來才是一節一節的，不是一條光滑管子
+    const seamIn=new T.MeshStandardMaterial({color:0x101214,roughness:.8,metalness:.2}); const sMax2=LEN/2-Lc/2;
+    [0,1].forEach(function(side){ for(let sIn=P; sIn<sMax2-0.02; sIn+=P){ const u=side===0?sIn/LEN:1-sIn/LEN, fr=frameAt(curve,u);
+      const g=new T.Mesh(rbox(HW(u)*2*0.94,0.006,0.008,0.002),seamIn); g.position.copy(fr.p).addScaledVector(fr.yA,-TH(u)/2-0.018);
+      g.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(fr.xA,fr.yA,fr.tan)); parts.loop.add(g); } }); }
 }
 
 /* ── 情境 ────────────────────────────────────────────── */
@@ -2554,8 +2597,35 @@ function tintHDR(srcT,sc){
   return t;
 }
 function applyEnvToAll(){
-  root.traverse(o=>{ if(o.material&&'envMap' in o.material){ o.material.envMap=envRT; o.material.needsUpdate=true; } });
+  root.traverse(o=>{ if(o.material&&'envMap' in o.material){ if(o.material.userData&&o.material.userData.keepEnv) return; o.material.envMap=envRT; o.material.needsUpdate=true; } });
 }
+// 蝴蝶扣本體內面的刻字板：拉絲底＋ ICHco 字樣（深色蝕刻）
+function claspLogoTex(){ if(parts.claspLogo) return parts.claspLogo; const SZ=256, c=ctx2d(SZ), g=c.getContext('2d');
+  g.fillStyle='#B9BCC0'; g.fillRect(0,0,SZ,SZ); for(let y=0;y<SZ;y+=1){ g.fillStyle='rgba('+(150+Math.random()*70|0)+','+(152+Math.random()*70|0)+','+(156+Math.random()*70|0)+',0.55)'; g.fillRect(0,y,SZ,1); }
+  g.fillStyle='#2A2D31'; g.font='700 64px "Saira Condensed",system-ui,sans-serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('ICHco',SZ/2,SZ/2-6);
+  g.font='500 20px system-ui,sans-serif'; g.fillStyle='#3A3E43'; g.fillText('STAINLESS STEEL',SZ/2,SZ/2+42);
+  const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; parts.claspLogo=t; return t; }
+// 錶背：拉絲＋外圈刻字（ICHco · 316L · 100M · NH35）＋中央拋光圓；從鏈節內側的反射裡看得到
+function casebackTex(){ if(parts.casebackT) return parts.casebackT; const SZ=512, c=ctx2d(SZ), g=c.getContext('2d'), cx=SZ/2;
+  g.fillStyle='#AEB2B6'; g.fillRect(0,0,SZ,SZ);
+  for(let r=0;r<cx;r+=1){ g.strokeStyle='rgba('+(140+Math.random()*80|0)+','+(142+Math.random()*80|0)+','+(146+Math.random()*80|0)+',0.6)'; g.beginPath(); g.arc(cx,cx,r,0,6.2832); g.stroke(); }   // 環狀拉絲
+  g.fillStyle='rgba(225,228,232,0.85)'; g.beginPath(); g.arc(cx,cx,cx*0.46,0,6.2832); g.fill();                                                                   // 中央拋光圓
+  g.strokeStyle='rgba(60,63,68,0.9)'; g.lineWidth=3; g.beginPath(); g.arc(cx,cx,cx*0.47,0,6.2832); g.stroke(); g.beginPath(); g.arc(cx,cx,cx*0.90,0,6.2832); g.stroke();
+  const txt='ICHco  ·  316L STAINLESS STEEL  ·  100M / 330FT  ·  AUTOMATIC NH35  ·  '; g.fillStyle='#33363A'; g.font='700 30px "Saira Condensed",system-ui,sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+  const R=cx*0.68; for(let i=0;i<txt.length;i++){ const a=i/txt.length*Math.PI*2; g.save(); g.translate(cx+Math.sin(a)*R,cx-Math.cos(a)*R); g.rotate(a); g.fillText(txt[i],0,0); g.restore(); }
+  const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; parts.casebackT=t; return t; }
+// 夜光光暈：每個夜光塊（材質＝lumeM）沿長軸放幾顆疊加 sprite，只在「夜光」情境顯示 → 真的像在發光，不是一塊顏色
+function addLumeHalos(){ parts.lumeHalos=[]; if(!parts.lumeM) return;
+  if(!parts.haloTex){ const c=document.createElement('canvas'); c.width=c.height=64; const g=c.getContext('2d'); const gr=g.createRadialGradient(32,32,0,32,32,32); gr.addColorStop(0,'rgba(255,255,255,0.85)'); gr.addColorStop(0.30,'rgba(255,255,255,0.42)'); gr.addColorStop(0.65,'rgba(255,255,255,0.10)'); gr.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=gr; g.fillRect(0,0,64,64); parts.haloTex=new T.CanvasTexture(c); }
+  const show=SCENES[S.scene].fx==='lume', col=parts.lumeM.emissive, targets=[];
+  root.traverse(o=>{ if(o.isMesh&&o.material===parts.lumeM) targets.push(o); });
+  targets.forEach(o=>{ const g=o.geometry; if(!g.boundingBox) g.computeBoundingBox(); const sz=new T.Vector3(); g.boundingBox.getSize(sz); const c=new T.Vector3(); g.boundingBox.getCenter(c);
+    const dims=[sz.x,sz.y,sz.z]; const ax=dims.indexOf(Math.max(dims[0],dims[1],dims[2])); const L=dims[ax]; const w=Math.max(0.03,Math.max(...dims.filter((_,i)=>i!==ax)));
+    const n=Math.max(1,Math.min(6,Math.round(L/(w*1.6)))); const sc=Math.min(0.42,Math.max(0.14,w*3.0));
+    const axMin=dims.indexOf(Math.min(dims[0],dims[1],dims[2]));   // 最薄的軸＝夜光塊的法線；sprite 要抬到表面外，不然被自己的幾何擋住（深度測試）
+    for(let i=0;i<n;i++){ const t=n===1?0:(i/(n-1)-0.5); const pos=c.clone(); pos.setComponent(ax,c.getComponent(ax)+t*(L-w)); pos.setComponent(axMin,c.getComponent(axMin)+dims[axMin]/2+0.02);
+      const sp=new T.Sprite(new T.SpriteMaterial({map:parts.haloTex,color:col,blending:T.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.5}));
+      sp.scale.set(sc,sc,1); sp.position.copy(pos); sp.visible=show; o.add(sp); parts.lumeHalos.push(sp); } }); }
 function applyScene(){
   const sc=SCENES[S.scene];
   if(envRT) envRT.dispose&&envRT.dispose();
@@ -2669,7 +2739,8 @@ function applyScene(){
     fx.snow=mkPts(520,11,parts.flakeTex,0.16,0xFFFFFF,.9); fx.snow.material.blending=T.NormalBlending;
     const p=fx.snow.geometry.attributes.position, ph=new Float32Array(p.count);
     for(let i=0;i<p.count;i++) ph[i]=Math.random()*6.28; fx.snow.userData.ph=ph; scene.add(fx.snow); }
-  if(parts.lumeM) parts.lumeM.emissiveIntensity = sc.fx==='lume'?2.8:0.95;
+  if(parts.lumeM){ parts.lumeM.emissiveIntensity = sc.fx==='lume'?1.3:0.35; parts.lumeM.color.set(LUME[S.lume].mat).multiplyScalar(sc.fx==='lume'?0.35:1); }   // 夜景把顏料底色壓暗，發光色才不會被漫射洗白
+  if(parts.lumeHalos) parts.lumeHalos.forEach(function(sp){ sp.visible=(sc.fx==='lume'); });
   applyEnvToAll();
 }
 
@@ -2911,7 +2982,10 @@ requestAnimationFrame(animate);
     for(let i=1;i<p.array.length;i+=3){ p.array[i]+=0.018;
       p.array[i-1]+=Math.sin(t*1.6+i)*0.0022; if(p.array[i]>4.5) p.array[i]=-4.5; }
     p.needsUpdate=true; }
-  renderer.render(scene,camera);
+  if(parts.cubeCam&&parts.innerRefl&&parts.innerRefl.length&&!window.arLockRes&&!mqMobile.matches){
+    const moving=drg||Math.abs(spinVel)>0.0015||Math.abs(tiltVel)>0.0015||Math.abs(tRotY-rotY)>0.01||Math.abs(tRotX-rotX)>0.01;
+    if(moving?(parts.frames%2===0):(parts.frames%24===0)){ parts.innerRefl.forEach(function(o){ o.visible=false; }); parts.cubeCam.update(renderer,scene); parts.innerRefl.forEach(function(o){ o.visible=true; }); } }
+renderer.render(scene,camera);
   parts.frames=(parts.frames||0)+1; if(parts.frames===4) onScroll();
     // 🔴 iOS 首次載入 3D 有時一片空白、捲一下才出現（用戶 0905）：疑似首次 resize 在版面定型前跑到 0 高 → 每 30 幀對一次繪圖尺寸，不合就重算
     if(parts.frames%30===0&&!window.arLockRes){ const rr=cv.parentElement.getBoundingClientRect(); renderer.getSize(_szChk); if(rr.width>0&&(Math.abs(rr.width-_szChk.x)>1||Math.abs(rr.height-_szChk.y)>1)){ resize(); onScroll(); } }   // 3D 畫過幾格 → 影格交棒（見 onScroll 的 glReady）
