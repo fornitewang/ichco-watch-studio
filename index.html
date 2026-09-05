@@ -3240,15 +3240,16 @@ setTimeout(onScroll,300);
   let seg=null,segBusy=false,maskTex=null,maskArr=null,skinArr=null,maskW=0,maskH=0,maskReady=false,occQuad=null,lastLm=null;
   // 左右手：MediaPipe 標籤信心低時會飄（實機同一隻手 Left 0.92↔Right 0.58 亂跳，錶殼就跑到手心側）→ 只採信心 ≥0.85 的票、累積有遲滯，再給「換手」鈕手動翻
   let handVotes=0, handFlip=1, sizeAdj=1.0;
-  try{ const v=parseFloat(localStorage.getItem('ichco_ar_size')||'1'); if(v>=0.6&&v<=1.6) sizeAdj=v; }catch(e){}
+  try{ const v=parseFloat(localStorage.getItem('ichco_ar_size2')||'1'); if(v>=0.6&&v<=1.6) sizeAdj=v; }catch(e){}
   const sizeVal=$('arSizeVal'); const showSize=()=>{ if(sizeVal) sizeVal.textContent=Math.round(sizeAdj*100)+'%'; }; showSize();
-  const bump=(d)=>{ sizeAdj=Math.min(1.6,Math.max(0.6,+(sizeAdj+d).toFixed(2))); showSize(); try{ localStorage.setItem('ichco_ar_size',String(sizeAdj)); }catch(e){} };
+  const bump=(d)=>{ sizeAdj=Math.min(1.6,Math.max(0.6,+(sizeAdj+d).toFixed(2))); showSize(); try{ localStorage.setItem('ichco_ar_size2',String(sizeAdj)); }catch(e){} };
   if($('arSizeDn')) $('arSizeDn').addEventListener('click',()=>bump(-0.05)); if($('arSizeUp')) $('arSizeUp').addEventListener('click',()=>bump(0.05));
   if($('arHandBtn')) $('arHandBtn').addEventListener('click',()=>{ handFlip=-handFlip; });
   // 偵錯疊圖（用戶 0905：「用線和點先描繪偵測出手的輪廓，就知道哪裡出問題」）
   let dbgOn=false,lastRes=null; const dbgC=$('arDbg'), dbgX=dbgC?dbgC.getContext('2d'):null; const maskC=document.createElement('canvas'), maskX=maskC.getContext('2d');
   const HAND_LINES=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
   const dbgBtn=$('arDbgBtn'); if(dbgBtn) dbgBtn.addEventListener('click',function(){ dbgOn=!dbgOn; if(dbgOn) document.documentElement.dataset.ardbg='1'; else delete document.documentElement.dataset.ardbg; dbgBtn.textContent=dbgOn?'偵錯 ✓':'偵錯'; });
+  { const mt=/[?&]artilt=(-?\d+)/.exec(location.search); if(mt) window.arTilt=parseInt(mt[1],10); }
   if(/[?&]ardebug=1/.test(location.search)){ dbgOn=true; document.documentElement.dataset.ardbg='1'; if(dbgBtn) dbgBtn.textContent='偵錯 ✓'; }
   const segC=document.createElement('canvas'); const segX=segC.getContext('2d',{willReadFrequently:true});
   const MU={uMask:{value:null},uRes:{value:new THREE.Vector2(1,1)},uCover:{value:new THREE.Vector4(0,0,1,1)},uMaskOn:{value:0}};
@@ -3298,15 +3299,16 @@ setTimeout(onScroll,300);
     // ④ 遮罩平面：過手腕中心、法線＝手背法線（pivot 的 y），只寫深度；片段在人物輪廓外就 discard。遮罩就緒後取代橢圓柱
     maskReady=false; lastLm=null;
     // ② 接觸陰影：錶殼底下一片放射漸層（中心暗、邊緣透明）用乘法混合壓在皮膚上；放在皮膚上方一點點免得被隱形手腕的深度吃掉
-    { const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'); const gr=g.createRadialGradient(64,64,6,64,64,64); gr.addColorStop(0,'rgb(120,120,120)'); gr.addColorStop(0.55,'rgb(200,200,200)'); gr.addColorStop(1,'rgb(255,255,255)'); g.fillStyle=gr; g.fillRect(0,0,128,128);
-      const t=new THREE.CanvasTexture(c); shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.9,2.9),new THREE.MeshBasicMaterial({map:t,depthWrite:false,transparent:true,blending:THREE.CustomBlending,blendSrc:THREE.ZeroFactor,blendDst:THREE.SrcColorFactor,blendEquation:THREE.AddEquation,toneMapped:false}));
+    // 🔴 之前放在 y=0.03（錶殼中心高度）等於藏在殼裡，實機五張截圖一點影子都沒有；真錶照片錶殼底下與錶帶兩側都有一圈暗影，這是「戴著」最強的線索之一
+    { const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'); const gr=g.createRadialGradient(64,64,10,64,64,64); gr.addColorStop(0,'rgb(40,40,40)'); gr.addColorStop(0.30,'rgb(105,105,105)'); gr.addColorStop(0.62,'rgb(205,205,205)'); gr.addColorStop(1,'rgb(255,255,255)'); g.fillStyle=gr; g.fillRect(0,0,128,128);
+      const t=new THREE.CanvasTexture(c); shadow=new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.6),new THREE.MeshBasicMaterial({map:t,depthWrite:false,depthTest:false,transparent:true,blending:THREE.CustomBlending,blendSrc:THREE.ZeroFactor,blendDst:THREE.SrcColorFactor,blendEquation:THREE.AddEquation,toneMapped:false}));
       shadow.material.userData.noEnv=true;
-      shadow.rotation.x=-Math.PI/2; shadow.position.set(0,0.03,0); shadow.renderOrder=-5; pivot.add(shadow); }
+      shadow.rotation.x=-Math.PI/2; shadow.scale.set(1.35,1.9,1); shadow.position.set(0,-0.20,0); shadow.renderOrder=-5; pivot.add(shadow); }   // 貼在錶底皮膚面；橫向（繞腕方向）拉長蓋到錶帶下面
     for(const k in filt) delete filt[k]; envN=0;
     storyOn=false; glide=0; rotY=0; rotX=0; tRotY=0; tRotX=0; dist=10; tDist=10; lookY=0; tLookY=0; spinVel=0; tiltVel=0;
     root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=false;
     renderer.clippingPlanes=[];
-    sm.ok=false; sm.okq=false; sm.seen=0; sm.sign=0; sm.hand=0; sm.side=0; sm.wristW=0; handVotes=0; resize(); say('把手腕對準鏡頭');
+    sm.ok=false; sm.okq=false; sm.seen=0; sm.sign=0; sm.hand=0; sm.side=0; sm.wristW=0; handVotes=0; pnp.ok=false; camera.far=300; camera.updateProjectionMatrix(); resize(); say('把手腕對準鏡頭');   // 真實距離最遠可到幾公尺，far 拉大
     loadMP(); loop();
   }
   function stop(){ if(!on) return; on=false; cancelAnimationFrame(raf);
@@ -3318,7 +3320,7 @@ setTimeout(onScroll,300);
     if(envRTar){ envRTar.dispose(); envRTar=null; } if(envTex){ envTex.dispose(); envTex=null; }
     scene.remove(pivot); pivot=null; root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=true;
     renderer.clippingPlanes=[]; rotY=saved.rotY; rotX=saved.rotX; tRotY=rotY; tRotX=rotX; dist=saved.dist; tDist=dist; lookY=saved.lookY; tLookY=lookY;
-    window.arLockRes=false; if(saved.prBase){ parts.prBase=saved.prBase; parts.prScale=saved.prScale||1; renderer.setPixelRatio(parts.prBase*parts.prScale); }
+    camera.far=80; camera.updateProjectionMatrix(); window.arLockRes=false; if(saved.prBase){ parts.prBase=saved.prBase; parts.prScale=saved.prScale||1; renderer.setPixelRatio(parts.prBase*parts.prScale); }
     delete document.documentElement.dataset.ar; btn.textContent='📷 AR 試戴'; say(''); if(vtex){ vtex.dispose(); vtex=null; } resize(); applyScene(); applyEnvToAll(); onScroll();   // applyScene 把棚拍環境光換回來；🔴 applyEnvToAll 必跑：AR 中 updateEnv 把相機環境貼圖塞進每個材質，上面 dispose 掉後材質仍指著它 → 金屬全黑（用戶 0905：Santos 變黑）
   }
   // ② 鏡頭畫面當環境光：把影片縮成 128×64 全景比例＋模糊，PMREM 後套到錶的每個材質（envRT 是主程式的全域）
@@ -3347,7 +3349,7 @@ setTimeout(onScroll,300);
     // 數字
     const d=window.arDebug(); const lines=['hand '+(lastRes?lastRes.hand+' '+lastRes.score.toFixed(2):'-')+'  → 錶在'+((sm.side||1)*handFlip>0?'朝鏡頭面':'背面')+'  標籤票 '+(sm.hand>0?'R':sm.hand<0?'L':'-'),
       '手長(畫布高比) '+(sm.s||0).toFixed(3)+'   手腕寬 '+(sm.wristW||0).toFixed(3)+(sm.wristW?'  比 '+(sm.wristW/(sm.s||1)).toFixed(2):''),
-      '錶縮放 sc '+(d.s||0)+'   錶帶圈 '+(d.loopScale?d.loopScale.join('/'):'-'),
+      '距離 '+(d.pnp&&d.pnp.ok?Math.round(d.pnp.z*100)+'cm':'後備')+'   重投影 '+(d.pnp?d.pnp.rmsPx+'px':'-')+'   法線↔鏡頭 '+(d.pnp?d.pnp.ang:'-')+'°   錶帶圈 '+(d.loopScale?d.loopScale.join('/'):'-'),
       '遮罩 '+(maskReady?'有':'無')+' '+maskW+'x'+maskH+'   偵測 '+sm.seen+'/10   票 '+handVotes+(handFlip<0?' 手動翻':'')+'   尺寸 '+Math.round(sizeAdj*100)+'%'];
     X.font='bold 13px system-ui'; X.textBaseline='top'; lines.forEach((t,i)=>{ X.fillStyle='rgba(0,0,0,.55)'; X.fillRect(8,44+i*20,X.measureText(t).width+12,18); X.fillStyle='#fff'; X.fillText(t,14,46+i*20); }); }
   function runSeg(u){ if(!vid||vid.readyState<2) return; const vw=vid.videoWidth,vh=vid.videoHeight; const W=256, H=Math.max(64,Math.round(256*vh/vw));
@@ -3380,14 +3382,14 @@ setTimeout(onScroll,300);
     const tmp=maskArr.slice(); for(let y=ya+1;y<yb;y++) for(let x=x0+1;x<x1;x++){ let c=0; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) if(tmp[(y+dy)*w+x+dx]) c++; maskArr[y*w+x]=c>=5?255:0; } }
   // 從遮罩量真實手腕寬：在手腕點沿「垂直於前臂」方向往兩邊走到人物邊緣
   function wristFromMask(L,u){ const M=skinArr||maskArr; if(!M) return; const w=maskW,h=maskH;   // 用膚色遮罩量：人物分割會把白床單整片當前景，紅線會量到床上
-    const wx=L.wx*w, wy=L.wy*h; let px=-L.fy*h, py=L.fx*w; const nrm=Math.hypot(px,py)||1; px/=nrm; py/=nrm;
+    const wx=(L.wx-L.fx*L.len*0.3)*w, wy=(L.wy-L.fy*L.len*0.3)*h; let px=-L.fy*h, py=L.fx*w; const nrm=Math.hypot(px,py)||1; px/=nrm; py/=nrm;   // 在摺痕往手肘 0.3 手長處量（摺痕處大魚際會把寬度量胖，圈就像貼紙）
     let a=0,b=0; const max=Math.max(8, L.len*h*0.75);   // 手腕半寬不會超過 0.75 個手長（真手腕約 0.29）
     for(let t=1;t<max;t++){ const x=Math.round(wx+px*t), y=Math.round(wy+py*t); if(x<0||y<0||x>=w||y>=h||M[y*w+x]<128) break; a=t; }
     for(let t=1;t<max;t++){ const x=Math.round(wx-px*t), y=Math.round(wy-py*t); if(x<0||y<0||x>=w||y>=h||M[y*w+x]<128) break; b=t; }
     if(a+b<4) return;
     sm.wristPts=[[(wx+px*a)/w,(wy+py*a)/h],[(wx-px*b)/w,(wy-py*b)/h]];
     const widthVideoH=(a+b)/h; let widthCanvasH=widthVideoH/u[3];
-    const lenCanvas=L.len/u[3]; widthCanvasH=Math.min(0.72*lenCanvas, Math.max(0.45*lenCanvas, widthCanvasH));   // 真手腕寬≈手長×0.58；實機量到 1.3 倍是床單漏進來
+    const lenCanvas=L.len/u[3]; widthCanvasH=Math.min(0.62*lenCanvas, Math.max(0.45*lenCanvas, widthCanvasH));   // 真手腕寬≈手長×0.58；實機量到 0.83 倍是地板／床單漏進來，圈一寬就變貼紙
     sm.wristW=sm.wristW?sm.wristW*0.8+widthCanvasH*0.2:widthCanvasH; }
   function coverUV(){ const vw=vid.videoWidth||16, vh=vid.videoHeight||9; const r=cv.parentElement.getBoundingClientRect(); const ra=r.width/r.height, va=vw/vh;
     let rx=1,ry=1; if(ra>va) ry=va/ra; else rx=ra/va; return [(1-rx)/2,(1-ry)/2,rx,ry]; }
@@ -3407,10 +3409,39 @@ setTimeout(onScroll,300);
         _x=new THREE.Vector3(), _y=new THREE.Vector3(), _z=new THREE.Vector3(), _m=new THREE.Matrix4(), _qt=new THREE.Quaternion();
   // MediaPipe 世界座標（公尺、手心為原點；x 右、y 下、z 越大越遠）→ three.js 相機空間（x 右、y 上、z 朝觀者）→ 世界
   function w2v(out,Wp,i){ return out.set(Wp[i].x,-Wp[i].y,-Wp[i].z).applyQuaternion(camera.quaternion); }
+  // ── PnP 解算（Levenberg–Marquardt、數值雅可比）：模型點＝21 個 world landmark（公尺），觀測＝正規化影像面座標；未知數＝旋轉向量 3＋位移 3
+  const U=1/0.021;   // 模型單位：錶殼直徑 2.0＝42mm → 1 單位＝21mm
+  const Wf=Array.from({length:21},()=>new THREE.Vector3()), OBS=new Float64Array(42), RES=new Float64Array(42), RES2=new Float64Array(42), JAC=new Float64Array(252);
+  const pnp={q:new THREE.Quaternion(), t:new THREE.Vector3(0,0,-0.4), ok:false, rms:0};
+  const _pq=new THREE.Quaternion(), _pq2=new THREE.Quaternion(), _pqk=new THREE.Quaternion(), _pt=new THREE.Vector3(), _ptk=new THREE.Vector3(), _pp=new THREE.Vector3(), _pax=new THREE.Vector3();
+  function pnpResid(q,t,out){ let e=0; for(let i=0;i<21;i++){ _pp.copy(Wf[i]).applyQuaternion(q).add(t); const iz=1/Math.max(0.03,-_pp.z); const rx=_pp.x*iz-OBS[2*i], ry=_pp.y*iz-OBS[2*i+1]; out[2*i]=rx; out[2*i+1]=ry; e+=rx*rx+ry*ry; } return e; }
+  function solve6(A,B){ const M=new Float64Array(42); for(let i=0;i<6;i++){ for(let j=0;j<6;j++) M[i*7+j]=A[i*6+j]; M[i*7+6]=B[i]; }
+    for(let c=0;c<6;c++){ let p=c; for(let r=c+1;r<6;r++) if(Math.abs(M[r*7+c])>Math.abs(M[p*7+c])) p=r; if(Math.abs(M[p*7+c])<1e-14) return null;
+      if(p!==c) for(let j=0;j<7;j++){ const tmp=M[c*7+j]; M[c*7+j]=M[p*7+j]; M[p*7+j]=tmp; }
+      for(let r=0;r<6;r++){ if(r===c) continue; const f=M[r*7+c]/M[c*7+c]; if(f===0) continue; for(let j=c;j<7;j++) M[r*7+j]-=f*M[c*7+j]; } }
+    const x=new Float64Array(6); for(let i=0;i<6;i++) x[i]=M[i*7+6]/M[i*7+i]; return x; }
+  function solvePnP(){
+    const q=_pq.copy(pnp.q), t=_pt.copy(pnp.t); if(!pnp.ok){ q.identity(); t.set(0,0,-0.4); }
+    let cost=pnpResid(q,t,RES), lam=1e-3; const A=new Float64Array(36), B=new Float64Array(6);
+    for(let it=0;it<12;it++){
+      for(let kk=0;kk<6;kk++){ const eps=1e-3; _pqk.copy(q); _ptk.copy(t);
+        if(kk<3){ _pax.set(kk===0?1:0,kk===1?1:0,kk===2?1:0); _pq2.setFromAxisAngle(_pax,eps); _pqk.premultiply(_pq2); } else if(kk===3) _ptk.x+=eps; else if(kk===4) _ptk.y+=eps; else _ptk.z+=eps;
+        pnpResid(_pqk,_ptk,RES2); for(let j=0;j<42;j++) JAC[j*6+kk]=(RES2[j]-RES[j])/eps; }
+      A.fill(0); B.fill(0);
+      for(let j=0;j<42;j++){ const rj=RES[j]; for(let a=0;a<6;a++){ const ja=JAC[j*6+a]; B[a]-=ja*rj; for(let b=0;b<6;b++) A[a*6+b]+=ja*JAC[j*6+b]; } }
+      for(let a=0;a<6;a++) A[a*6+a]*=(1+lam);
+      const d=solve6(A,B); if(!d) break;
+      _pax.set(d[0],d[1],d[2]); const ang=_pax.length(); _pqk.copy(q); if(ang>1e-12){ _pax.divideScalar(ang); _pq2.setFromAxisAngle(_pax,ang); _pqk.premultiply(_pq2); }
+      _ptk.set(t.x+d[3],t.y+d[4],t.z+d[5]);
+      const c2=pnpResid(_pqk,_ptk,RES2);
+      if(c2<cost){ q.copy(_pqk); t.copy(_ptk); RES.set(RES2); const done=(cost-c2)<1e-10; cost=c2; lam=Math.max(1e-6,lam/3); if(done) break; } else { lam*=6; if(lam>1e4) break; } }
+    pnp.rms=Math.sqrt(cost/21);
+    if(!(cost<0.05)||t.z>-0.05){ pnp.ok=false; return false; }          // 沒收斂／手在鏡頭後面 → 走後備
+    if(pnp.ok){ pnp.q.slerp(q,0.45); pnp.t.lerp(t,0.5); } else { pnp.q.copy(q); pnp.t.copy(t); }
+    pnp.ok=true; return true; }
   function place(L,Wp,u,hand,hscore){
     const tNow=performance.now();
     const P=i=>({x:F('x'+i,(L[i].x-u[0])/u[2],tNow), y:F('y'+i,(L[i].y-u[1])/u[3],tNow)});     // 影片座標 → 畫布 0..1（cover 裁切後）＋One-Euro
-    if(Wp&&Wp.length>17){ for(const i of [0,5,9,17]){ Wp[i]={x:F('wx'+i,Wp[i].x,tNow), y:F('wy'+i,Wp[i].y,tNow), z:F('wz'+i,Wp[i].z,tNow)}; } }
     const w=P(0), m=P(9);
     const r=cv.parentElement.getBoundingClientRect(); const asp=r.width/r.height;
     { const fx=L[9].x-L[0].x, fy=L[9].y-L[0].y, n=Math.hypot(fx,fy)||1e-4;
@@ -3419,44 +3450,53 @@ setTimeout(onScroll,300);
     const len2=Math.hypot((m.x-w.x)*asp,(m.y-w.y))||1e-4;           // 手腕→中指根 的 2D 長（畫布高為 1）
     // ── 3D 姿態：前臂軸 f（手腕→中指根）、手背法線 n（食指根、小指根與手腕張成的面）
     const D=10; _v.set(w.x*2-1, 1-w.y*2, 0.5).unproject(camera); const dir=_d.copy(_v).sub(camera.position).normalize();
-    let have3d=false;
-    if(Wp&&Wp.length>17){
-      w2v(_f,Wp,9).sub(w2v(_a,Wp,0)); const len3=_f.length()||1e-4; _f.divideScalar(len3);
-      w2v(_a,Wp,5).sub(w2v(_b,Wp,0)); w2v(_b,Wp,17).sub(w2v(_q,Wp,0)); _n.crossVectors(_a,_b).normalize();
-      // 手背／手心哪一面：右手 cross(食指根−腕, 小指根−腕) 指向手心、左手指向手背（幾何推導）。
-      //   MediaPipe 的左右手標籤是假設「自拍鏡像」算的，後鏡頭沒鏡像 → 標籤要反過來：報 Left＝真右手。
-      //   （第一版用「第一眼朝相機那面＝手背」校準，用戶手心先入鏡就整場反掉，實機截圖抓到）
-      if(hand&&hscore>=0.85){ handVotes=Math.max(-60,Math.min(60,handVotes+((hand==='Left')?1:-1))); }
-      if(Math.abs(handVotes)>=6) sm.hand=handVotes>0?1:-1;           // 至少 6 票才定、之後要反向累積才會翻（遲滯）
-      // 🔴 實機（用戶 iPhone 後鏡頭，2026-09-05 四張截圖）證明方向跟推導相反：手背朝鏡頭時錶殼跑到手心側、手心朝鏡頭反而看到錶面 → 正負號整個翻過來
-      // 🔴 0905 五張實機截圖再翻案：標籤同一隻手 Right 0.92↔Left 0.56 亂跳，三張手背朝鏡頭錶殼被翻到手心側藏進手腕。左右手標籤只留給偵錯看，
-      //    正負號改成「朝鏡頭那一面」＋遲滯 0.25：客人給鏡頭看哪一面，錶就戴在哪一面；手翻過去超過遲滯才換邊，邊緣角度不抖。「翻面」鈕手動換另一側。
-      { const toCam=-_n.dot(_d); if(!sm.side) sm.side=toCam>=0?1:-1; else if(sm.side*toCam<-0.25) sm.side=-sm.side; }
-      _n.multiplyScalar(sm.side*handFlip);
-      // 透視縮短校正：2D 長 = 3D 長 × sqrt(1-fz²)，fz＝前臂軸沿視線的分量
-      const fz=Math.abs(_f.dot(dir)); const corr=1/Math.max(0.35,Math.sqrt(Math.max(0.05,1-fz*fz)));
-      var size=len2*corr; have3d=true;
-    } else { _f.setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar((m.x-w.x)*asp).addScaledVector(_z.setFromMatrixColumn(camera.matrixWorld,1),-(m.y-w.y)).normalize(); _n.copy(dir).negate(); var size=len2; }
+    let have3d=false, halfW=0, kz=1, ky=1; var size=len2;
+    const tanHalf=Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
     const k=sm.ok?0.3:1; sm.s+=(size-sm.s)*k; sm.x+=(w.x-sm.x)*k; sm.y+=(w.y-sm.y)*k; sm.ok=true;
-    // ── 位置：手腕點在相機射線距離 D 處，再沿手背法線抬起半個手腕厚（錶要坐在皮膚上，不是嵌在手腕中心）
-    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
-    // 尺寸：有量到手腕寬就用「錶殼 42mm ≈ 手腕寬 58mm × 0.72」，沒有才用手長 × 0.44（用戶實機說 0.40 版太小）；模型錶殼直徑 2.0
-    const sc=((sm.wristW?sm.wristW*0.72:sm.s*0.44)*h)/2.0*sizeAdj;
-    _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); _d.copy(_v).sub(camera.position).normalize();
-    pivot.position.copy(camera.position).addScaledVector(_d,D).addScaledVector(_n, 0.6*sc).addScaledVector(_f,-0.9*sc);   // 抬到皮膚上（0.9 會浮）＋沿前臂往手肘退約 2cm（真錶不會卡在手腕摺痕上）
-    pivot.scale.setScalar(sc);
-    // ④ 量到手腕寬 → 錶帶圈與遮罩平面跟著：模型圈半寬 1.64（z）、半高 0.84（y）、中心 y −1.24；厚度取寬 ×0.72
-    if(sm.wristW&&parts.loop){ const halfW=(sm.wristW*h/sc)/2; const kz=Math.min(1.4,Math.max(0.6,halfW/1.64)); const ky=Math.min(1.15,Math.max(0.6,(halfW*0.72)/0.84));
-      parts.loop.scale.set(1,ky,kz); parts.loop.position.y=-0.25+0.40*ky; const cy=-1.24*ky+parts.loop.position.y;
-      if(occQuad) occQuad.position.y=cy; if(occ){ occ.scale.set(0.84*ky*1.03,4.0,1.64*kz*1.03); occ.position.y=cy; } }
+    if(Wp&&Wp.length>20){
+      // 🔴 直接拿 world landmark 的法線放錶，手平放時錶面仍歪 30–40°（0905 裸腕測試片：錶面成橢圓、錶帶斜穿手腕）→ 改解 PnP：
+      //    21 個 world landmark（公尺、手心座標）對 2D 影像點求旋轉＋位移，投影一定對得上影像；距離是公尺，錶殼 42mm 就按真實比例落在手上
+      for(let i=0;i<21;i++){ Wf[i].set(F('wx'+i,Wp[i].x,tNow), -F('wy'+i,Wp[i].y,tNow), -F('wz'+i,Wp[i].z,tNow)); const s2=P(i); OBS[2*i]=(s2.x*2-1)*tanHalf*asp; OBS[2*i+1]=(1-s2.y*2)*tanHalf; }
+      if(solvePnP()){
+        _a.copy(Wf[0]).applyQuaternion(pnp.q).add(pnp.t); const zc=Math.max(0.05,-_a.z); sm.zc=zc;      // 手腕關節（相機座標，公尺）與距離
+        _v.copy(_a).multiplyScalar(U).applyMatrix4(camera.matrixWorld);                                   // → 世界座標（模型單位，1 單位＝21mm）
+        _f.copy(Wf[9]).sub(Wf[0]).normalize().applyQuaternion(pnp.q).applyQuaternion(camera.quaternion);   // 前臂軸（腕→中指根）
+        _b.copy(Wf[5]).sub(Wf[0]); _q.copy(Wf[17]).sub(Wf[0]); _n.crossVectors(_b,_q).normalize().applyQuaternion(pnp.q).applyQuaternion(camera.quaternion);   // 手掌面法線
+        _d.copy(_v).sub(camera.position).normalize();                                                      // 鏡頭→手腕
+        if(hand&&hscore>=0.85){ handVotes=Math.max(-60,Math.min(60,handVotes+((hand==='Left')?1:-1))); }
+        if(Math.abs(handVotes)>=6) sm.hand=handVotes>0?1:-1;           // 左右手標籤只給偵錯看
+        // 錶戴在「朝鏡頭那一面」＋遲滯 0.25（標籤實機亂跳，不能拿來定正負）；「翻面」鈕手動換另一側
+        { const toCam=-_n.dot(_d); if(!sm.side) sm.side=toCam>=0?1:-1; else if(sm.side*toCam<-0.25) sm.side=-sm.side; }
+        _n.multiplyScalar(sm.side*handFlip);
+        // 🔴 MediaPipe 的手腕關節點在手腕「中心」、掌骨頭在皮下 → (腕,食指根,小指根) 這個面比手背皮膚面往手肘倒約 30°，手平放錶面就成橢圓（0905 裸腕片實測 31–38°）。
+        //    法線往手的方向扳回 28°：實測夾角 35°→8°。?artilt=N 可調（負值往手肘）。
+        { const th=THREE.MathUtils.degToRad(window.arTilt==null?28:window.arTilt); _n.multiplyScalar(Math.cos(th)).addScaledVector(_f,Math.sin(th)).normalize(); }
+        sm.nang=THREE.MathUtils.radToDeg(Math.acos(Math.max(-1,Math.min(1,-_n.dot(_d)))));
+        // 手腕寬：遮罩量到的（畫布高比例）× 該距離的視野高（公尺）→ 模型單位；圈收 3%（真錶帶是勒著皮膚的）
+        if(sm.wristW){ halfW=(sm.wristW*2*zc*tanHalf*U)/2*0.97; kz=Math.min(1.6,Math.max(0.5,halfW/1.64)); ky=Math.min(1.3,Math.max(0.5,(halfW*0.72)/0.84)); }
+        // 位置：手腕關節在手腕中心 → 沿手背法線抬「半個手腕厚（圈中心到圈頂 0.84ky）＋圈頂到錶殼中心 0.25」，再往手肘退 1 單位（約 21mm，真錶不坐在摺痕上）
+        pivot.position.copy(_v).addScaledVector(_n,0.25+0.84*ky).addScaledVector(_f,-1.0);
+        pivot.scale.setScalar(sizeAdj); have3d=true;
+      }
+    }
+    if(!have3d){
+      // 後備（沒有 world landmark 或 PnP 沒收斂）：舊法＝手腕點放在射線距離 D 處、尺寸用手腕寬猜
+      _f.setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar((m.x-w.x)*asp).addScaledVector(_z.setFromMatrixColumn(camera.matrixWorld,1),-(m.y-w.y)).normalize(); _n.copy(dir).negate();
+      const h=2*D*tanHalf; const sc=((sm.wristW?sm.wristW*0.72:sm.s*0.44)*h)/2.0*sizeAdj;
+      _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); _d.copy(_v).sub(camera.position).normalize();
+      if(sm.wristW){ halfW=(sm.wristW*h/sc)/2*0.97; kz=Math.min(1.4,Math.max(0.6,halfW/1.64)); ky=Math.min(1.15,Math.max(0.6,(halfW*0.72)/0.84)); }
+      pivot.position.copy(camera.position).addScaledVector(_d,D).addScaledVector(_n,0.6*sc).addScaledVector(_f,-0.9*sc); pivot.scale.setScalar(sc);
+    }
+    // 錶帶圈與隱形手腕跟手腕尺寸：模型圈半寬 1.64（z）、半高 0.84（y）、中心 y −1.24；隱形手腕只比圈大 1%（遠半邊藏、近半邊露＝錶帶貼著手腕轉下去）
+    if(halfW&&parts.loop){ parts.loop.scale.set(1,ky,kz); parts.loop.position.y=-0.25+0.40*ky; const cy=-1.24*ky+parts.loop.position.y;
+      if(occQuad) occQuad.position.y=cy; if(occ){ occ.scale.set(0.84*ky*1.01,4.0,1.64*kz*1.01); occ.position.y=cy; } }
     // ── 方向：真錶戴著時錶冠（3 點）朝手、3–9 點軸沿前臂、錶帶繞著前臂軸成圈 → 模型 x＝前臂軸（+x 朝手＝f）、y＝手背法線 n、z＝橫過手腕
-    //    （第二版把 z 當前臂是錯的，錶帶會變成沿著手臂躺）
     _y.copy(_n); _x.copy(_f); _x.addScaledVector(_y,-_x.dot(_y)).normalize(); _z.crossVectors(_x,_y).normalize(); _x.crossVectors(_y,_z).normalize();
     _m.makeBasis(_x,_y,_z); _qt.setFromRotationMatrix(_m);
     if(sm.okq) pivot.quaternion.slerp(_qt,0.3); else { pivot.quaternion.copy(_qt); sm.okq=true; }
   }
   btn.addEventListener('click',()=>{ on?stop():start(); });
-  window.arDebug=()=>({on:on, seen:sm.seen, pos:pivot?pivot.position.toArray().map(v=>+v.toFixed(2)):null, s:pivot?+pivot.scale.x.toFixed(3):null, lm:!!lm, err:mpErr, vis:root.visible, seg:!!seg, mask:maskReady, maskWH:[maskW,maskH], wristW:+(sm.wristW||0).toFixed(3), hand:+sm.hand.toFixed(2), loopScale:parts.loop?parts.loop.scale.toArray().map(v=>+v.toFixed(2)):null});
+  window.arDebug=()=>({on:on, seen:sm.seen, pos:pivot?pivot.position.toArray().map(v=>+v.toFixed(2)):null, s:pivot?+pivot.scale.x.toFixed(3):null, lm:!!lm, err:mpErr, vis:root.visible, seg:!!seg, mask:maskReady, maskWH:[maskW,maskH], wristW:+(sm.wristW||0).toFixed(3), hand:+sm.hand.toFixed(2), objs:{pivot:pivot,shadow:shadow,occ:occ}, shadow:shadow?{vis:shadow.visible, ro:shadow.renderOrder, tr:shadow.material.transparent, bl:shadow.material.blending, y:+shadow.position.y.toFixed(2), sc:shadow.scale.toArray().map(v=>+v.toFixed(2))}:null, pnp:{ok:pnp.ok, rmsPx:Math.round(pnp.rms/Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*(cv.clientHeight/2)), z:+(sm.zc||0).toFixed(3), ang:Math.round(sm.nang||0)}, loopScale:parts.loop?parts.loop.scale.toArray().map(v=>+v.toFixed(2)):null});
 })();
 </script>
 </body>
