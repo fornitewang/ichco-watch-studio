@@ -83,7 +83,11 @@ html[data-ar] .stage, html[data-ar] .stage-col.pin .stage, html[data-ar] .stage-
 html[data-ar] .stage::before, html[data-ar] .stage::after{display:none!important}
 html[data-ar] #gl{width:100%!important; height:100%!important; opacity:1!important}
 html[data-ar] .stage-col>*:not(.stage){display:none!important}
-html[data-ar] .stage>*:not(#gl):not(#arBtn):not(#arMsg){display:none!important}
+html[data-ar] .stage>*:not(#gl):not(#arBtn):not(#arMsg):not(#arDbg):not(#arDbgBtn){display:none!important}
+#arDbg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:8; display:none}
+#arDbgBtn{position:absolute; left:12px; top:12px; z-index:9; font:600 12px/1 system-ui; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.35); background:rgba(0,0,0,.55); color:#fff; display:none}
+html[data-ar] #arDbgBtn{display:block}
+html[data-ar][data-ardbg] #arDbg{display:block}
 html[data-ar] #arBtn{top:auto; bottom:calc(18px + env(safe-area-inset-bottom)); right:50%; transform:translateX(50%); padding:12px 22px; font-size:14px; background:rgba(0,0,0,.55); color:#fff; border-color:rgba(255,255,255,.35)}
 html[data-ar] #arMsg{display:block}
 html[data-ar] body{overflow:hidden}
@@ -367,7 +371,7 @@ header{position:sticky; top:0; z-index:40;
     <div id="scrollHint">往下捲</div>
     <div id="chronoCtl" hidden><button type="button" id="chStart">▶ 計時</button><button type="button" id="chReset">↺ 歸零</button></div>
     <div class="hint">拖曳可轉動 · Ctrl+滾輪縮放</div>
-    <button type="button" id="arBtn">📷 AR 試戴</button><div id="arMsg"></div>
+    <button type="button" id="arBtn">📷 AR 試戴</button><div id="arMsg"></div><canvas id="arDbg"></canvas><button type="button" id="arDbgBtn">偵錯</button>
     <div class="fallback" id="fallback">這台裝置的瀏覽器不支援 3D 顯示，請改用較新的 Chrome、Edge 或 Safari。</div>
     <div class="readout">
       <div class="sku" id="skuOut">NH35-SUB-BLKBK-STOYS</div>
@@ -3209,6 +3213,11 @@ setTimeout(onScroll,300);
   let on=false,stream=null,vid=null,vtex=null,lm=null,pivot=null,saved=null,raf=0,plane=null,lastT=-1,mpErr=false,occ=null,shadow=null,envTex=null,envRTar=null,envN=0;
   // ④ 人物分割遮罩：selfie_segmenter（人 vs 背景）→ 一片「遮罩平面」只在人物輪廓內寫深度 → 平面後方（手臂後面）的錶帶逐像素被擋，切口跟真手臂邊緣走
   let seg=null,segBusy=false,maskTex=null,maskArr=null,maskW=0,maskH=0,maskReady=false,occQuad=null,lastLm=null;
+  // 偵錯疊圖（用戶 0905：「用線和點先描繪偵測出手的輪廓，就知道哪裡出問題」）
+  let dbgOn=false,lastRes=null; const dbgC=$('arDbg'), dbgX=dbgC?dbgC.getContext('2d'):null; const maskC=document.createElement('canvas'), maskX=maskC.getContext('2d');
+  const HAND_LINES=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+  const dbgBtn=$('arDbgBtn'); if(dbgBtn) dbgBtn.addEventListener('click',function(){ dbgOn=!dbgOn; if(dbgOn) document.documentElement.dataset.ardbg='1'; else delete document.documentElement.dataset.ardbg; dbgBtn.textContent=dbgOn?'偵錯 ✓':'偵錯'; });
+  if(/[?&]ardebug=1/.test(location.search)){ dbgOn=true; document.documentElement.dataset.ardbg='1'; if(dbgBtn) dbgBtn.textContent='偵錯 ✓'; }
   const segC=document.createElement('canvas'); const segX=segC.getContext('2d',{willReadFrequently:true});
   const MU={uMask:{value:null},uRes:{value:new THREE.Vector2(1,1)},uCover:{value:new THREE.Vector4(0,0,1,1)},uMaskOn:{value:0}};
   // ③ One-Euro 濾波：速度慢時多平滑、快時少延遲（比固定 EMA 不抖也不拖）
@@ -3217,7 +3226,7 @@ setTimeout(onScroll,300);
     const a=(c)=>{ const tau=1/(2*Math.PI*c); return 1/(1+tau/dt); };
     const dxr=(v-this.x)/dt; this.dx+= a(this.dc)*(dxr-this.dx); const cut=this.mc+this.b*Math.abs(this.dx); this.x+= a(cut)*(v-this.x); return this.x; };
   const filt={}; function F(key,v,t){ let f=filt[key]; if(!f) f=filt[key]=new OneEuro(1.5,0.03,1.0); return f.f(v,t); }
-  const sm={x:.5,y:.5,s:.3,ok:false,okq:false,seen:0,sign:0,hand:0,wristW:0};
+  const sm={x:.5,y:.5,s:.3,ok:false,okq:false,seen:0,sign:0,hand:0,wristW:0,wristPts:null};
   const AR_FRAG='uniform sampler2D uMask; uniform vec2 uRes; uniform vec4 uCover; uniform float uMaskOn; void main(){ if(uMaskOn>0.5){ vec2 s=gl_FragCoord.xy/uRes; vec2 v=vec2(uCover.x+s.x*uCover.z, uCover.y+(1.0-s.y)*uCover.w); if(v.x<0.0||v.x>1.0||v.y<0.0||v.y>1.0) discard; if(texture2D(uMask,v).r<0.5) discard; } gl_FragColor=vec4(0.0); }';
   const AR_VERT='void main(){ gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }';
   const AR_FRAG_OLD='uniform sampler2D uMask; uniform vec2 uRes; uniform vec4 uCover; void main(){ vec2 s=gl_FragCoord.xy/uRes; vec2 v=vec2(uCover.x+s.x*uCover.z, uCover.y+(1.0-s.y)*uCover.w); if(v.x<0.0||v.x>1.0||v.y<0.0||v.y>1.0) discard; if(texture2D(uMask,v).r<0.5) discard; gl_FragColor=vec4(0.0); }';
@@ -3286,6 +3295,27 @@ setTimeout(onScroll,300);
     const rt=pmrem.fromEquirectangular(envTex); if(envRTar) envRTar.dispose(); envRTar=rt; envRT=rt.texture; scene.environment=envRT; applyEnvToAll();
     // applyEnvToAll 會把 envMap 塞給所有有 envMap 欄位的材質，陰影片與隱形手腕不能吃（會變成一塊亮方框）
     pivot.traverse(function(o){ if(o.material&&o.material.userData&&o.material.userData.noEnv){ o.material.envMap=null; o.material.needsUpdate=true; } }); }
+  function drawDbg(u){ if(!dbgX) return; const r=cv.parentElement.getBoundingClientRect(); const W=Math.round(r.width), H=Math.round(r.height);
+    if(dbgC.width!==W||dbgC.height!==H){ dbgC.width=W; dbgC.height=H; }
+    const X=dbgX; X.clearRect(0,0,W,H);
+    const toC=(x,y)=>[(x-u[0])/u[2]*W, (y-u[1])/u[3]*H];   // 影片座標 → 畫布
+    // 輪廓遮罩（半透明綠）
+    if(maskArr&&maskW){ if(maskC.width!==maskW||maskC.height!==maskH){ maskC.width=maskW; maskC.height=maskH; }
+      const im=maskX.createImageData(maskW,maskH); for(let i=0;i<maskW*maskH;i++){ const v=maskArr[i]; im.data[i*4]=40; im.data[i*4+1]=220; im.data[i*4+2]=90; im.data[i*4+3]=v?90:0; } maskX.putImageData(im,0,0);
+      X.drawImage(maskC, u[0]*maskW, u[1]*maskH, u[2]*maskW, u[3]*maskH, 0,0,W,H); }
+    // 手腕寬線段
+    if(sm.wristPts){ const a=toC(sm.wristPts[0][0],sm.wristPts[0][1]), b=toC(sm.wristPts[1][0],sm.wristPts[1][1]); X.strokeStyle='#ff3b3b'; X.lineWidth=3; X.beginPath(); X.moveTo(a[0],a[1]); X.lineTo(b[0],b[1]); X.stroke(); }
+    // 骨架與關節點
+    if(lastRes){ const L=lastRes.L; X.strokeStyle='rgba(255,255,255,.9)'; X.lineWidth=2; X.beginPath(); for(const [a,b] of HAND_LINES){ const p=toC(L[a].x,L[a].y), q=toC(L[b].x,L[b].y); X.moveTo(p[0],p[1]); X.lineTo(q[0],q[1]); } X.stroke();
+      for(let i=0;i<L.length;i++){ const p=toC(L[i].x,L[i].y); X.fillStyle=(i===0)?'#ff3b3b':(i===9||i===5||i===17)?'#ffd23b':'#3bd3ff'; X.beginPath(); X.arc(p[0],p[1],i===0?7:4,0,Math.PI*2); X.fill(); }
+      // 前臂軸（手腕往手肘）
+      const w=toC(L[0].x,L[0].y), m=toC(L[9].x,L[9].y); const dx=w[0]-m[0], dy=w[1]-m[1]; X.strokeStyle='#ffd23b'; X.setLineDash([6,6]); X.beginPath(); X.moveTo(w[0],w[1]); X.lineTo(w[0]+dx*1.2,w[1]+dy*1.2); X.stroke(); X.setLineDash([]); }
+    // 數字
+    const d=window.arDebug(); const lines=['hand '+(lastRes?lastRes.hand+' '+lastRes.score.toFixed(2):'-')+'  → 判定 '+(sm.hand>0?'真右手':'真左手'),
+      '手長(畫布高比) '+(sm.s||0).toFixed(3)+'   手腕寬 '+(sm.wristW||0).toFixed(3)+(sm.wristW?'  比 '+(sm.wristW/(sm.s||1)).toFixed(2):''),
+      '錶縮放 sc '+(d.s||0)+'   錶帶圈 '+(d.loopScale?d.loopScale.join('/'):'-'),
+      '遮罩 '+(maskReady?'有':'無')+' '+maskW+'x'+maskH+'   偵測 '+sm.seen+'/10'];
+    X.font='bold 13px system-ui'; X.textBaseline='top'; lines.forEach((t,i)=>{ X.fillStyle='rgba(0,0,0,.55)'; X.fillRect(8,44+i*20,X.measureText(t).width+12,18); X.fillStyle='#fff'; X.fillText(t,14,46+i*20); }); }
   function runSeg(u){ if(!vid||vid.readyState<2) return; const vw=vid.videoWidth,vh=vid.videoHeight; const W=256, H=Math.max(64,Math.round(256*vh/vw));
     if(segC.width!==W||segC.height!==H){ segC.width=W; segC.height=H; }
     segX.drawImage(vid,0,0,W,H); segBusy=true;
@@ -3320,6 +3350,7 @@ setTimeout(onScroll,300);
     for(let t=1;t<max;t++){ const x=Math.round(wx+px*t), y=Math.round(wy+py*t); if(x<0||y<0||x>=w||y>=h||maskArr[y*w+x]<128) break; a=t; }
     for(let t=1;t<max;t++){ const x=Math.round(wx-px*t), y=Math.round(wy-py*t); if(x<0||y<0||x>=w||y>=h||maskArr[y*w+x]<128) break; b=t; }
     if(a+b<4) return;
+    sm.wristPts=[[(wx+px*a)/w,(wy+py*a)/h],[(wx-px*b)/w,(wy-py*b)/h]];
     const widthVideoH=(a+b)/h; let widthCanvasH=widthVideoH/u[3];
     const lenCanvas=L.len/u[3]; widthCanvasH=Math.min(0.85*lenCanvas, Math.max(0.45*lenCanvas, widthCanvasH));   // 真手腕寬≈手長×0.58，量歪也不能離譜
     sm.wristW=sm.wristW?sm.wristW*0.8+widthCanvasH*0.2:widthCanvasH; }
@@ -3333,7 +3364,8 @@ setTimeout(onScroll,300);
     if(seg&&!segBusy) runSeg(u);
     MU.uMaskOn.value=maskReady?1:0;
     if(lm){ const now=performance.now(); if(now!==lastT){ lastT=now; let res=null; try{ res=lm.detectForVideo(vid,now); }catch(e){}
-      if(res&&res.landmarks&&res.landmarks.length){ const hd=res.handedness&&res.handedness[0]&&res.handedness[0][0]; place(res.landmarks[0],res.worldLandmarks&&res.worldLandmarks[0],u,hd?hd.categoryName:null,hd?hd.score:0); sm.seen=Math.min(sm.seen+1,10); } else { sm.seen=Math.max(sm.seen-1,0); if(sm.seen===0) sm.sign=0; } } }
+      if(res&&res.landmarks&&res.landmarks.length){ const hd=res.handedness&&res.handedness[0]&&res.handedness[0][0]; lastRes={L:res.landmarks[0].map(q=>({x:q.x,y:q.y})),hand:hd?hd.categoryName:null,score:hd?hd.score:0}; place(res.landmarks[0],res.worldLandmarks&&res.worldLandmarks[0],u,hd?hd.categoryName:null,hd?hd.score:0); sm.seen=Math.min(sm.seen+1,10); } else { sm.seen=Math.max(sm.seen-1,0); if(sm.seen===0){ sm.sign=0; lastRes=null; } } } }
+    if(dbgOn) drawDbg(u);
     const vis=sm.seen>2; root.visible=vis; say(vis?'':(lm?'把手腕對準鏡頭（手背朝上）':(mpErr?'手部追蹤載入失敗（網路？）':'載入手部追蹤…')));
   }
   const _v=new THREE.Vector3(), _d=new THREE.Vector3(), _q=new THREE.Vector3(), _n=new THREE.Vector3(), _f=new THREE.Vector3(), _a=new THREE.Vector3(), _b=new THREE.Vector3(),
@@ -3368,7 +3400,9 @@ setTimeout(onScroll,300);
     } else { _f.setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar((m.x-w.x)*asp).addScaledVector(_z.setFromMatrixColumn(camera.matrixWorld,1),-(m.y-w.y)).normalize(); _n.copy(dir).negate(); var size=len2; }
     const k=sm.ok?0.3:1; sm.s+=(size-sm.s)*k; sm.x+=(w.x-sm.x)*k; sm.y+=(w.y-sm.y)*k; sm.ok=true;
     // ── 位置：手腕點在相機射線距離 D 處，再沿手背法線抬起半個手腕厚（錶要坐在皮膚上，不是嵌在手腕中心）
-    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)); const sc=(sm.s*0.40*h)/2.0;   // 錶殼 42mm ≈ 手長(腕→中指根 ~95mm) × 0.44，實測 0.44 圈太鬆先收 0.40；模型錶殼直徑 2.0
+    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+    // 尺寸：有量到手腕寬就用「錶殼 42mm ≈ 手腕寬 58mm × 0.72」，沒有才用手長 × 0.44（用戶實機說 0.40 版太小）；模型錶殼直徑 2.0
+    const sc=((sm.wristW?sm.wristW*0.72:sm.s*0.44)*h)/2.0;
     _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); _d.copy(_v).sub(camera.position).normalize();
     pivot.position.copy(camera.position).addScaledVector(_d,D).addScaledVector(_n, 0.6*sc).addScaledVector(_f,-0.9*sc);   // 抬到皮膚上（0.9 會浮）＋沿前臂往手肘退約 2cm（真錶不會卡在手腕摺痕上）
     pivot.scale.setScalar(sc);
