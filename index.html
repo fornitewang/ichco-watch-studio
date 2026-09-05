@@ -598,8 +598,8 @@ const DIAL=[
 const HANDS=[{code:'MB',name:'賓士針',add:0,shape:'mercedes'},
              {code:'SW',name:'劍針',  add:100,shape:'sword'},
              {code:'SN',name:'雪花針',add:200,shape:'snowflake'}];
-const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D8E8AE',glow:0x6CF03A},
-             {code:'BG',name:'BGW9 冰藍',add:100,mat:'#E3EFF7',glow:0x5EC4FF}];   // glow 要夠飽和，色調映射後才還看得出綠／藍（淡色一亮就變白）
+const LUME =[{code:'C3',name:'C3 夜光綠',add:0,  mat:'#D8E8AE',glow:0x9CFF50},
+             {code:'BG',name:'BGW9 冰藍',add:100,mat:'#E3EFF7',glow:0x78D8FF}];   // glow＝螢幕上要看到的 sRGB 色（夜景 toneMapped:false 原色直出）
 // k=剛性 d=能量保留 amp=擺幅 wave=波動沿鏈傳遞的程度（只有鋼帶有）
 const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,amp:1.00,wave:1.0},
              {code:'JUB',name:'五珠鋼帶',add:400, type:'metal',k:.13,d:.892,amp:1.10,wave:1.2},
@@ -1792,8 +1792,9 @@ function buildWatch(){
   dial.rotation.x=-Math.PI/2; dial.position.y=0.055; root.add(dial);
 
   // 立體字釘
-  const lumeM=new T.MeshStandardMaterial({color:new T.Color(lm.mat).multiplyScalar(scn.fx==='lume'?0.35:1),
-    emissive:new T.Color(lm.glow),emissiveIntensity:scn.fx==='lume'?1.3:0.35,roughness:.55});   // 白天只留顏料色（C3 淡黃綠／BGW9 藍白），夜光情境才發光
+  // 夜光＝整條均勻的一個顏色，沒有暈染（用戶 0906）：夜景關掉色調映射（toneMapped:false）讓 emissive 原色直出，不會被 ACES 壓成白；白天只留顏料色
+  const lumeM=new T.MeshStandardMaterial({color:new T.Color(lm.mat).multiplyScalar(scn.fx==='lume'?0.25:1),
+    emissive:new T.Color(lm.glow).convertSRGBToLinear(),emissiveIntensity:scn.fx==='lume'?1.0:0.30,roughness:.55,toneMapped:scn.fx!=='lume'});
   parts.lumeM=lumeM;
   // 12 點＝三角形；其餘＝長條 baton（實拍：金屬外框＋夜光內嵌，往外略寬）
   function triPrism(w,h,d){
@@ -1972,7 +1973,7 @@ function buildWatch(){
 
   // 錶帶
   buildBand(bd,baseM,accM,polM,brushM,accBrush,mt);
-  addLumeHalos();
+  // 夜光不加光暈 sprite（用戶 0906：真夜光是整條均勻亮、沒有暈染擴散）——addLumeHalos 留著不呼叫
   root.traverse(function(o){ if(o.isMesh && !o.material.transparent){ o.castShadow=true; o.receiveShadow=true; } });
   // 小零件（螺絲、內圈細紋、字釘、寶石）不投影：一百多個小 mesh 各投一次影是陰影通道最大的開銷
   root.traverse(function(o){ if(o.isMesh&&o.castShadow){ const g=o.geometry; if(!g.boundingSphere) g.computeBoundingSphere();
@@ -2739,7 +2740,7 @@ function applyScene(){
     fx.snow=mkPts(520,11,parts.flakeTex,0.16,0xFFFFFF,.9); fx.snow.material.blending=T.NormalBlending;
     const p=fx.snow.geometry.attributes.position, ph=new Float32Array(p.count);
     for(let i=0;i<p.count;i++) ph[i]=Math.random()*6.28; fx.snow.userData.ph=ph; scene.add(fx.snow); }
-  if(parts.lumeM){ parts.lumeM.emissiveIntensity = sc.fx==='lume'?1.3:0.35; parts.lumeM.color.set(LUME[S.lume].mat).multiplyScalar(sc.fx==='lume'?0.35:1); }   // 夜景把顏料底色壓暗，發光色才不會被漫射洗白
+  if(parts.lumeM){ parts.lumeM.emissiveIntensity = sc.fx==='lume'?1.0:0.30; parts.lumeM.color.set(LUME[S.lume].mat).multiplyScalar(sc.fx==='lume'?0.25:1); parts.lumeM.toneMapped=(sc.fx!=='lume'); parts.lumeM.needsUpdate=true; }   // 夜景：底色壓暗、關色調映射＝整條均勻原色
   if(parts.lumeHalos) parts.lumeHalos.forEach(function(sp){ sp.visible=(sc.fx==='lume'); });
   applyEnvToAll();
 }
