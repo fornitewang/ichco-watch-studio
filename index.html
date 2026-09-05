@@ -3207,7 +3207,7 @@ setTimeout(onScroll,300);
   const btn=$('arBtn'), msg=$('arMsg'); if(!btn) return;
   if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ btn.hidden=true; return; }
   let on=false,stream=null,vid=null,vtex=null,lm=null,pivot=null,saved=null,raf=0,plane=null,lastT=-1,mpErr=false;
-  const sm={x:.5,y:.5,dx:0,dy:1,s:.3,ok:false,seen:0};
+  const sm={x:.5,y:.5,s:.3,ok:false,okq:false,seen:0,sign:0};
   const say=t=>{ msg.textContent=t; };
   // MediaPipe 自帶在 assets/mp/（tasks-vision 0.10.14 的 bundle＋SIMD wasm＋hand_landmarker float16，共 16.8MB，只在按 AR 時才載）
   //   不靠 jsdelivr／Google 儲存：VPN 或中國網路下那兩處要 30 秒以上甚至載不到。GPU 委派失敗或 15 秒沒好就退回 CPU（?mpcpu=1 可強制）。
@@ -3234,7 +3234,7 @@ setTimeout(onScroll,300);
     storyOn=false; glide=0; rotY=0; rotX=0; tRotY=0; tRotX=0; dist=10; tDist=10; lookY=0; tLookY=0; spinVel=0; tiltVel=0;
     root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=false;
     plane=new THREE.Plane(new THREE.Vector3(0,0,1),1e9); renderer.clippingPlanes=[plane];
-    sm.ok=false; sm.seen=0; resize(); say('把手腕對準鏡頭（手背朝上）');
+    sm.ok=false; sm.okq=false; sm.seen=0; sm.sign=0; resize(); say('把手腕對準鏡頭（手背朝上）');
     loadMP(); loop();
   }
   function stop(){ if(!on) return; on=false; cancelAnimationFrame(raf);
@@ -3250,32 +3250,43 @@ setTimeout(onScroll,300);
     if(!vid||vid.readyState<2) return;
     const u=coverUV(); vtex.matrix.setUvTransform(u[0],u[1],u[2],u[3],0,0,0);
     if(lm){ const now=performance.now(); if(now!==lastT){ lastT=now; let res=null; try{ res=lm.detectForVideo(vid,now); }catch(e){}
-      if(res&&res.landmarks&&res.landmarks.length){ place(res.landmarks[0],u); sm.seen=Math.min(sm.seen+1,10); } else sm.seen=Math.max(sm.seen-1,0); } }
+      if(res&&res.landmarks&&res.landmarks.length){ place(res.landmarks[0],res.worldLandmarks&&res.worldLandmarks[0],u); sm.seen=Math.min(sm.seen+1,10); } else { sm.seen=Math.max(sm.seen-1,0); if(sm.seen===0) sm.sign=0; } } }
     const vis=sm.seen>2; root.visible=vis; say(vis?'':(lm?'把手腕對準鏡頭（手背朝上）':(mpErr?'手部追蹤載入失敗（網路？）':'載入手部追蹤…')));
   }
-  const _v=new THREE.Vector3(), _d=new THREE.Vector3(), _q=new THREE.Vector3(), _r=new THREE.Vector3(), _u=new THREE.Vector3(), _x=new THREE.Vector3(), _y=new THREE.Vector3(), _z=new THREE.Vector3(), _m=new THREE.Matrix4();
-  function place(L,u){
+  const _v=new THREE.Vector3(), _d=new THREE.Vector3(), _q=new THREE.Vector3(), _n=new THREE.Vector3(), _f=new THREE.Vector3(), _a=new THREE.Vector3(), _b=new THREE.Vector3(),
+        _x=new THREE.Vector3(), _y=new THREE.Vector3(), _z=new THREE.Vector3(), _m=new THREE.Matrix4(), _qt=new THREE.Quaternion();
+  // MediaPipe 世界座標（公尺、手心為原點；x 右、y 下、z 越大越遠）→ three.js 相機空間（x 右、y 上、z 朝觀者）→ 世界
+  function w2v(out,Wp,i){ return out.set(Wp[i].x,-Wp[i].y,-Wp[i].z).applyQuaternion(camera.quaternion); }
+  function place(L,Wp,u){
     const P=i=>({x:(L[i].x-u[0])/u[2], y:(L[i].y-u[1])/u[3]});     // 影片座標 → 畫布 0..1（cover 裁切後）
-    const w=P(0), m=P(9), i5=P(5), p17=P(17);
+    const w=P(0), m=P(9);
     const r=cv.parentElement.getBoundingClientRect(); const asp=r.width/r.height;
-    // 手腕→中指根（畫布空間，x 乘上寬高比、y 朝下）：錶心放在手腕再往前臂退一點
-    let dx=(m.x-w.x)*asp, dy=(m.y-w.y); const len=Math.hypot(dx,dy)||1e-4; dx/=len; dy/=len;
-    const cx=w.x-dx*0.10*len/asp, cy=w.y-dy*0.10*len;
-    // 尺寸依據：掌寬（食指根↔小指根）與手長（手腕→中指根）取大者——側面看手時掌寬會被壓扁，手長比較穩
-    const palm=Math.max(Math.hypot((i5.x-p17.x)*asp,(i5.y-p17.y)), 0.60*len);
-    const k=sm.ok?0.35:1; sm.x+=(cx-sm.x)*k; sm.y+=(cy-sm.y)*k; sm.dx+=(dx-sm.dx)*k; sm.dy+=(dy-sm.dy)*k; sm.s+=(palm-sm.s)*k; sm.ok=true;
-    // 畫布點 → 相機射線上距離 D 的世界點
-    const D=10; _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); const dir=_d.copy(_v).sub(camera.position).normalize();   // 🔴 dir 要用獨立向量，之前跟 _v 共用被覆寫→裁切平面切掉整支錶
-    pivot.position.copy(camera.position).addScaledVector(dir,D);
-    // 尺寸：錶殼直徑（模型 2.0）≈ 掌寬 × 0.62
-    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)); const s=(sm.s*h*0.62)/2.0; pivot.scale.setScalar(s);
-    // 方向：模型 z（12–6 點、錶帶走向）＝畫面上的前臂方向（朝手肘），模型 y（錶面法線）＝朝相機，模型 x（3 點、錶冠）＝橫過手腕
-    _r.setFromMatrixColumn(camera.matrixWorld,0); _u.setFromMatrixColumn(camera.matrixWorld,1);
-    _z.copy(_r).multiplyScalar(-sm.dx).addScaledVector(_u,sm.dy).normalize();    // (dx,dy)＝手腕→中指根（畫布 y 朝下）；取反＝朝手肘，世界 up 再取負
-    _y.copy(dir).negate(); _x.crossVectors(_y,_z).normalize(); _z.crossVectors(_x,_y).normalize();
-    _m.makeBasis(_x,_y,_z); pivot.quaternion.setFromRotationMatrix(_m);
-    // 裁切：手腕中心平面（在錶下方約一個錶徑的深度）之後的東西不畫 → 錶帶只剩繞在手臂前面那半截
-    plane.setFromNormalAndCoplanarPoint(_y, _q.copy(pivot.position).addScaledVector(dir, 1.0*s));
+    const len2=Math.hypot((m.x-w.x)*asp,(m.y-w.y))||1e-4;           // 手腕→中指根 的 2D 長（畫布高為 1）
+    // ── 3D 姿態：前臂軸 f（手腕→中指根）、手背法線 n（食指根、小指根與手腕張成的面）
+    const D=10; _v.set(w.x*2-1, 1-w.y*2, 0.5).unproject(camera); const dir=_d.copy(_v).sub(camera.position).normalize();
+    let have3d=false;
+    if(Wp&&Wp.length>17){
+      w2v(_f,Wp,9).sub(w2v(_a,Wp,0)); const len3=_f.length()||1e-4; _f.divideScalar(len3);
+      w2v(_a,Wp,5).sub(w2v(_b,Wp,0)); w2v(_b,Wp,17).sub(w2v(_q,Wp,0)); _n.crossVectors(_a,_b).normalize();
+      // 手背／手心哪一面：第一次偵測到時以「朝相機那面＝手背」校準（要求他手背朝鏡頭開始），之後沿用同一個正負號直到手離開畫面
+      if(!sm.sign) sm.sign=(_n.dot(dir)<0)?1:-1;
+      _n.multiplyScalar(sm.sign);
+      // 透視縮短校正：2D 長 = 3D 長 × sqrt(1-fz²)，fz＝前臂軸沿視線的分量
+      const fz=Math.abs(_f.dot(dir)); const corr=1/Math.max(0.35,Math.sqrt(Math.max(0.05,1-fz*fz)));
+      var size=len2*corr; have3d=true;
+    } else { _f.setFromMatrixColumn(camera.matrixWorld,0).multiplyScalar(-(m.x-w.x)*asp).addScaledVector(_y.setFromMatrixColumn(camera.matrixWorld,1),(m.y-w.y)).normalize().negate(); _n.copy(dir).negate(); var size=len2; }
+    const k=sm.ok?0.3:1; sm.s+=(size-sm.s)*k; sm.x+=(w.x-sm.x)*k; sm.y+=(w.y-sm.y)*k; sm.ok=true;
+    // ── 位置：手腕點在相機射線距離 D 處，再沿手背法線抬起半個手腕厚（錶要坐在皮膚上，不是嵌在手腕中心）
+    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)); const sc=(sm.s*0.44*h)/2.0;   // 錶殼 42mm ≈ 手長(腕→中指根 ~95mm) × 0.44；模型錶殼直徑 2.0
+    _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); _d.copy(_v).sub(camera.position).normalize();
+    pivot.position.copy(camera.position).addScaledVector(_d,D).addScaledVector(_n, 0.6*sc);   // 抬太多會看起來浮在手上（0.9 時假鏡頭測有縫）
+    pivot.scale.setScalar(sc);
+    // ── 方向：模型 y（錶面法線）＝手背法線 n；模型 z（12→6，錶帶走向）＝前臂軸（朝手肘＝-f）；x＝橫過手腕
+    _y.copy(_n); _z.copy(_f).negate(); _z.addScaledVector(_y,-_z.dot(_y)).normalize(); _x.crossVectors(_y,_z).normalize(); _z.crossVectors(_x,_y).normalize();
+    _m.makeBasis(_x,_y,_z); _qt.setFromRotationMatrix(_m);
+    if(sm.okq) pivot.quaternion.slerp(_qt,0.3); else { pivot.quaternion.copy(_qt); sm.okq=true; }
+    // ── 裁切：手腕中心（皮膚下方一個手腕半徑）為原點、法線＝手背法線 → 只畫繞在手背這一側的錶帶，手翻轉時跟著轉
+    plane.setFromNormalAndCoplanarPoint(_y, _q.copy(pivot.position).addScaledVector(_y,-1.0*sc));
   }
   btn.addEventListener('click',()=>{ on?stop():start(); });
   window.arDebug=()=>({on:on, seen:sm.seen, pos:pivot?pivot.position.toArray().map(v=>+v.toFixed(2)):null, s:pivot?+pivot.scale.x.toFixed(3):null, lm:!!lm, err:mpErr, vis:root.visible});
