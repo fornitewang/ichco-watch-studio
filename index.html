@@ -74,6 +74,20 @@ html[data-art] #artBg{display:block}
 #artBg canvas{display:block; width:100%; height:100%}
 #artBg::after{content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.26),rgba(0,0,0,.48))}   /* 壓一層讓文字讀得清楚 */
 html[data-art] body{background-color:transparent; background-image:none}   /* 方眼紙讓位 */
+/* ── AR 試戴（後鏡頭＋MediaPipe Hands）── */
+#arBtn{position:absolute; right:14px; top:12px; z-index:9; font:600 12px/1 'Saira Condensed',system-ui; letter-spacing:.06em; padding:8px 12px; border-radius:999px; border:1px solid var(--rule); background:var(--card); color:var(--ink); cursor:pointer}
+#arMsg{position:absolute; left:50%; top:16px; transform:translateX(-50%); z-index:9; font-size:13px; color:#fff; background:rgba(0,0,0,.45); padding:6px 12px; border-radius:999px; display:none; white-space:nowrap}
+html[data-ar] .stage-col{position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; aspect-ratio:auto!important; z-index:1000; border:0!important; border-radius:0!important; box-shadow:none!important; background:#000!important; transform:none!important}
+html[data-ar] .stage-col.pin, html[data-ar] .stage-col.pin.mini{position:fixed!important; inset:0!important; width:100vw!important; height:100vh!important; aspect-ratio:auto!important; transform:none!important}
+html[data-ar] .stage, html[data-ar] .stage-col.pin .stage, html[data-ar] .stage-col.pin.mini .stage{position:absolute!important; inset:0!important; width:100%!important; height:100%!important; aspect-ratio:auto!important; border-radius:0!important; border:0!important; box-shadow:none!important; transform:none!important; background:#000!important}
+html[data-ar] .stage::before, html[data-ar] .stage::after{display:none!important}
+html[data-ar] #gl{width:100%!important; height:100%!important; opacity:1!important}
+html[data-ar] .stage-col>*:not(.stage){display:none!important}
+html[data-ar] .stage>*:not(#gl):not(#arBtn):not(#arMsg){display:none!important}
+html[data-ar] #arBtn{top:auto; bottom:calc(18px + env(safe-area-inset-bottom)); right:50%; transform:translateX(50%); padding:12px 22px; font-size:14px; background:rgba(0,0,0,.55); color:#fff; border-color:rgba(255,255,255,.35)}
+html[data-ar] #arMsg{display:block}
+html[data-ar] body{overflow:hidden}
+html[data-ar] #artBg{display:none!important}
 .hand{font-family:"LXGW WenKai TC","Noto Sans TC",serif}
 .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
 :focus-visible{outline:2px solid var(--mint); outline-offset:3px; border-radius:8px}
@@ -353,6 +367,7 @@ header{position:sticky; top:0; z-index:40;
     <div id="scrollHint">往下捲</div>
     <div id="chronoCtl" hidden><button type="button" id="chStart">▶ 計時</button><button type="button" id="chReset">↺ 歸零</button></div>
     <div class="hint">拖曳可轉動 · Ctrl+滾輪縮放</div>
+    <button type="button" id="arBtn">📷 AR 試戴</button><div id="arMsg"></div>
     <div class="fallback" id="fallback">這台裝置的瀏覽器不支援 3D 顯示，請改用較新的 Chrome、Edge 或 Safari。</div>
     <div class="readout">
       <div class="sku" id="skuOut">NH35-SUB-BLKBK-STOYS</div>
@@ -3180,6 +3195,90 @@ setTimeout(onScroll,300);
       void box.offsetWidth; box.style.opacity='1';
       if(!running){ running=true; loop(); } });
   };
+})();
+</script>
+<script>
+/* ══ AR 試戴原型（用戶 2026-09-05 選①）════════════════════════════════════
+   後鏡頭影像當 scene.background（cover 裁切，不需 alpha 畫布），MediaPipe Hands 在瀏覽器內抓手腕(0)／中指根(9)／
+   食指根(5)／小指根(17)：手腕點決定位置、掌寬決定尺寸、手腕→中指根方向決定錶帶軸、錶面永遠朝相機；
+   用一片「手腕平面」的裁切平面把繞到手臂後面的那半截錶帶切掉（不切會穿過手臂＝虛擬感）。
+   已知極限（已跟他講）：手腕翻轉與袖口遮擋估不準會浮、反光是棚光不是現場光。 */
+(function(){
+  const btn=$('arBtn'), msg=$('arMsg'); if(!btn) return;
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ btn.hidden=true; return; }
+  let on=false,stream=null,vid=null,vtex=null,lm=null,pivot=null,saved=null,raf=0,plane=null,lastT=-1,mpErr=false;
+  const sm={x:.5,y:.5,dx:0,dy:1,s:.3,ok:false,seen:0};
+  const say=t=>{ msg.textContent=t; };
+  // MediaPipe 自帶在 assets/mp/（tasks-vision 0.10.14 的 bundle＋SIMD wasm＋hand_landmarker float16，共 16.8MB，只在按 AR 時才載）
+  //   不靠 jsdelivr／Google 儲存：VPN 或中國網路下那兩處要 30 秒以上甚至載不到。GPU 委派失敗或 15 秒沒好就退回 CPU（?mpcpu=1 可強制）。
+  const MP='assets/mp/';
+  function mkLM(m,vision,delegate){ return m.HandLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:MP+'hand_landmarker.task',delegate:delegate},runningMode:'VIDEO',numHands:1,minHandDetectionConfidence:0.5,minTrackingConfidence:0.5}); }
+  async function loadMP(){ if(lm||mpErr) return lm;
+    try{ const m=await import('./'+MP+'vision_bundle.mjs');
+      const vision=await m.FilesetResolver.forVisionTasks(MP);
+      const forceCPU=/[?&]mpcpu=1/.test(location.search);
+      if(!forceCPU){ try{ lm=await Promise.race([mkLM(m,vision,'GPU'), new Promise((_,rej)=>setTimeout(()=>rej(new Error('gpu timeout')),15000))]); }catch(e){ lm=null; } }
+      if(!lm) lm=await mkLM(m,vision,'CPU');
+    }catch(e){ mpErr=true; say('手部追蹤載入失敗'); }
+    return lm; }
+  async function start(){
+    if(on||!ok) return; say('開啟相機中…');
+    try{ stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false}); }
+    catch(e){ say('相機開不起來：'+e.name); setTimeout(()=>say(''),2500); return; }
+    vid=document.createElement('video'); vid.srcObject=stream; vid.muted=true; vid.playsInline=true; vid.setAttribute('playsinline',''); await vid.play();
+    on=true; document.documentElement.dataset.ar='1'; btn.textContent='✕ 離開 AR';
+    saved={bg:scene.background, ground:fx.ground?fx.ground.visible:null, gsh:fx.groundShadow?fx.groundShadow.visible:null, rotY:rotY, rotX:rotX, dist:dist, lookY:lookY};
+    vtex=new THREE.VideoTexture(vid); vtex.encoding=THREE.sRGBEncoding; vtex.minFilter=THREE.LinearFilter; vtex.generateMipmaps=false; vtex.matrixAutoUpdate=false; scene.background=vtex;
+    if(fx.ground) fx.ground.visible=false; if(fx.groundShadow) fx.groundShadow.visible=false;
+    pivot=new THREE.Group(); scene.add(pivot); scene.remove(root); pivot.add(root);
+    storyOn=false; glide=0; rotY=0; rotX=0; tRotY=0; tRotX=0; dist=10; tDist=10; lookY=0; tLookY=0; spinVel=0; tiltVel=0;
+    root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=false;
+    plane=new THREE.Plane(new THREE.Vector3(0,0,1),1e9); renderer.clippingPlanes=[plane];
+    sm.ok=false; sm.seen=0; resize(); say('把手腕對準鏡頭（手背朝上）');
+    loadMP(); loop();
+  }
+  function stop(){ if(!on) return; on=false; cancelAnimationFrame(raf);
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+    scene.background=saved.bg; if(fx.ground&&saved.ground!==null) fx.ground.visible=saved.ground; if(fx.groundShadow&&saved.gsh!==null) fx.groundShadow.visible=saved.gsh;
+    pivot.remove(root); scene.add(root); scene.remove(pivot); pivot=null; root.position.set(0,0,0); root.scale.set(1,1,1); root.rotation.z=0; root.visible=true;
+    renderer.clippingPlanes=[]; rotY=saved.rotY; rotX=saved.rotX; tRotY=rotY; tRotX=rotX; dist=saved.dist; tDist=dist; lookY=saved.lookY; tLookY=lookY;
+    delete document.documentElement.dataset.ar; btn.textContent='📷 AR 試戴'; say(''); if(vtex){ vtex.dispose(); vtex=null; } resize(); onScroll();
+  }
+  function coverUV(){ const vw=vid.videoWidth||16, vh=vid.videoHeight||9; const r=cv.parentElement.getBoundingClientRect(); const ra=r.width/r.height, va=vw/vh;
+    let rx=1,ry=1; if(ra>va) ry=va/ra; else rx=ra/va; return [(1-rx)/2,(1-ry)/2,rx,ry]; }
+  function loop(){ if(!on) return; raf=requestAnimationFrame(loop);
+    if(!vid||vid.readyState<2) return;
+    const u=coverUV(); vtex.matrix.setUvTransform(u[0],u[1],u[2],u[3],0,0,0);
+    if(lm){ const now=performance.now(); if(now!==lastT){ lastT=now; let res=null; try{ res=lm.detectForVideo(vid,now); }catch(e){}
+      if(res&&res.landmarks&&res.landmarks.length){ place(res.landmarks[0],u); sm.seen=Math.min(sm.seen+1,10); } else sm.seen=Math.max(sm.seen-1,0); } }
+    const vis=sm.seen>2; root.visible=vis; say(vis?'':(lm?'把手腕對準鏡頭（手背朝上）':(mpErr?'手部追蹤載入失敗（網路？）':'載入手部追蹤…')));
+  }
+  const _v=new THREE.Vector3(), _d=new THREE.Vector3(), _q=new THREE.Vector3(), _r=new THREE.Vector3(), _u=new THREE.Vector3(), _x=new THREE.Vector3(), _y=new THREE.Vector3(), _z=new THREE.Vector3(), _m=new THREE.Matrix4();
+  function place(L,u){
+    const P=i=>({x:(L[i].x-u[0])/u[2], y:(L[i].y-u[1])/u[3]});     // 影片座標 → 畫布 0..1（cover 裁切後）
+    const w=P(0), m=P(9), i5=P(5), p17=P(17);
+    const r=cv.parentElement.getBoundingClientRect(); const asp=r.width/r.height;
+    // 手腕→中指根（畫布空間，x 乘上寬高比、y 朝下）：錶心放在手腕再往前臂退一點
+    let dx=(m.x-w.x)*asp, dy=(m.y-w.y); const len=Math.hypot(dx,dy)||1e-4; dx/=len; dy/=len;
+    const cx=w.x-dx*0.10*len/asp, cy=w.y-dy*0.10*len;
+    // 尺寸依據：掌寬（食指根↔小指根）與手長（手腕→中指根）取大者——側面看手時掌寬會被壓扁，手長比較穩
+    const palm=Math.max(Math.hypot((i5.x-p17.x)*asp,(i5.y-p17.y)), 0.60*len);
+    const k=sm.ok?0.35:1; sm.x+=(cx-sm.x)*k; sm.y+=(cy-sm.y)*k; sm.dx+=(dx-sm.dx)*k; sm.dy+=(dy-sm.dy)*k; sm.s+=(palm-sm.s)*k; sm.ok=true;
+    // 畫布點 → 相機射線上距離 D 的世界點
+    const D=10; _v.set(sm.x*2-1, 1-sm.y*2, 0.5).unproject(camera); const dir=_d.copy(_v).sub(camera.position).normalize();   // 🔴 dir 要用獨立向量，之前跟 _v 共用被覆寫→裁切平面切掉整支錶
+    pivot.position.copy(camera.position).addScaledVector(dir,D);
+    // 尺寸：錶殼直徑（模型 2.0）≈ 掌寬 × 0.62
+    const h=2*D*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)); const s=(sm.s*h*0.62)/2.0; pivot.scale.setScalar(s);
+    // 方向：模型 z（12–6 點、錶帶走向）＝畫面上的前臂方向（朝手肘），模型 y（錶面法線）＝朝相機，模型 x（3 點、錶冠）＝橫過手腕
+    _r.setFromMatrixColumn(camera.matrixWorld,0); _u.setFromMatrixColumn(camera.matrixWorld,1);
+    _z.copy(_r).multiplyScalar(-sm.dx).addScaledVector(_u,sm.dy).normalize();    // (dx,dy)＝手腕→中指根（畫布 y 朝下）；取反＝朝手肘，世界 up 再取負
+    _y.copy(dir).negate(); _x.crossVectors(_y,_z).normalize(); _z.crossVectors(_x,_y).normalize();
+    _m.makeBasis(_x,_y,_z); pivot.quaternion.setFromRotationMatrix(_m);
+    // 裁切：手腕中心平面（在錶下方約一個錶徑的深度）之後的東西不畫 → 錶帶只剩繞在手臂前面那半截
+    plane.setFromNormalAndCoplanarPoint(_y, _q.copy(pivot.position).addScaledVector(dir, 1.0*s));
+  }
+  btn.addEventListener('click',()=>{ on?stop():start(); });
+  window.arDebug=()=>({on:on, seen:sm.seen, pos:pivot?pivot.position.toArray().map(v=>+v.toFixed(2)):null, s:pivot?+pivot.scale.x.toFixed(3):null, lm:!!lm, err:mpErr, vis:root.visible});
 })();
 </script>
 </body>
