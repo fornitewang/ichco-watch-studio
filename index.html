@@ -1052,13 +1052,13 @@ function saffianoTex(){ if(parts.safN) return parts.safN; const SZ=256, c=ctx2d(
     g.strokeStyle='rgb(150,144,250)'; g.beginPath(); g.moveTo(k+SZ,0); g.lineTo(k,SZ); g.stroke(); g.strokeStyle='rgb(106,112,250)'; g.beginPath(); g.moveTo(k+SZ+3,0); g.lineTo(k+3,SZ); g.stroke(); }
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.anisotropy=8; parts.safN=t; return t; }
 function bezelTextureMM(bz){
-  const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.735;
+  const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.80;   // 實品數字圈比潛水圈薄
   g.fillStyle=(bz&&bz.a)||'#111417'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
   g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(R,R,IN,0,7); g.fill(); g.globalCompositeOperation='source-over';
   g.fillStyle='#F2F3F1'; g.strokeStyle='#F2F3F1'; g.textAlign='center'; g.textBaseline='middle';
   for(let i=0;i<12;i++){ const a=i*Math.PI/6, rm=(OUT+IN)/2; g.save(); g.translate(R+Math.sin(a)*rm,R-Math.cos(a)*rm); g.rotate(a);
     if(i===0){ g.beginPath(); g.moveTo(0,-R*0.10); g.lineTo(R*0.062,R*0.06); g.lineTo(-R*0.062,R*0.06); g.closePath(); g.fill(); }
-    else { g.font='700 '+(SZ*0.095)+'px "Saira Condensed", sans-serif'; g.fillText(String(i),0,0); }
+    else { g.font='700 '+(SZ*0.070)+'px "Saira Condensed", sans-serif'; g.fillText(String(i),0,0); }
     g.restore(); }
   for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*Math.PI/30; g.save(); g.translate(R,R); g.rotate(a); g.lineWidth=SZ*0.004; g.beginPath(); g.moveTo(0,-OUT*0.985); g.lineTo(0,-OUT*0.93); g.stroke(); g.restore(); }
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
@@ -1793,7 +1793,7 @@ function buildWatch(){
   }
   if(se.code==='ROY'){
     // 皇家計時實品＝Royal Oak 型：圓角方形拉絲中層（挖圓孔露機芯／錶盤），鏈帶第一節直接從殼體 12／6 邊長出來（一體式）
-    const bodyShape=roundedRectShape(2.10,2.02,0.60); bodyShape.holes.push(circlePath(0.99,96));   // 🔴 中層要比八角圈的平邊（內切圓 1.08）小，讓錶圈略微外懸；v1 做 2.30 反而凸出一圈台階
+    const bodyShape=roundedRectShape(1.96,1.90,0.56); bodyShape.holes.push(circlePath(0.90,96));   // 要比八角圈內切圓（1.0）小；🔴 孔徑必須小於殼體半高 0.95，孔比形狀大三角化會壞掉、整片蓋住錶盤   // 🔴 中層要比八角圈的平邊（內切圓 1.08）小，讓錶圈略微外懸；v1 做 2.30 反而凸出一圈台階
     const body=new T.Mesh(extrudeUp(bodyShape,0.33,0.04,3),[brushM,brushM]); body.position.y=-0.21; root.add(body);
   }   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
@@ -1823,13 +1823,14 @@ function buildWatch(){
   if(se.code==='ROY'){
     bez.visible=false; bezTop.visible=false;
     // 八角圈：平邊在 12／3／6／9（頂點在 22.5°＋k·45°），外接圓 1.17；頂面拉絲、倒角與側面拋光；中央圓孔 0.80 露錶鏡
-    const oct=new T.Shape(); for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, x=Math.cos(a)*1.17, y=Math.sin(a)*1.17; if(k===0) oct.moveTo(x,y); else oct.lineTo(x,y); } oct.closePath();
-    oct.holes.push(circlePath(0.80,128));
+    // 實品八角圈很薄（圈寬≈錶盤半徑 0.19），外接圓 1.083＝內切圓 1.0、圓孔 0.86（v1 做 1.17／0.80 太肥）
+    const oct=new T.Shape(); for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, x=Math.cos(a)*1.083, y=Math.sin(a)*1.083; if(k===0) oct.moveTo(x,y); else oct.lineTo(x,y); } oct.closePath();
+    oct.holes.push(circlePath(0.86,128));
     const obez=new T.Mesh(extrudeUp(oct,0.10,0.030,3),[brushM,polM]); obez.position.y=0.16; root.add(obez);
-    // 8 顆六角螺絲：每邊中央（0°＋k·45°），半徑 1.02；六角頭（accM）＋內凹六角孔
-    for(let k=0;k<8;k++){ const a=k*Math.PI/4, x=Math.sin(a)*1.02, z=-Math.cos(a)*1.02;
-      const head=new T.Mesh(new T.CylinderGeometry(0.060,0.060,0.024,6),accM); head.position.set(x,0.298,z); head.rotation.y=a; root.add(head);   // 圈頂在 y 0.29（0.16＋0.10＋倒角 0.03），頭要坐在上面
-      const sock=new T.Mesh(new T.CylinderGeometry(0.034,0.034,0.010,6),new T.MeshStandardMaterial({color:0x2A2D30,roughness:.5,metalness:.8})); sock.position.set(x,0.312,z); sock.rotation.y=a+Math.PI/6; root.add(sock); }
+    // 8 顆六角螺絲：實品在八個「頂點」（22.5°＋k·45°），半徑 0.965（圈寬中線）；六角頭（accM）＋內凹六角孔
+    for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, x=Math.sin(a)*0.965, z=-Math.cos(a)*0.965;
+      const head=new T.Mesh(new T.CylinderGeometry(0.050,0.050,0.024,6),accM); head.position.set(x,0.298,z); head.rotation.y=a; root.add(head);   // 圈頂在 y 0.29（0.16＋0.10＋倒角 0.03），頭要坐在上面
+      const sock=new T.Mesh(new T.CylinderGeometry(0.028,0.028,0.010,6),new T.MeshStandardMaterial({color:0x2A2D30,roughness:.5,metalness:.8})); sock.position.set(x,0.312,z); sock.rotation.y=a+Math.PI/6; root.add(sock); }
   }
   // 內圈
   // 內圈 rehaut：實拍是深色細直紋（像齒梳），不是一圈亮鋼
