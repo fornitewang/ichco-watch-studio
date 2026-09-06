@@ -914,7 +914,7 @@ const DIALSPEC={
   MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true},   // 實品開心款：9 點擺輪窗、無日期
   DAY:{brand:'ICHCO',markers:'batons',date:'none',top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
-  ROY:{brand:'SEIKO',markers:'batons2',date:'430',sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
+  ROY:{brand:'SEIKO',markers:'batons2',date:'430',tapisserie:true,sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
   SAN:{}
 };
 function dialTexture(d,se){
@@ -924,7 +924,15 @@ function dialTexture(d,se){
   grd.addColorStop(.84,d.lo); grd.addColorStop(1,d.lo);
   g.fillStyle=grd; g.beginPath(); g.arc(R,R,R,0,7); g.fill();
 
-  if(d.tex!=='skeleton'){                       // 放射狀陽光紋
+  if((DIALSPEC[se.code]||{}).tapisserie && d.tex!=='skeleton'){   // 皇家計時實品：格紋面（Grande Tapisserie）——方格截角錐，左上受光、右下落影
+    const N=30, cs=SZ/N; g.save(); g.beginPath(); g.arc(R,R,R,0,7); g.clip();
+    for(let iy=0;iy<N;iy++) for(let ix=0;ix<N;ix++){ const x0=ix*cs, y0=iy*cs;
+      g.fillStyle='rgba(255,255,255,.10)'; g.fillRect(x0+cs*0.16,y0+cs*0.16,cs*0.68,cs*0.68);          // 台面略亮
+      g.fillStyle='rgba(255,255,255,.22)'; g.fillRect(x0,y0,cs,cs*0.16); g.fillRect(x0,y0,cs*0.16,cs);   // 上、左斜面受光
+      g.fillStyle='rgba(0,0,0,.30)'; g.fillRect(x0,y0+cs*0.84,cs,cs*0.16); g.fillRect(x0+cs*0.84,y0,cs*0.16,cs);   // 下、右斜面落影
+      g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(x0,y0,cs,1.5); g.fillRect(x0,y0,1.5,cs); }                   // 溝
+    g.restore(); }
+  else if(d.tex!=='skeleton'){                  // 放射狀陽光紋
     for(let a=0;a<360;a+=0.75){
       const rel=Math.abs(((a-312+540)%360)-180)/180, k=Math.pow(1-rel,3);
       g.save(); g.translate(R,R); g.rotate(a*Math.PI/180);
@@ -1766,6 +1774,11 @@ function buildWatch(){
       const guard=new T.Mesh(extrudeUp(sh,0.20,0.02,2),[polM,polM]); guard.position.y=-0.11; root.add(guard);
       const lever=new T.Mesh(rbox(0.05,0.15,0.62,0.018),polM); lever.position.set(1.39,0.0,-0.20); lever.rotation.y=-0.06; root.add(lever);
       const hinge=new T.Mesh(new T.CylinderGeometry(0.030,0.030,0.20,16),accM); hinge.position.set(1.39,0.0,-0.53); root.add(hinge); }
+  }
+  if(se.code==='ROY'){
+    // 皇家計時實品＝Royal Oak 型：圓角方形拉絲中層（挖圓孔露機芯／錶盤），鏈帶第一節直接從殼體 12／6 邊長出來（一體式）
+    const bodyShape=roundedRectShape(2.10,2.02,0.60); { const hole=new T.Path(); hole.absarc(0,0,0.99,0,Math.PI*2,true); bodyShape.holes.push(hole); }   // 🔴 中層要比八角圈的平邊（內切圓 1.08）小，讓錶圈略微外懸；v1 做 2.30 反而凸出一圈台階
+    const body=new T.Mesh(extrudeUp(bodyShape,0.33,0.04,3),[brushM,brushM]); body.position.y=-0.21; root.add(body);
   }   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
   const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
@@ -1791,6 +1804,17 @@ function buildWatch(){
       metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
       color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
+  if(se.code==='ROY'){
+    bez.visible=false; bezTop.visible=false;
+    // 八角圈：平邊在 12／3／6／9（頂點在 22.5°＋k·45°），外接圓 1.17；頂面拉絲、倒角與側面拋光；中央圓孔 0.80 露錶鏡
+    const oct=new T.Shape(); for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, x=Math.cos(a)*1.17, y=Math.sin(a)*1.17; if(k===0) oct.moveTo(x,y); else oct.lineTo(x,y); } oct.closePath();
+    { const hole=new T.Path(); hole.absarc(0,0,0.80,0,Math.PI*2,true); oct.holes.push(hole); }
+    const obez=new T.Mesh(extrudeUp(oct,0.10,0.030,3),[brushM,polM]); obez.position.y=0.16; root.add(obez);
+    // 8 顆六角螺絲：每邊中央（0°＋k·45°），半徑 1.02；六角頭（accM）＋內凹六角孔
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4, x=Math.sin(a)*1.02, z=-Math.cos(a)*1.02;
+      const head=new T.Mesh(new T.CylinderGeometry(0.060,0.060,0.024,6),accM); head.position.set(x,0.298,z); head.rotation.y=a; root.add(head);   // 圈頂在 y 0.29（0.16＋0.10＋倒角 0.03），頭要坐在上面
+      const sock=new T.Mesh(new T.CylinderGeometry(0.034,0.034,0.010,6),new T.MeshStandardMaterial({color:0x2A2D30,roughness:.5,metalness:.8})); sock.position.set(x,0.312,z); sock.rotation.y=a+Math.PI/6; root.add(sock); }
+  }
   // 內圈
   // 內圈 rehaut：實拍是深色細直紋（像齒梳），不是一圈亮鋼
   const rehaut=new T.Mesh(latheProfile([[0.735,0.055],[0.75,0.10],[0.775,0.175],[0.78,0.20]],96),
@@ -1887,13 +1911,13 @@ function buildWatch(){
     const cap=new T.Mesh(rbox(w,0.016,h,0.022),lumeM);
     cap.position.set(px,0.088,pz); cap.rotation.y=-ang; root.add(cap);
   }
-  buildLugs(polM, brushM, accM);
+  if(se.code!=='ROY') buildLugs(polM, brushM, accM);   // 皇家計時一體式殼體，鏈帶直接從殼體長出來
 
   // 把冠（車削本體＋滾花＋端面）與護橋
   { const cr=buildCrown3D(accM, polM); if(se.code==='MM') cr.position.x+=0.24; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
   parts.pushers=null;
   if(se.sub && !skel){                         // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）；鏤空機芯沒有計時功能→不做按把（用戶 2026-09-04）
-    const p1=buildPusher(accM, polM, 1), p2=buildPusher(accM, polM, -1);
+    const p1=buildPusher(accM, polM, 1, se.code==='ROY'), p2=buildPusher(accM, polM, -1, se.code==='ROY');
     root.add(p1,p2); parts.pushers=[p1,p2];
   }
   if(!se.sub){                                  // 潛水款才有大護肩
@@ -2055,7 +2079,7 @@ function buildWatch(){
 }
 
 // 計時按把：計時碼錶在錶冠兩側各有一顆（實體照確認）。肩座＋滾花柱身＋端帽
-function buildPusher(accM, polM, sign){
+function buildPusher(accM, polM, sign, oct){ const SEG=oct?8:20;   // 皇家計時：八角按把、無滾花
   // 先照錶冠的方式做一顆朝 +X 的按把，再用外層繞 Y 轉到 2 點／4 點位置。
   // （直接寫複合旋轉會指錯方向，先前那版按把就是這樣陷進錶殼裡。）
   const outer=new T.Group(); outer.rotation.y=sign*0.42;
@@ -2063,17 +2087,17 @@ function buildPusher(accM, polM, sign){
   g.position.set(0.985,0.005,0);
   g.rotation.z=-Math.PI/2;
   outer.add(g);
-  const shoulder=new T.Mesh(new T.CylinderGeometry(0.072,0.076,0.055,20),polM);
+  const shoulder=new T.Mesh(new T.CylinderGeometry(0.072,0.076,0.055,SEG),polM);
   shoulder.position.y=0.026; g.add(shoulder);
-  const stem=new T.Mesh(new T.CylinderGeometry(0.052,0.052,0.075,20),accM);
+  const stem=new T.Mesh(new T.CylinderGeometry(oct?0.062:0.052,oct?0.062:0.052,0.075,SEG),accM);
   stem.position.y=0.086; g.add(stem);
-  for(let i=0;i<14;i++){                     // 柱身滾花
+  for(let i=0;i<(oct?0:14);i++){                     // 柱身滾花（八角款不做）
     const a=i/14*Math.PI*2;
     const f=new T.Mesh(new T.BoxGeometry(0.010,0.062,0.012),polM);
     f.position.set(Math.cos(a)*0.053,0.086,Math.sin(a)*0.053);
     f.rotation.y=-a; g.add(f);
   }
-  const cap=new T.Mesh(new T.CylinderGeometry(0.058,0.052,0.020,20),polM);
+  const cap=new T.Mesh(new T.CylinderGeometry(oct?0.066:0.058,oct?0.062:0.052,0.020,SEG),polM);
   cap.position.y=0.132; g.add(cap);
   return outer;
 }
