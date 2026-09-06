@@ -605,6 +605,7 @@ const BAND =[{code:'OYS',name:'蠔式鋼帶',add:0,   type:'metal',k:.15,d:.880,
              {code:'JUB',name:'五珠鋼帶',add:400, type:'metal',k:.13,d:.892,amp:1.10,wave:1.2},
              {code:'RUB',name:'潛水橡膠',add:-300,type:'soft',col:0x15191B,rough:.72,k:.46,d:.68,amp:.16,wave:0},   // 橡膠密度低、又厚，更不會甩：擺幅最小、回正最快（用戶）
              {code:'LEA',name:'鱷魚紋真皮',add:-100,type:'soft',col:0x24150B,rough:.52,k:.42,d:.72,amp:.22,wave:0},   // 皮帶偏硬：擺幅小、回正快（用戶：皮帶不是軟的）
+             {code:'BLK',name:'黑壓紋皮帶',add:-100,type:'soft',col:0x161616,rough:.58,k:.42,d:.72,amp:.22,wave:0},   // 義大利海軍實品配的：黑色十字壓紋＋米色縫線（用戶 0906）
              {code:'NAT',name:'NATO 尼龍',add:-400,type:'soft',col:0x3A444F,rough:.86,k:.24,d:.840,amp:.62,wave:0}];
 /* 情境光線：天空／地平線／柔光箱強度／主光色溫／霧／特效 */
 const SCENES=[
@@ -1043,6 +1044,13 @@ function dialTexture(d,se){
 }
 
 // 義大利海軍實品：旋轉 12 小時圈，黑底白字 1–11 沿圓周轉向、12 點一個三角
+// 十字壓紋（saffiano）法線圖：兩組 ±45° 細溝，程序生成、可重複
+function saffianoTex(){ if(parts.safN) return parts.safN; const SZ=256, c=ctx2d(SZ), g=c.getContext('2d');
+  g.fillStyle='rgb(128,128,255)'; g.fillRect(0,0,SZ,SZ);
+  const pitch=16; g.lineWidth=2.2;
+  for(let k=-SZ;k<SZ*2;k+=pitch){ g.strokeStyle='rgb(150,112,250)'; g.beginPath(); g.moveTo(k,0); g.lineTo(k+SZ,SZ); g.stroke(); g.strokeStyle='rgb(106,144,250)'; g.beginPath(); g.moveTo(k+3,0); g.lineTo(k+3+SZ,SZ); g.stroke();
+    g.strokeStyle='rgb(150,144,250)'; g.beginPath(); g.moveTo(k+SZ,0); g.lineTo(k,SZ); g.stroke(); g.strokeStyle='rgb(106,112,250)'; g.beginPath(); g.moveTo(k+SZ+3,0); g.lineTo(k+3,SZ); g.stroke(); }
+  const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.anisotropy=8; parts.safN=t; return t; }
 function bezelTextureMM(bz){
   const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.735;
   g.fillStyle=(bz&&bz.a)||'#111417'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
@@ -2313,6 +2321,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   parts.loop.userData.shadowCurve={curve:curve,hw:HW(0),th:TH(0)};   // 給 addBandShadow 做投影代理體
 
   let softM=null, edgeM=null, liningM=null, keepLea=null;
+  const LEA=(bd.code==='LEA'||bd.code==='BLK');   // 黑壓紋皮帶用鱷魚皮帶同一套幾何
   const hexc=function(v){ return '#'+v.toString(16).padStart(6,'0'); };
   const TL=parts.texLoader||(parts.texLoader=new T.TextureLoader());
   const load=function(u){ const t=TL.load(u); t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -2320,7 +2329,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   const loadLin=function(u){ const t=TL.load(u); t.wrapS=t.wrapT=T.RepeatWrapping;
     t.anisotropy=8; return t; };
   if(bd.type==='soft'){
-    if(bd.code==='LEA'){
+    if(LEA){
       // 鱷魚皮：ambientCG Leather008（CC0）實拍鱷魚皮 PBR（法線／粗糙度／AO），色圖以位移圖重新染成栗棕
       //（鱗片頂亮、縫暗＝上過漆的真皮）。手畫方格鱗片一律不用——那就是「假皮感」的來源。
       const cm=load('assets/croc_color.jpg'), nm=loadLin('assets/croc_normal.jpg'), rm=loadLin('assets/croc_rough.jpg');
@@ -2340,6 +2349,10 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       keepLea=new T.MeshPhysicalMaterial({color:0x3B2314,normalMap:loadLin(T_LEA_N),
         normalScale:new T.Vector2(1.2,1.2),roughness:.62,metalness:0,clearcoat:.25,clearcoatRoughness:.4,
         envMapIntensity:.7,side:T.DoubleSide});
+      if(bd.code==='BLK'){   // 黑壓紋：皮面換十字壓紋法線圖（程序生成）、黑色；裡皮與皮環一起變深
+        const sn=saffianoTex(); sn.repeat.set(7,42);
+        softM=new T.MeshPhysicalMaterial({color:0x1A1A1A,normalMap:sn,normalScale:new T.Vector2(0.75,0.75),roughness:.60,metalness:0,clearcoat:.14,clearcoatRoughness:.5,envMapIntensity:.6,side:T.FrontSide});
+        liningM.color.set(0x1C1816); keepLea.color.set(0x161616); edgeM.color.set(0x0E0E0E); }
     } else if(bd.code==='RUB'){   // 潛水橡膠：實拍橡膠顆粒，霧面幾乎不反光
       const rub=rubberTex('#'+bd.col.toString(16).padStart(6,'0'));
       rub.repeat.set(1/3, 6/34);
@@ -2362,9 +2375,9 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
            [1,-0.34],[0.94,-0.46],[-0.94,-0.46],[-1,-0.34]]
         : [[-1,-0.22],[-0.96,0.22],[0,0.26],[0.96,0.22],
            [1,-0.22],[0.96,-0.26],[-0.96,-0.26],[-1,-0.22]]);
-    const TH = bd.code==='LEA'?0.115 : (bd.code==='RUB'?0.098:0.062);
-    const VR = bd.code==='LEA'?30 : (bd.code==='RUB'?34:26);
-    if(bd.code==='LEA'){
+    const TH = LEA?0.115 : (bd.code==='RUB'?0.098:0.062);
+    const VR = LEA?30 : (bd.code==='RUB'?34:26);
+    if(LEA){
       // 墊型鱷魚皮帶：剖面中央隆起（填充棉）、兩側平肩、側緣垂直（邊油）、底面平（裡皮）；
       // 帶頭 3.8mm 厚往帶尾收到 2.3mm，寬 20mm 收到 15mm。整條用放樣（含材質群組：0 皮面／1 邊油／2 裡皮）。
       // 🔴 剖面一定要逆時針（從 +tan 看）：順時針會把法線翻進去，FrontSide 只剩內壁，整條帶變成半透明的殼。
@@ -2388,7 +2401,7 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
       const HT=[]; for(let k=0;k<6;k++) HT.push(0.5-(0.016+k*0.026));
       regroupByV(g,0.30*LEN,0.50*LEN,{0:3,2:4});
       const softHole=softM.clone(); softHole.alphaMap=holeAlphaTile(HT,LEN,hwF,thF); softHole.alphaTest=0.5;
-      const liningHole=new T.MeshPhysicalMaterial({color:0x2E1B10,roughness:.88,metalness:0,clearcoat:0,
+      const liningHole=new T.MeshPhysicalMaterial({color:bd.code==='BLK'?0x1C1816:0x2E1B10,roughness:.88,metalness:0,clearcoat:0,
         envMapIntensity:.45,side:T.FrontSide,alphaMap:holeAlphaRaw(HT,LEN,hwF),alphaTest:0.5});
       g.userData={base:Float32Array.from(g.attributes.position.array),N:K,M:PR.length};
       const strap=new T.Mesh(g,[softM,edgeM,liningM,softHole,liningHole]);
@@ -2449,14 +2462,14 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     bg.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(bxA,byA,btan));
     const bw=0.50*0.74;
     // 針扣：橡膠帶的框最寬最厚，皮帶次之，尼龍最細
-    const thickBar = bd.code==='RUB'?0.026 : (bd.code==='LEA'?0.021:0.017);
-    const scale    = bd.code==='RUB'?1.15  : (bd.code==='LEA'?1.0 :0.94);
+    const thickBar = bd.code==='RUB'?0.026 : (LEA?0.021:0.017);
+    const scale    = bd.code==='RUB'?1.15  : (LEA?1.0 :0.94);
     const bk=buildTangBuckle(bw*scale, TH, polM, accM, thickBar);
     bk.position.y=TH*0.60; bg.add(bk);
     parts.loop.add(bg); parts.softAtt.push({obj:bg,w:1,pos:bg.position.clone(),q:bg.quaternion.clone()});
     // 錶帶環：皮帶與尼龍各兩個（固定環＋活動環），橡膠只有一個模製環
     const keepN = bd.code==='RUB'?1:2;
-    const keepM = bd.code==='RUB'? softM : (bd.code==='LEA'? keepLea : polM);
+    const keepM = bd.code==='RUB'? softM : (LEA? keepLea : polM);
     for(let k=0;k<keepN;k++){
       const kt=0.5 + (0.055 + k*0.055);
       const kp=curve.getPointAt(kt), ktan=curve.getTangentAt(kt).normalize();
@@ -2470,8 +2483,8 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     // 皮帶／尼龍：帶尾一排調整孔
     if(bd.code!=='RUB'){
       // 第 0 孔正對針的位置，扣起來就是穿過那一孔
-      const lea=bd.code==='LEA';
-      const holeM=lea? new T.MeshStandardMaterial({color:0x8C6B4E,roughness:.92,side:T.BackSide})      // 孔壁：只畫內面，皮切面的淺棕（深色會像很深的洞）
+      const lea=LEA;
+      const holeM=lea? new T.MeshStandardMaterial({color:bd.code==='BLK'?0x3A3634:0x8C6B4E,roughness:.92,side:T.BackSide})      // 孔壁：只畫內面，皮切面的淺棕（深色會像很深的洞）
                      : new T.MeshStandardMaterial({color:0x1A1A1C,roughness:.9,side:T.BackSide});        // 尼龍：金屬雞眼裡面的孔壁
       for(let k=0;k<6;k++){
         const ht=0.5-(0.016+k*0.026);
