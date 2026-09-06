@@ -989,7 +989,7 @@ function dialTexture(d,se){
   const dspec=(DIALSPEC[se.code]||{}).date||(se.sub?'none':'3');
   if(dspec==='none'){ /* 迪通拿實品無日期 */ } else {
   const dang=(dspec==='430')?Math.PI/4:0;                                        // 皇家計時實品：日期在 4 與 5 之間，窗口沿徑向轉 45°
-  const dx=R+R*0.585*Math.cos(dang), dy=R+R*0.585*Math.sin(dang); g.save(); g.translate(dx,dy); g.rotate(dang); g.translate(-dx,-dy);
+  const dx=R+R*0.585*Math.cos(dang), dy=R+R*0.585*Math.sin(dang); g.save(); g.translate(dx,dy); g.rotate(dang); if(dspec==='3c') g.scale(1.45,1.45); g.translate(-dx,-dy);   // 放大鏡款：日期窗與數字直接畫大 1.45 倍（真折射會把數字倒過來）
   const fg=g.createLinearGradient(dx-46,dy-38,dx+46,dy+38);
   fg.addColorStop(0,'#F2F5F7'); fg.addColorStop(.45,'#9AA3A9'); fg.addColorStop(1,'#5F686E');
   g.fillStyle=fg; g.beginPath(); g.roundRect(dx-52,dy-40,104,80,9); g.fill();
@@ -1930,8 +1930,8 @@ function buildWatch(){
   const domeGeo=new T.LatheGeometry(prof,96);
   // 3 點日期放大鏡（實品 SUB 有）：鏡面拱面上再貼一顆扁半球，transmission 折射把日期放大
   if(((DIALSPEC[se.code]||{}).date)==='3c' && !skel){ const rD=0.585*0.745, yC=CY0+(Math.sqrt(Rs*Rs-rD*rD)-yEdge);
-    const cyc=new T.Mesh(new T.SphereGeometry(0.175,40,20,0,Math.PI*2,0,Math.PI/2),new T.MeshPhysicalMaterial({color:0xffffff,metalness:0,roughness:0.02,transmission:1,thickness:0.30,ior:1.65,clearcoat:0,envMapIntensity:0.55,transparent:true,side:T.FrontSide}));   // 清玻璃：反射壓低，不然變一顆亮珠
-    cyc.scale.set(1,0.36,1); cyc.position.set(rD,yC-0.004,0); cyc.renderOrder=5; root.add(cyc); }
+    const cyc=new T.Mesh(new T.SphereGeometry(0.175,40,20,0,Math.PI*2,0,Math.PI/2),new T.MeshPhysicalMaterial({color:0xffffff,metalness:0,roughness:0.02,transmission:1,thickness:0.05,ior:1.18,clearcoat:0,envMapIntensity:0.5,transparent:true,side:T.FrontSide}));   // 只做薄透明拱＋一點反光；放大效果由貼圖畫大（真折射會把數字倒過來、還像一顆黑珠）
+    cyc.scale.set(1,0.30,1); cyc.position.set(rD,yC-0.004,0); cyc.renderOrder=5; root.add(cyc); }
   // UV 改成由上往下的平面投影，水滴才會沿著錶盤 12→6 的方向流
   {
     const pos=domeGeo.attributes.position;
