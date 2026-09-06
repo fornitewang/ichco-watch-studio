@@ -644,7 +644,7 @@ function buildUI(){
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · NT$${nf(o.base)}</span>`;
-    b.onclick=()=>{S.series=i; apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 只有客人親手選系列才切底圖
+    b.onclick=()=>{S.series=i; const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}   // 切系列時套該款實品的預設指針; sc.appendChild(b);   // 只有客人親手選系列才切底圖
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
@@ -910,12 +910,12 @@ function ctx2d(sz){const c=document.createElement('canvas'); c.width=c.height=sz
 //   markers：dots＝圓點＋6/9 長方＋12 三角（潛水款）／batons2＝長條、12 點雙條／batons＝長條＋12 三角
 //   date：'3'＝3 點平窗／'3c'＝3 點＋放大鏡／'430'＝4:30／'none'
 const DIALSPEC={
-  SUB:{brand:'SEIKO',markers:'dots',date:'3c',bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  PRO:{brand:'SEIKO',markers:'dots',date:'3',bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true},   // 實品開心款：9 點擺輪窗、無日期
-  DAY:{brand:'ICHCO',markers:'batons',date:'none',top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
+  SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true,hands:1},   // hands＝該款預設指針（HANDS 索引：0 賓士 1 劍 2 雪花），實品是劍針   // 實品開心款：9 點擺輪窗、無日期
+  DAY:{brand:'ICHCO',markers:'batons',date:'none',hands:1,top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
-  ROY:{brand:'SEIKO',markers:'batons2',date:'430',tapisserie:true,sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
+  ROY:{brand:'SEIKO',markers:'batons2',date:'430',tapisserie:true,hands:1,sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
   SAN:{}
 };
 function dialTexture(d,se){
@@ -1975,10 +1975,11 @@ function buildWatch(){
   // 實體是細長的拋光針，尖端更尖 —— 原本太粗太鈍
   parts.hourG.add(mkHand(hs.shape,0.42,0.060,true,0.098), mkLume(hs.shape,0.42,0.060,true,0.116));
   parts.minG.add(mkHand(hs.shape,0.63,0.044,false,0.122), mkLume(hs.shape,0.63,0.044,false,0.140));
-  const sec=new T.Mesh(new T.BoxGeometry(0.018,0.010,0.86),lumeM); sec.position.set(0,0.152,-0.30);
-  const secTail=new T.Mesh(new T.CylinderGeometry(0.048,0.048,0.010,20),lumeM);
-  secTail.position.set(0,0.152,0.15);
+  // 秒針：潛水款實品＝針身＋靠針尖的棒棒糖圓點＋小尾錘；計時款＝細針＋小尾錘（原本尾端一顆大圓、針尖沒圓點——0906 審查抓到）
+  const sec=new T.Mesh(new T.BoxGeometry(se.sub?0.014:0.018,0.010,0.86),lumeM); sec.position.set(0,0.152,-0.30);
+  const secTail=new T.Mesh(new T.CylinderGeometry(0.030,0.030,0.010,20),lumeM); secTail.position.set(0,0.152,0.13);
   parts.secG.add(sec,secTail);
+  if((DIALSPEC[se.code]||{}).lollipop){ const lolli=new T.Mesh(new T.CylinderGeometry(0.044,0.044,0.010,20),lumeM); lolli.position.set(0,0.152,-0.58); parts.secG.add(lolli); }
   root.add(parts.hourG,parts.minG,parts.secG);
   const pin=new T.Mesh(new T.CylinderGeometry(0.045,0.052,0.055,24),accM);
   pin.position.y=0.15; root.add(pin);
