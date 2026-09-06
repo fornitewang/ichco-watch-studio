@@ -2482,15 +2482,16 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
   //   外側＝一整塊順著手腕弧度的長蓋（兩半各像一節長鏈節）、中央一道接縫、兩側各一顆按鈕；
   //   內側＝中央本體（拉絲、ICHco 刻字、按鈕從兩側穿出）＋兩片摺臂（拋光薄板，鉸在本體兩端，貼著蓋子內面）＋三支鉸鏈銷。
   //   摺臂與圈內襯用 CubeCamera 的環境貼圖（見 innerM）→ 從內側看會映出錶背與對面的鏈節。
-  { const curvedBlock=function(u0,u1,K,hwF,hhF,rc,crown,yOff,mats){
-      const rings=[],shade=[],vAt=[]; let tags=null;
+  { const curvedBlock=function(u0,u1,K,hwF,hhF,rc,crown,yOff,mats,tp){
+      const rings=[],shade=[],vAt=[]; let tags=null; const tp0=tp?tp[0]:1, tp1=tp?tp[1]:1;   // tp＝[起端,末端] 要不要收薄倒角
       for(let k=0;k<=K;k++){
         const u=u0+(u1-u0)*k/K, fr=frameAt(curve,u), pr=rrProfile(hwF(u),hhF(u),rc,crown,4);
         if(!tags) tags=pr.isTop.map(function(t,j){ return (t&&pr.isTop[(j+1)%pr.isTop.length])?1:0; });
-        const e=Math.min(k,K-k), sy=e===0?0.62:(e===1?0.92:1);        // 頭尾兩環收薄＝端部倒角
+        // 端部倒角只做在指定的那一端：蝴蝶扣兩半在中央接縫處必須平接（真扣是平面＋一道髮絲縫，不是向下凹的 V 槽——用戶 0906 指出）
+        let sy=1; if(tp0&&k<=1) sy=(k===0?0.62:0.92); else if(tp1&&K-k<=1) sy=((K-k)===0?0.62:0.92);
         rings.push(pr.pts.map(function(q){ return new T.Vector3().copy(fr.p)
           .addScaledVector(fr.xA,q[0]).addScaledVector(fr.yA,q[1]*sy+yOff(u)); }));
-        shade.push(e===0?0.8:1); vAt.push((u-u0)*LEN);
+        shade.push(((k===0&&tp0)||(k===K&&tp1))?0.8:1); vAt.push((u-u0)*LEN);
       }
       return new T.Mesh(loftRings(rings,tags,shade,vAt),mats);
     };
@@ -2500,8 +2501,8 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
     const seamM=new T.MeshStandardMaterial({color:0x16181B,roughness:.7,metalness:.3});
     const innerM=parts.innerM;                                                   // 圈內拋光（CubeCamera 環境）
     // 外蓋：兩半（中央留 0.006 接縫）
-    parts.loop.add(curvedBlock(u0,uM-0.003/LEN,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
-    parts.loop.add(curvedBlock(uM+0.003/LEN,u1,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM]));
+    parts.loop.add(curvedBlock(u0,uM-0.003/LEN,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM],[1,0]));   // 接縫端不倒角：平接
+    parts.loop.add(curvedBlock(uM+0.003/LEN,u1,10,function(u){return HW(u)-0.003;},function(u){return TH(u)/2;},0.020,0.010,function(){return 0;},[polM,brushM],[0,1]));
     // 接縫底：深色薄片，讓縫看起來有深度
     placeAt(new T.Mesh(rbox(HW(uM)*2-0.02,0.02,0.010,0.004),seamM),uM,TH(uM)/2-0.016);
     // 兩側按鈕：拋光小圓角塊，從蓋子側面凸出 0.028
