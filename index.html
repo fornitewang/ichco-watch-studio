@@ -1063,9 +1063,11 @@ function bezelTextureMM(bz){
   for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*Math.PI/30; g.save(); g.translate(R,R); g.rotate(a); g.lineWidth=SZ*0.004; g.beginPath(); g.moveTo(0,-OUT*0.985); g.lineTo(0,-OUT*0.93); g.stroke(); g.restore(); }
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
 }
-function bezelTexture(bz,lm,isChrono){
+function bezelTexture(bz,lm,isChrono,ringText){
   const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2;
   const OUT=R*0.985, IN=R*0.735;
+  // ringText＝[[字串,起角,迄角],…]（角度從 12 點順時針）：極地探勘者實品圈面刻「HELIUM ESCAPE VALVE」「LIMITED EDITION」，該段不畫分刻
+  const inText=function(deg){ if(!ringText) return false; deg=((deg%360)+360)%360; return ringText.some(function(t){ let a0=((t[1]%360)+360)%360, a1=((t[2]%360)+360)%360; return a0<=a1 ? (deg>=a0&&deg<=a1) : (deg>=a0||deg<=a1); }); };
   const wedge=(a0,a1,col)=>{ g.fillStyle=col; g.beginPath(); g.moveTo(R,R);
     g.arc(R,R,OUT,(a0-90)*Math.PI/180,(a1-90)*Math.PI/180); g.closePath(); g.fill(); };
   if(bz.code==='PEI'){ wedge(0,180,bz.a); wedge(180,360,bz.b); }
@@ -1115,8 +1117,12 @@ function bezelTexture(bz,lm,isChrono){
     g.globalCompositeOperation='source-over';
     const tt=new T.CanvasTexture(c); tt.encoding=T.sRGBEncoding; tt.anisotropy=8; return tt;
   }
+  if(ringText){ g.textAlign='center'; g.textBaseline='middle'; g.font='700 '+(SZ*0.030)+'px "Saira Condensed", sans-serif';
+    ringText.forEach(function(t){ const txt=t[0], n=txt.length, a0=t[1], a1=t[2], rr=OUT*0.915;
+      for(let k=0;k<n;k++){ const deg=a0+(a1-a0)*(k+0.5)/n, rad=(deg-90)*Math.PI/180; g.save(); g.translate(R+rr*Math.cos(rad),R+rr*Math.sin(rad)); g.rotate(rad+Math.PI/2); g.fillStyle=ink; g.fillText(txt[k],0,0); g.restore(); } }); }
   for(let i=0;i<60;i++){
     if(i%5===0) continue;
+    if(inText(i*6)) continue;
     g.save(); g.translate(R,R); g.rotate(i*6*Math.PI/180);
     g.strokeStyle=ink; g.lineWidth=SZ*0.0042; g.lineCap='round';
     g.beginPath(); g.moveTo(0,-OUT*0.955); g.lineTo(0,-OUT*0.885); g.stroke(); g.restore();
@@ -1808,7 +1814,7 @@ function buildWatch(){
   root.add(bez);
   // 錶圈面
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
-    new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY')),transparent:true,
+    new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY',se.code==='PRO'?[['HELIUM ESCAPE VALVE',-54,54],['LIMITED EDITION',208,262]]:null)),transparent:true,
       metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
       color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
@@ -1932,6 +1938,9 @@ function buildWatch(){
     const guard=new T.Mesh(new T.SphereGeometry(0.135,20,14,0,Math.PI),baseM);
     guard.rotation.y=Math.PI/2; guard.position.set(0.93,0.005,0);
     guard.scale.set(1,.92,.60); root.add(guard);
+    if(se.code==='PRO'){   // 極地探勘者實品：9 點側排氦閥（拋光圓柱＋圓頂）
+      const hv=new T.Mesh(new T.CylinderGeometry(0.078,0.088,0.11,24),polM); hv.rotation.z=Math.PI/2; hv.position.set(-1.03,0.0,0); root.add(hv);
+      const hvCap=new T.Mesh(new T.SphereGeometry(0.078,20,12),polM); hvCap.scale.set(0.45,1,1); hvCap.position.set(-1.085,0.0,0); root.add(hvCap); }
   }
 
   // 指針（擠出成有厚度的金屬）
