@@ -910,8 +910,8 @@ function ctx2d(sz){const c=document.createElement('canvas'); c.width=c.height=sz
 //   markers：dots＝圓點＋6/9 長方＋12 三角（潛水款）／batons2＝長條、12 點雙條／batons＝長條＋12 三角
 //   date：'3'＝3 點平窗／'3c'＝3 點＋放大鏡／'430'＝4:30／'none'
 const DIALSPEC={
-  SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,hands:0,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,hands:0,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,hands:0,serif:true,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,hands:0,serif:true,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
   MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true,hands:1},   // hands＝該款預設指針（HANDS 索引：0 賓士 1 劍 2 雪花），實品是劍針   // 實品開心款：9 點擺輪窗、無日期
   DAY:{brand:'ICHCO',markers:'batons',date:'none',hands:1,top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
@@ -1026,15 +1026,19 @@ function dialTexture(d,se){
   const tspec=DIALSPEC[se.code]||{};
   g.textAlign='center'; g.textBaseline='middle';
   if(tspec.brand){ g.fillStyle=d.txt;
-    if(tspec.brand==='ICHCO'){ g.font=`700 ${SZ*0.054}px Georgia,"Times New Roman",serif`; g.letterSpacing='4px'; }        // 自有款：襯線大寫（實品迪通拿）
-    else { g.font=`900 ${SZ*0.058}px "Saira Condensed", sans-serif`; g.letterSpacing='7px'; }                                 // Seiko 改裝款
-    g.fillText(tspec.brand,R,R-R*0.430); }
+    // 字體照實品（用戶 0906）：ICHCO＝粗襯線大寫（Times 粗體）；SEIKO 字標＝方頭粗襯線、橫向拉寬——本機／iOS 都有 Times New Roman，不靠網路字型
+    g.save(); g.translate(R,R-R*0.430);
+    if(tspec.brand==='ICHCO'){ g.font=`700 ${SZ*0.056}px "Times New Roman",Georgia,serif`; g.letterSpacing='5px'; g.scale(1.06,1); }
+    else { g.font=`900 ${SZ*0.056}px "Times New Roman",Georgia,serif`; g.letterSpacing='6px'; g.scale(1.18,1); }
+    g.fillText(tspec.brand,0,0); g.restore(); }
   g.fillStyle=d.txt2; g.letterSpacing='2.5px'; g.font=`500 ${SZ*0.0235}px "Saira Condensed", sans-serif`;
   (tspec.top||[]).forEach(function(L,i){ g.fillText(L,R,R-R*0.350+i*SZ*0.0285); });
   const bot=tspec.bottom||[], nb=bot.length, y0=R+R*0.435-(nb-1)*SZ*0.030;
+  const serif=!!tspec.serif;   // 潛水款實品六點規格字是 Times 粗襯線；300m 大字、數字寬距
   bot.forEach(function(L,i){ const big=(i===nb-1&&/^\d/.test(L));                                                           // 最後一行的「300m」實品字級較大
-    g.font=big?`700 ${SZ*0.030}px "Saira Condensed", sans-serif`:`500 ${SZ*0.0235}px "Saira Condensed", sans-serif`;
-    g.fillStyle=big?d.txt:d.txt2; g.letterSpacing=big?'3px':'2.5px'; g.fillText(L,R,y0+i*SZ*0.030); });
+    if(serif){ g.font=big?`700 ${SZ*0.034}px "Times New Roman",Georgia,serif`:`700 ${SZ*0.0245}px "Times New Roman",Georgia,serif`; g.letterSpacing=big?'7px':'2px'; }
+    else { g.font=big?`700 ${SZ*0.030}px "Saira Condensed", sans-serif`:`500 ${SZ*0.0235}px "Saira Condensed", sans-serif`; g.letterSpacing=big?'3px':'2.5px'; }
+    g.fillStyle=big?d.txt:d.txt2; g.fillText(L,R,y0+i*SZ*0.030); });
   if(tspec.label){ g.fillStyle=d.txt; g.font=`700 ${SZ*0.026}px "Saira Condensed", sans-serif`; g.letterSpacing='4px'; g.fillText(tspec.label,R,R+R*(tspec.labelY||0.17)); }
   g.letterSpacing='0px';
   if((DIALSPEC[se.code]||{}).openHeart){   // 9 點開心窗：挖透明圓洞（錶面材質 alphaTest），洞緣一圈深色
@@ -1053,14 +1057,21 @@ function saffianoTex(){ if(parts.safN) return parts.safN; const SZ=256, c=ctx2d(
   const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.anisotropy=8; parts.safN=t; return t; }
 function bezelTextureMM(bz){
   const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.80;   // 實品數字圈比潛水圈薄
-  g.fillStyle=(bz&&bz.a)||'#111417'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
-  g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(R,R,IN,0,7); g.fill(); g.globalCompositeOperation='source-over';
-  g.fillStyle='#F2F3F1'; g.strokeStyle='#F2F3F1'; g.textAlign='center'; g.textBaseline='middle';
+  // 實品（用戶 0906 指出）：消光黑圈，數字 1–11 與 12 點三角是「黑色浮雕」——同色凸起，只靠上緣亮邊與下緣落影看得出；數字之間各一顆小三角；沒有分刻
+  g.fillStyle='#17191C'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
+  for(let i=0;i<9000;i++){ g.fillStyle='rgba(255,255,255,'+(Math.random()*0.05).toFixed(3)+')'; g.fillRect(Math.random()*SZ,Math.random()*SZ,1.5,1.5); }   // 消光顆粒
+  g.fillStyle='#000'; g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(R,R,IN,0,7); g.fill(); g.globalCompositeOperation='source-over';   // 🔴 destination-out 的擦除量＝來源 alpha：前面顆粒迴圈留下的 fillStyle 是 0.05 透明白，只擦掉 5%，整片圈面蓋住錶盤（0906）
+  g.textAlign='center'; g.textBaseline='middle';
+  const emboss=function(draw){ g.save(); g.translate(2.5,3); g.fillStyle='rgba(0,0,0,.75)'; draw(); g.restore();      // 右下落影
+    g.save(); g.translate(-2,-2.5); g.fillStyle='rgba(255,255,255,.30)'; draw(); g.restore();                          // 左上亮邊
+    g.fillStyle='#1C1F23'; draw(); };                                                                                     // 面（同底色略亮）
   for(let i=0;i<12;i++){ const a=i*Math.PI/6, rm=(OUT+IN)/2; g.save(); g.translate(R+Math.sin(a)*rm,R-Math.cos(a)*rm); g.rotate(a);
-    if(i===0){ g.beginPath(); g.moveTo(0,-R*0.10); g.lineTo(R*0.062,R*0.06); g.lineTo(-R*0.062,R*0.06); g.closePath(); g.fill(); }
-    else { g.font='700 '+(SZ*0.070)+'px "Saira Condensed", sans-serif'; g.fillText(String(i),0,0); }
-    g.restore(); }
-  for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*Math.PI/30; g.save(); g.translate(R,R); g.rotate(a); g.lineWidth=SZ*0.004; g.beginPath(); g.moveTo(0,-OUT*0.985); g.lineTo(0,-OUT*0.93); g.stroke(); g.restore(); }
+    if(i===0){ emboss(function(){ g.beginPath(); g.moveTo(0,-R*0.085); g.lineTo(R*0.058,R*0.055); g.lineTo(-R*0.058,R*0.055); g.closePath(); g.fill(); }); }
+    else { g.font='900 '+(SZ*0.066)+'px "Arial Black",Arial,sans-serif'; emboss(function(){ g.fillText(String(i),0,0); }); }
+    g.restore();
+    // 數字之間的小三角（尖朝外）
+    const b=a+Math.PI/12; g.save(); g.translate(R+Math.sin(b)*rm,R-Math.cos(b)*rm); g.rotate(b);
+    emboss(function(){ g.beginPath(); g.moveTo(0,-R*0.030); g.lineTo(R*0.022,R*0.020); g.lineTo(-R*0.022,R*0.020); g.closePath(); g.fill(); }); g.restore(); }
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
 }
 function bezelTexture(bz,lm,isChrono,ringText){
@@ -1817,8 +1828,8 @@ function buildWatch(){
   // 錶圈面
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
     new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY',se.code==='PRO'?[['HELIUM ESCAPE VALVE',-54,54],['LIMITED EDITION',196,234]]:null)),transparent:true,
-      metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
-      color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
+      metalness:bz.steel?1:0.05,roughness:se.code==='MM'?0.62:(bz.steel?mt.rough:0.09),
+      color:bz.steel?mt.base:0xffffff,clearcoat:se.code==='MM'?0:1,clearcoatRoughness:.06,envMapIntensity:se.code==='MM'?0.35:(bz.steel?1.0:0.55)}));   // 義大利海軍圈面消光（實品）
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
   if(se.code==='ROY'){
     bez.visible=false; bezTop.visible=false;
@@ -1931,7 +1942,7 @@ function buildWatch(){
   if(se.code!=='ROY') buildLugs(polM, brushM, accM);   // 皇家計時一體式殼體，鏈帶直接從殼體長出來
 
   // 把冠（車削本體＋滾花＋端面）與護橋
-  { const cr=buildCrown3D(accM, polM); if(se.code==='MM') cr.position.x+=0.24; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
+  { const cr=buildCrown3D(accM, polM, se.code==='ROY'?'oct':'fluted'); if(se.code==='MM') cr.position.x+=0.24; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
   parts.pushers=null;
   if(se.sub && !skel){                         // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）；鏤空機芯沒有計時功能→不做按把（用戶 2026-09-04）
     const p1=buildPusher(accM, polM, 1, se.code==='ROY'), p2=buildPusher(accM, polM, -1, se.code==='ROY');
@@ -2157,24 +2168,21 @@ function buildKeeper(w, th, m, kw){
 }
 
 // 錶冠：實體不是一根圓柱 —— 錶冠管 ＋ 腰身內縮的車削本體 ＋ 直紋滾花 ＋ 端面
-function buildCrown3D(accM, polM){
+function buildCrown3D(accM, polM, style){   // style：'fluted'＝寬溝直紋冠（潛水／計時實品）、'oct'＝八角冠（皇家實品）
   const g=new T.Group();
   g.position.set(0.985,0.005,0);
   g.rotation.z=-Math.PI/2;                 // 車削軸(+Y) 轉向錶殼外側(+X)
   const tube=new T.Mesh(new T.CylinderGeometry(0.060,0.060,0.070,20),polM);
   tube.position.y=0.030; g.add(tube);
-  const prof=[[0.000,0.062],[0.062,0.062],[0.084,0.082],[0.078,0.108],
-              [0.084,0.134],[0.070,0.158],[0.062,0.163],[0.000,0.163]];
-  const body=new T.Mesh(new T.LatheGeometry(prof.map(function(q){return new T.Vector2(q[0],q[1]);}),32),accM);
-  g.add(body);
-  for(let i=0;i<18;i++){                    // 直紋滾花
-    const a=i/18*Math.PI*2;
-    const f=new T.Mesh(new T.BoxGeometry(0.011,0.070,0.016),polM);
-    f.position.set(Math.cos(a)*0.085,0.108,Math.sin(a)*0.085);
-    f.rotation.y=-a; g.add(f);
-  }
-  const cap=new T.Mesh(new T.CylinderGeometry(0.044,0.044,0.010,20),polM);
-  cap.position.y=0.166; g.add(cap);
+  // 實品把冠（用戶 0906 對照照片）：不是細條滾花，是 20 道寬 V 溝的直紋冠、端面平；用齒輪剖面擠出（外 0.098／谷 0.082）
+  const sh=new T.Shape();
+  if(style==='oct'){ for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, r=0.100; if(k===0) sh.moveTo(Math.cos(a)*r,Math.sin(a)*r); else sh.lineTo(Math.cos(a)*r,Math.sin(a)*r); } }
+  else { const N=20; for(let k=0;k<N*2;k++){ const a=k/(N*2)*Math.PI*2, r=(k%2===0)?0.098:0.082; if(k===0) sh.moveTo(Math.cos(a)*r,Math.sin(a)*r); else sh.lineTo(Math.cos(a)*r,Math.sin(a)*r); } }
+  sh.closePath();
+  const bg=new T.ExtrudeGeometry(sh,{depth:0.092,bevelEnabled:true,bevelSize:0.006,bevelThickness:0.006,bevelSegments:1,curveSegments:2}); bg.rotateX(-Math.PI/2); bg.translate(0,0.066,0);
+  const body=new T.Mesh(bg,accM); g.add(body);
+  const neck=new T.Mesh(new T.CylinderGeometry(0.070,0.062,0.010,24),polM); neck.position.y=0.062; g.add(neck);
+  const cap=new T.Mesh(new T.CylinderGeometry(style==='oct'?0.088:0.080,style==='oct'?0.088:0.084,0.010,style==='oct'?8:40),polM); cap.position.y=0.169; if(style==='oct') cap.rotation.y=Math.PI/8; g.add(cap);
   return g;
 }
 
