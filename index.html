@@ -2876,7 +2876,12 @@ function applyScene(){
 function init(){
   // 解析度上限 1.5 倍（2 倍在 4K／高 DPI 手機上每格要算 400 萬像素，這是卡頓的主因）；
   // 之後 animate() 會依實際幀時間自動降／升解析度（adaptive resolution）
-  parts.prBase=Math.min(devicePixelRatio, matchMedia('(max-width:1000px)').matches?1.25:1.5); parts.prScale=1; renderer.setPixelRatio(parts.prBase);   // 手機再低一級
+  // 🔴 手機上限原本 1.25，但手機 DPR 是 2~3：畫布只畫 432x907 再被拉到 1032x2172 顯示，
+  //    等於放大 2.4 倍——錶面的 SEIKO 與 MARINEMASTER/AUTOMATIC/PROFESSIONAL/300m 整片糊掉。
+  //    提到 2 之後那幾行字才讀得出來（實測 A/B：Desktop\screenshots\ichco_mobile_bugs\AB_字體清晰度.png）。
+  //    手機預覽畫布只有 344x724，2 倍也才 100 萬像素（桌機 4K 那個 400 萬像素的顧慮不適用），
+  //    而且下面的自動解析度還會依實際幀時間往下調，撐不住的機器會自己降回來。
+  parts.prBase=Math.min(devicePixelRatio, matchMedia('(max-width:1000px)').matches?2:1.5); parts.prScale=1; renderer.setPixelRatio(parts.prBase);
   renderer.outputEncoding=T.sRGBEncoding;
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=T.PCFShadowMap;            // PCFSoft 貴很多，柔邊靠 normalBias 就夠
