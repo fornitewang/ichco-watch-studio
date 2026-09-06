@@ -256,6 +256,11 @@ header{position:sticky; top:0; z-index:40;
 .btn.primary:hover{filter:brightness(1.06)}
 .btn.line{background:var(--card); color:var(--ink); border-color:var(--rule)}
 .btn.line:hover{border-color:var(--ink-3)}
+#mmReferenceActions{padding:14px;background:var(--card);border:1px solid var(--rule);border-radius:16px}
+#mmReferenceActions .note{font-size:14px;color:var(--ink);margin-bottom:12px!important}
+#mmReferenceActions .actions{margin-top:0;align-items:center}
+#mmReferenceActions a{display:inline-flex;text-decoration:none;align-items:center;justify-content:center}
+#mmReferenceActions .btn{padding:11px 16px}
 .note{font-size:12px; color:var(--ink-3); margin-top:14px; line-height:1.75}
 .note b{color:var(--danger); font-weight:700}
 #summary{margin-top:14px; width:100%; min-height:150px; resize:vertical; background:var(--card-2);
@@ -525,7 +530,14 @@ header{position:sticky; top:0; z-index:40;
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2.6M12 18.8v2.6M21.4 12h-2.6M5.2 12H2.6M18.6 5.4l-1.8 1.8M18.6 18.6l-1.8-1.8M5.4 18.6l1.8-1.8M5.4 5.4l1.8 1.8"/></svg>情境光線</h2><div class="pick" id="pk-scene"></div></div>
       <div class="chips" id="opt-scene"></div></section>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.6"/><path d="M12 1.8v2.6M12 19.6v2.6M22.2 12h-2.6M4.4 12H1.8M19.2 4.8l-1.9 1.9M19.2 19.2l-1.9-1.9M4.8 19.2l1.9-1.9M4.8 4.8l1.9 1.9"/></svg>機芯與系列</h2><div class="pick" id="pk-series"></div></div>
-      <div class="series" id="opt-series"></div></section>
+      <div class="series" id="opt-series"></div>
+      <div id="mmReferenceActions" hidden style="margin-top:14px">
+        <p class="note" id="mmModelLabel" style="margin:0 0 10px"></p>
+        <div class="actions">
+          <button class="btn primary" type="button" id="mmPresetBtn">回到實拍搭配</button>
+          <a class="btn line" href="https://www.ichco.com.tw/products/ichco-customize-seikomod-marinamilitare" target="_blank" rel="noopener noreferrer">查看官網款式 ↗</a>
+        </div>
+      </div></section>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.2"/><path d="M8 7.6 6.6 3.4M16 7.6l1.4-4.2M8 16.4 6.6 20.6M16 16.4l1.4 4.2"/></svg>錶殼材質</h2><div class="pick" id="pk-metal"></div></div>
       <div class="chips" id="opt-metal"></div></section>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="5.2"/><path d="M12 3.6V2M20.4 12H22M12 20.4V22M3.6 12H2"/><circle cx="12" cy="1.4" r="1.2"/></svg>錶框</h2><div class="pick" id="pk-bezel"></div></div>
@@ -546,8 +558,8 @@ header{position:sticky; top:0; z-index:40;
         <button class="btn line" id="showBtn">看規格文字</button>
       </div>
       <textarea id="summary" hidden readonly aria-label="規格文字"></textarea>
-      <p class="note">錶殼 316L 醫療級抗敏鋼 · 藍寶石鏡面 · 旋入式把冠 · 透底旋入式背蓋。<br>
-        <b>加價金額為版型示意</b>，上線前請在程式最上方的報價區換成實際報價；系列底價取自 ichco.com.tw 現行標價。</p>
+      <p class="note">錶款規格與可訂製配件以客服確認為準。<br>
+        <b>此處價格為搭配估算</b>，實際報價請將規格傳給客服確認。</p>
     </div>
   </div>
 </main>
@@ -621,6 +633,8 @@ const SCENES=[
 
 const S={scene:0,series:0,metal:0,bezel:0,dial:0,hands:0,lume:0,band:0};
 const DEF={...S};
+// MM NH38 black open-heart reference: official image 91622854, checked 2026-09-07.
+const MM_PRESET={metal:0,bezel:0,dial:5,hands:1,lume:0,band:4};
 const $=id=>document.getElementById(id);
 const nf=n=>n.toLocaleString('en-US');
 
@@ -644,7 +658,7 @@ function buildUI(){
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · NT$${nf(o.base)}</span>`;
-    b.onclick=()=>{S.series=i; const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
+    b.onclick=()=>{const enteringMM=SERIES[i].code==='MM'&&S.series!==i; S.series=i; if(enteringMM) Object.assign(S,MM_PRESET); const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
@@ -653,9 +667,12 @@ function buildUI(){
   mk('opt-metal',METAL,'metal',o=>sw(o.two
     ? `linear-gradient(135deg,${hex(o.base)} 0 46%,${hex(o.acc)} 46% 100%)`
     : `linear-gradient(135deg,#fff3,${hex(o.base)} 45%,#0004)`));
-  mk('opt-bezel',BEZEL,'bezel',o=>sw(`linear-gradient(90deg,${o.a} 0 50%,${o.b} 50% 100%)`));
-  mk('opt-dial', DIAL, 'dial', o=>sw(`radial-gradient(circle at 34% 28%,${o.hi},${o.mid} 55%,${o.lo})`));
-  mk('opt-hands',HANDS,'hands');
+  mk('opt-bezel',SERIES[S.series].code==='MM'?[{...BEZEL[0],name:'消光黑 12 小時立體字圈'}]:BEZEL,'bezel',o=>sw(`linear-gradient(90deg,${o.a} 0 50%,${o.b} 50% 100%)`));
+  mk('opt-dial', DIAL.map(o=>SERIES[S.series].code==='MM'&&o.code==='CB'?{...o,name:'黑色錘紋'}:o), 'dial', o=>sw(`radial-gradient(circle at 34% 28%,${o.hi},${o.mid} 55%,${o.lo})`));
+  mk('opt-hands',HANDS.map(o=>SERIES[S.series].code==='MM'&&o.shape==='sword'?{...o,name:'直身夜光針'}:o),'hands');
+  $('mmReferenceActions').hidden=SERIES[S.series].code!=='MM';
+  $('mmModelLabel').textContent=DIAL[S.dial].tex==='skeleton'?'目前款式：NH70 鏤空搭配':'目前款式：NH38 開心款 · 9 點開窗';
+  $('mmPresetBtn').onclick=()=>{Object.assign(S,MM_PRESET);apply();};
   mk('opt-lume', LUME, 'lume', o=>sw(o.mat));
   mk('opt-band', BAND, 'band', o=>sw(o.type==='metal'
     ? `linear-gradient(180deg,#fff6,${hex(METAL[S.metal].base)} 45%,#0006)`
@@ -912,7 +929,7 @@ function ctx2d(sz){const c=document.createElement('canvas'); c.width=c.height=sz
 const DIALSPEC={
   SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,hands:0,serif:true,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
   PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,hands:0,serif:true,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true,hands:1},   // hands＝該款預設指針（HANDS 索引：0 賓士 1 劍 2 雪花），實品是劍針   // 實品開心款：9 點擺輪窗、無日期
+  MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true,heartR:0.32,heartX:0.47,hands:1,lollipop:true},   // hands＝該款預設指針（HANDS 索引：0 賓士 1 劍 2 雪花），實品是劍針   // 實品開心款：9 點擺輪窗、無日期
   DAY:{brand:'ICHCO',markers:'batons',date:'none',hands:1,top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
   ROY:{brand:'SEIKO',markers:'batons2',date:'430',tapisserie:true,hands:1,sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
@@ -943,7 +960,20 @@ function dialTexture(d,se){
       g.beginPath(); g.moveTo(0,0); g.lineTo(0,-R); g.stroke(); g.restore();
     }
   }
-  if(d.tex==='carbon'){
+  if(d.tex==='carbon' && se.code==='MM'){
+    // Deterministic hammered facets, based on the NH38 black dial; other series retain their textures.
+    g.save(); g.beginPath(); g.arc(R,R,R,0,7); g.clip();
+    const step=64, rand=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);};
+    g.fillStyle='#111315';g.fillRect(0,0,SZ,SZ);
+    for(let row=-1;row<20;row++) for(let col=-1;col<20;col++){
+      const x=col*step+(row%2)*step/2+(rand(col,row)-.5)*step*.38,y=row*step*.84+(rand(row,col+7)-.5)*step*.38,r=step*(.54+rand(col,row)*.13);
+      const grad=g.createRadialGradient(x-9,y-12,2,x,y,r);
+      grad.addColorStop(0,'#090B0D');grad.addColorStop(.62,'#111416');grad.addColorStop(1,'#202426');
+      g.fillStyle=grad;g.beginPath();
+      for(let k=0;k<6;k++){const a=(k/6)*Math.PI*2,rr=r*(.9+rand(col+k,row)*.15);const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;if(k)g.lineTo(px,py);else g.moveTo(px,py);}
+      g.closePath();g.fill();
+    }g.restore();
+  } else if(d.tex==='carbon'){
     g.save(); g.beginPath(); g.arc(R,R,R,0,7); g.clip();
     for(let y=-SZ;y<SZ*2;y+=26){
       g.strokeStyle='rgba(255,255,255,.055)'; g.lineWidth=11;
@@ -1042,31 +1072,37 @@ function dialTexture(d,se){
   if(tspec.label){ g.fillStyle=d.txt; g.font=`700 ${SZ*0.026}px "Saira Condensed", sans-serif`; g.letterSpacing='4px'; g.fillText(tspec.label,R,R+R*(tspec.labelY||0.17)); }
   g.letterSpacing='0px';
   if((DIALSPEC[se.code]||{}).openHeart){   // 9 點開心窗：挖透明圓洞（錶面材質 alphaTest），洞緣一圈深色
-    const hx=R-R*0.40, hy=R, hr=R*0.155; g.save(); g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(hx,hy,hr,0,7); g.fill(); g.restore();
+    const hx=R-R*(tspec.heartX||0.40), hy=R, hr=R*(tspec.heartR||0.155); g.save(); g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(hx,hy,hr,0,7); g.fill(); g.restore();
     g.strokeStyle='rgba(0,0,0,.55)'; g.lineWidth=SZ*0.006; g.beginPath(); g.arc(hx,hy,hr+SZ*0.003,0,7); g.stroke(); }
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
 }
 
-// 義大利海軍實品：旋轉 12 小時圈，黑底白字 1–11 沿圓周轉向、12 點一個三角
+// 義大利海軍 NH38（官網 91622854）：消光黑底、黑色立體字 1–11，12 點三角
 // 十字壓紋（saffiano）法線圖：兩組 ±45° 細溝，程序生成、可重複
-function saffianoTex(){ if(parts.safN) return parts.safN; const SZ=256, c=ctx2d(SZ), g=c.getContext('2d');
-  g.fillStyle='rgb(128,128,255)'; g.fillRect(0,0,SZ,SZ);
-  const pitch=16; g.lineWidth=2.2;
-  for(let k=-SZ;k<SZ*2;k+=pitch){ g.strokeStyle='rgb(150,112,250)'; g.beginPath(); g.moveTo(k,0); g.lineTo(k+SZ,SZ); g.stroke(); g.strokeStyle='rgb(106,144,250)'; g.beginPath(); g.moveTo(k+3,0); g.lineTo(k+3+SZ,SZ); g.stroke();
-    g.strokeStyle='rgb(150,144,250)'; g.beginPath(); g.moveTo(k+SZ,0); g.lineTo(k,SZ); g.stroke(); g.strokeStyle='rgb(106,112,250)'; g.beginPath(); g.moveTo(k+SZ+3,0); g.lineTo(k+3,SZ); g.stroke(); }
-  const t=new T.CanvasTexture(c); t.wrapS=t.wrapT=T.RepeatWrapping; t.anisotropy=8; parts.safN=t; return t; }
+function saffianoTex(){
+  if(parts.safN) return parts.safN;
+  const SZ=256,c=ctx2d(SZ),g=c.getContext('2d'),img=g.createImageData(SZ,SZ),pitch=32;
+  const tri=t=>1-Math.abs(((t%1+1)%1)*2-1);
+  const height=(x,y)=>Math.min(tri((x+y)/pitch),tri((x-y)/pitch));
+  for(let y=0;y<SZ;y++)for(let x=0;x<SZ;x++){
+    const nx=(height(x-1,y)-height(x+1,y))*3.6,ny=(height(x,y-1)-height(x,y+1))*3.6,nz=1,L=Math.hypot(nx,ny,nz),i=(y*SZ+x)*4;
+    img.data[i]=128+127*nx/L;img.data[i+1]=128+127*ny/L;img.data[i+2]=128+127*nz/L;img.data[i+3]=255;
+  }
+  g.putImageData(img,0,0);
+  const t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;parts.safN=t;return t;
+}
 function bezelTextureMM(bz){
   const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.80;   // 實品數字圈比潛水圈薄
   // 實品（用戶 0906 指出）：消光黑圈，數字 1–11 與 12 點三角是「黑色浮雕」——同色凸起，只靠上緣亮邊與下緣落影看得出；數字之間各一顆小三角；沒有分刻
-  g.fillStyle='#17191C'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
+  g.fillStyle='#242628'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
   for(let i=0;i<9000;i++){ g.fillStyle='rgba(255,255,255,'+(Math.random()*0.05).toFixed(3)+')'; g.fillRect(Math.random()*SZ,Math.random()*SZ,1.5,1.5); }   // 消光顆粒
   g.fillStyle='#000'; g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(R,R,IN,0,7); g.fill(); g.globalCompositeOperation='source-over';   // 🔴 destination-out 的擦除量＝來源 alpha：前面顆粒迴圈留下的 fillStyle 是 0.05 透明白，只擦掉 5%，整片圈面蓋住錶盤（0906）
   g.textAlign='center'; g.textBaseline='middle';
   const emboss=function(draw){ g.save(); g.translate(2.5,3); g.fillStyle='rgba(0,0,0,.75)'; draw(); g.restore();      // 右下落影
-    g.save(); g.translate(-2,-2.5); g.fillStyle='rgba(255,255,255,.30)'; draw(); g.restore();                          // 左上亮邊
-    g.fillStyle='#1C1F23'; draw(); };                                                                                     // 面（同底色略亮）
+    g.save(); g.translate(-2,-2.5); g.fillStyle='rgba(255,255,255,.18)'; draw(); g.restore();                          // 左上亮邊
+    g.fillStyle='#080A0C'; draw(); };                                                                                     // 面（同底色略亮）
   for(let i=0;i<12;i++){ const a=i*Math.PI/6, rm=(OUT+IN)/2; g.save(); g.translate(R+Math.sin(a)*rm,R-Math.cos(a)*rm); g.rotate(a);
-    if(i===0){ emboss(function(){ g.beginPath(); g.moveTo(0,-R*0.085); g.lineTo(R*0.058,R*0.055); g.lineTo(-R*0.058,R*0.055); g.closePath(); g.fill(); }); }
+    if(i===0){ emboss(function(){ g.beginPath(); g.moveTo(0,R*0.068); g.lineTo(R*0.085,-R*0.060); g.lineTo(-R*0.085,-R*0.060); g.closePath(); g.fill(); }); }
     else { g.font='900 '+(SZ*0.066)+'px "Arial Black",Arial,sans-serif'; emboss(function(){ g.fillText(String(i),0,0); }); }
     g.restore();
     // 數字之間的小三角（尖朝外）
@@ -1483,10 +1519,13 @@ const R_CASE=1.0;
    比例基準：錶殼外徑 2.0 unit = 40mm → 1 unit = 20mm。 */
 const LUG={rootZ:0.58, tipZ:1.12, bendZ:0.74, topY:0.075, drop:0.12, botY:-0.19, w0:0.25, w1:0.19,
            selZ:1.17, selY:-0.137, softZ:1.03, softY:-0.12, slot:0.50};
-function lugTop(z){ const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.topY-LUG.drop*Math.pow(k,1.6); }
-function lugW(z){ const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.w0-(LUG.w0-LUG.w1)*k; }
+const MM_LUG={...LUG,rootZ:0.86,tipZ:1.20,bendZ:0.98,softZ:1.115,selZ:1.25,w0:0.19,w1:0.17};
+function lugSpec(){return SERIES[S.series].code==='MM'?MM_LUG:LUG;}
+function lugTop(z){ const LUG=lugSpec(); const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.topY-LUG.drop*Math.pow(k,1.6); }
+function lugW(z){ const LUG=lugSpec(); const k=Math.max(0,Math.min(1,(z-LUG.bendZ)/(LUG.tipZ-LUG.bendZ))); return LUG.w0-(LUG.w0-LUG.w1)*k; }
 function buildLugs(polM, brushM, accM){
-  const ZS=[0.58,0.70,0.78,0.86,0.94,1.01,1.06,1.095,1.113,1.12], rt=0.05;
+  const LUG=lugSpec();
+  const ZS=[0.58,0.70,0.78,0.86,0.94,1.01,1.06,1.095,1.113,1.12].map(z=>LUG.rootZ+(z-0.58)/0.54*(LUG.tipZ-LUG.rootZ)), rt=SERIES[S.series].code==='MM'?0.035:0.05;
   const vAt=ZS.map(function(z){ return (z-ZS[0])/(ZS[ZS.length-1]-ZS[0]); });
   [-1,1].forEach(function(dir){
     [-1,1].forEach(function(sg){
@@ -1557,7 +1596,10 @@ function latheProfile(pts,seg){
 }
 function handShape(kind,len,w,isHour){
   const s=new T.Shape();
-  if(kind==='sword'){
+  if(kind==='baton'){
+    s.moveTo(-w*.42,len);s.lineTo(w*.42,len);s.lineTo(w/2,len-w*.35);s.lineTo(w/2,len*.18);
+    s.lineTo(-w/2,len*.18);s.lineTo(-w/2,len-w*.35);s.closePath();
+  } else if(kind==='sword'){
     // 尖端拉長：從 1.5w 改成 3.2w，變成細長的劍形
     s.moveTo(0,len); s.lineTo(w/2,len-w*3.2); s.lineTo(w/2,-w*1.6);
     s.lineTo(-w/2,-w*1.6); s.lineTo(-w/2,len-w*3.2); s.closePath();
@@ -1804,26 +1846,33 @@ function buildWatch(){
     [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]]),128);
   root.add(new T.Mesh(caseGeo,baseM));   // 錶背本來就是透明底蓋看得到機芯（擺陀），不要再蓋一片刻字錶背（0906 試過會把機芯蓋掉）
   if(se.code==='MM'){
-    // 義大利海軍實品＝Luminor 型枕形殼：圓角方形拋光殼體（x 2.26 × z 2.02，殼在 z 向短一點讓短錶耳露出來）包住車削殼
-    const cuShape=roundedRectShape(2.26,2.02,0.62); cuShape.holes.push(circlePath(0.99,96));   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
-    const cushion=new T.Mesh(extrudeUp(cuShape,0.32,0.04,3),[polM,polM]); cushion.position.y=-0.21; root.add(cushion);
+    // 義大利海軍實品＝Luminor 型枕形殼：圓角方形拋光殼體（x 2.04 × z 2.04，按 91622854 的錶圈比例縮窄；錶耳另設接點）包住車削殼
+    const cuShape=new T.Shape();
+    // Cushion silhouette: gently bowed sides and compact shoulders instead of a broad square slab.
+    for(let k=0;k<=128;k++){const a=k/128*Math.PI*2,c=Math.cos(a),v=Math.sin(a),x=1.02*Math.sign(c)*Math.pow(Math.abs(c),2/3.2),z=1.02*Math.sign(v)*Math.pow(Math.abs(v),2/3.2);if(k)cuShape.lineTo(x,z);else cuShape.moveTo(x,z);}
+    cuShape.closePath();cuShape.holes.push(circlePath(0.955,96));   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
+    const cushionGeo=extrudeUp(cuShape,0.32,0.018,3),cvp=cushionGeo.attributes.position;
+    // Subtle crown across the case shoulder makes the reflected studio light roll over the steel.
+    for(let k=0;k<cvp.count;k++){const y=cvp.getY(k);if(y>.12){const r=Math.hypot(cvp.getX(k),cvp.getZ(k));cvp.setY(k,y+.035*Math.max(0,1-Math.pow((r-.96)/.28,2))*Math.min(1,(y-.12)/.20));}}
+    cushionGeo.computeVertexNormals();
+    const cushion=new T.Mesh(cushionGeo,[polM,polM]); cushion.position.y=-0.21; root.add(cushion);
     // 護橋把冠（0907 照官網實拍重做）：實品是**厚實的半月形（D 形）護橋**貼著殼側，
     //   不是一片薄弧板。平邊貼殼、半圓往 +x 凸出，外凸量約殼寬的 17%（實拍量：護橋尖端超出殼緣 123px／殼寬 733px）；
     //   高度約殼高的 55%；上面壓一支壓桿，外端一根鉸鏈銷；把冠是粗滾花的，藏在護橋開口裡。
     //   ⚠️ 舊版是 ri 0.72→ro 0.84 的 C 形弧板（厚度只有 0.12），從 3/4 角度看像一片刀片飄在殼外。
-    { const bx=0.98, br=0.56;                       // bx＝平邊貼在殼側的 x；br＝半圓半徑（＝護橋半高，也是外凸量）
+    { const bx=0.98, br=0.58, rx=0.35;                       // bx＝平邊貼在殼側的 x；br＝半圓半徑（＝護橋半高，也是外凸量）
       const sh=new T.Shape();
-      sh.moveTo(bx,-br); sh.absarc(bx,0,br,-Math.PI/2,Math.PI/2,false); sh.lineTo(bx,-br); sh.closePath();
+      sh.moveTo(bx,-br); for(let k=1;k<=48;k++){const a=-Math.PI/2+k*Math.PI/48;sh.lineTo(bx+rx*Math.cos(a),br*Math.sin(a));} sh.closePath();
       // 🔴 中間要開方窗：實品的護橋不是實心的，把冠從這個開口露出來（看得到粗滾花），
       //    壓桿橫在窗口上方。少了這個窗，護橋就變成一坨實心金屬、看不出是「護住把冠」的機構。
-      { const hx0=bx+0.02, hx1=bx+0.46, hz=0.21, hole=new T.Path();
+      { const hx0=bx+0.015, hx1=bx+0.27, hz=0.22, hole=new T.Path();
         hole.moveTo(hx0,-hz); hole.lineTo(hx1,-hz); hole.lineTo(hx1,hz); hole.lineTo(hx0,hz); hole.closePath();
         sh.holes.push(hole); }
-      const guard=new T.Mesh(extrudeUp(sh,0.30,0.03,3),[polM,polM]); guard.position.y=-0.20; root.add(guard);
+      const guard=new T.Mesh(extrudeUp(sh,0.30,0.018,3),[brushM,polM]); guard.position.y=-0.20; root.add(guard);
       // 壓桿：貼在護橋外弧面上，沿 z 向躺著；下端（-z）是鉸鏈
-      const lever=new T.Mesh(rbox(0.10,0.13,0.66,0.022),polM); lever.position.set(bx+br-0.06,-0.05,0.02); root.add(lever);
+      const lever=new T.Mesh(rbox(0.10,0.13,0.66,0.022),polM); lever.position.set(bx+rx-0.025,-0.05,0.02); root.add(lever);
       const hinge=new T.Mesh(new T.CylinderGeometry(0.042,0.042,0.20,20),accM);
-      hinge.rotation.x=Math.PI/2; hinge.position.set(bx+br-0.06,-0.05,-0.34); root.add(hinge); }
+      hinge.rotation.x=Math.PI/2; hinge.position.set(bx+rx-0.025,-0.05,-0.34); root.add(hinge); }
   }
   if(se.code==='ROY'){
     // 皇家計時實品＝Royal Oak 型：圓角方形拉絲中層（挖圓孔露機芯／錶盤），鏈帶第一節直接從殼體 12／6 邊長出來（一體式）
@@ -1906,16 +1955,30 @@ function buildWatch(){
       side:T.DoubleSide,transparent:!!(DIALSPEC[se.code]||{}).openHeart,alphaTest:(DIALSPEC[se.code]||{}).openHeart?0.5:0}));
   dial.rotation.x=-Math.PI/2; dial.position.y=0.055; root.add(dial);
   parts.balance=null;
-  if((DIALSPEC[se.code]||{}).openHeart){   // 開心窗：拋光環＋擺輪（環＋三輻＋游絲＋紅寶石），animate 裡來回擺
-    const hx=-0.40*0.745, hr=0.155*0.745;
+  if(!skel && (DIALSPEC[se.code]||{}).openHeart){   // 開心窗：拋光環＋擺輪（環＋三輻＋游絲＋紅寶石），animate 裡來回擺
+    const hx=-(DIALSPEC[se.code].heartX||0.40)*0.745, hr=(DIALSPEC[se.code].heartR||0.155)*0.745;
     const ring=new T.Mesh(new T.TorusGeometry(hr+0.008,0.010,10,48),accM); ring.rotation.x=Math.PI/2; ring.position.set(hx,0.058,0); root.add(ring);
     const bal=new T.Group(); bal.position.set(hx,0.047,0); root.add(bal); parts.balance=bal;   // 🔴 機芯座頂在 y 0.0425，擺輪要放在它上面、錶面（0.055）下面，不然被座蓋住看不到
-    const rim=new T.Mesh(new T.TorusGeometry(hr*0.78,0.006,8,40),polM); rim.rotation.x=Math.PI/2; bal.add(rim);
-    for(let k=0;k<3;k++){ const sp=new T.Mesh(new T.BoxGeometry(hr*1.56,0.005,0.012),polM); sp.rotation.y=k*Math.PI/3; bal.add(sp); }
+    const brass=metalMat(0xA68B40,.28), darkSteel=metalMat(0x545B5A,.35);
+    const rim=new T.Mesh(new T.TorusGeometry(hr*0.78,0.007,10,64),brass); rim.rotation.x=Math.PI/2; bal.add(rim);
+    for(let k=0;k<3;k++){ const sp=new T.Mesh(new T.BoxGeometry(hr*1.56,0.005,0.011),brass); sp.rotation.y=k*Math.PI/3; bal.add(sp); }
     const hub=new T.Mesh(new T.CylinderGeometry(0.014,0.014,0.02,12),polM); bal.add(hub);
     const jewel=new T.Mesh(new T.SphereGeometry(0.009,12,8),new T.MeshPhysicalMaterial({color:0xB0102A,roughness:.1,clearcoat:1,envMapIntensity:1.2})); jewel.position.y=0.005; bal.add(jewel);
-    const spring=new T.Mesh(new T.TorusGeometry(hr*0.36,0.0025,6,40),new T.MeshStandardMaterial({color:0x3A4CB8,metalness:1,roughness:.3})); spring.rotation.x=Math.PI/2; spring.position.y=0.003; bal.add(spring);
-    const plate=new T.Mesh(new T.CircleGeometry(hr*1.02,32),new T.MeshStandardMaterial({color:0x2A2D30,roughness:.5,metalness:.8})); plate.rotation.x=-Math.PI/2; plate.position.set(hx,0.0435,0); root.add(plate); }
+    const spring=new T.Mesh(spiralGeo(hr*.12,hr*.46,4.6,.0016,180),darkSteel); spring.position.y=0.003; bal.add(spring);
+    const plate=new T.Mesh(new T.CircleGeometry(hr*1.02,32),new T.MeshStandardMaterial({color:0x111514,roughness:.68,metalness:.45})); plate.rotation.x=-Math.PI/2; plate.position.set(hx,0.0435,0); root.add(plate);
+    // Fixed bridges sit above the oscillating balance; dimensions stay inside the open-heart aperture.
+    const fixedBridge=new T.Group();fixedBridge.position.set(hx,.053,0);root.add(fixedBridge);
+    [[-.11,-.13,.12,-.07],[.06,.11,-.10,.14]].forEach(([x0,z0,x1,z1])=>{
+      const len=Math.hypot(x1-x0,z1-z0),bridge=new T.Mesh(rbox(.028,.006,len,.009),darkSteel);
+      bridge.position.set((x0+x1)/2,.001,(z0+z1)/2);bridge.rotation.y=Math.atan2(x1-x0,z1-z0);fixedBridge.add(bridge);
+    });
+    [[-.12,-.11],[.10,-.09],[-.08,.14],[.09,.13]].forEach(([x,z])=>{
+      const seat=new T.Mesh(new T.CylinderGeometry(.023,.025,.006,20),brass);seat.position.set(x,.003,z);fixedBridge.add(seat);
+      const screw=new T.Mesh(new T.CylinderGeometry(.014,.014,.005,20),polM);screw.position.set(x,.008,z);fixedBridge.add(screw);
+      const slot=new T.Mesh(new T.BoxGeometry(.019,.002,.003),new T.MeshStandardMaterial({color:0x111715,roughness:.6}));slot.position.set(x,.011,z);slot.rotation.y=.6;fixedBridge.add(slot);
+    });
+    const jewelSeat=new T.Mesh(new T.TorusGeometry(.026,.004,8,24),brass);jewelSeat.rotation.x=Math.PI/2;jewelSeat.position.set(-.012,.062,0);root.add(jewelSeat);jewelSeat.position.x+=hx;
+  }
 
   // 立體字釘
   // 夜光＝整條均勻的一個顏色，沒有暈染（用戶 0906）：夜景關掉色調映射（toneMapped:false）讓 emissive 原色直出，不會被 ACES 壓成白；白天只留顏料色
@@ -1952,28 +2015,29 @@ function buildWatch(){
       continue;
     }
     if(MS==='batons2' && i===0){                 // 12 點雙長條
-      [-0.058,0.058].forEach(function(ox){
-        const frame=new T.Mesh(rbox(0.058+0.026,0.030,0.168+0.026,0.026),accM); frame.position.set(px+ox,0.070,pz); root.add(frame);
-        const cap=new T.Mesh(rbox(0.058,0.016,0.168,0.022),lumeM); cap.position.set(px+ox,0.088,pz); root.add(cap); });
+      const slim=se.code==='MM', mw=slim?0.019:0.058, mh=0.168, rim=slim?0.014:0.026;
+      (slim?[-0.029,0.029]:[-0.058,0.058]).forEach(function(ox){
+        const frame=new T.Mesh(rbox(mw+rim,0.030,mh+rim,slim?0.012:0.026),accM); frame.position.set(px+ox,0.070,pz); root.add(frame);
+        const cap=new T.Mesh(rbox(mw,0.016,mh,slim?0.008:0.022),lumeM); cap.position.set(px+ox,0.088,pz); root.add(cap); });
       continue;
     }
     const long=(MS==='dots'&&(i===6||i===9));    // 潛水款 6、9 點長方比其餘長
-    const w=long?0.088:0.076, h=long?0.215:0.168;
-    const frame=new T.Mesh(rbox(w+0.026,0.030,h+0.026,0.026),accM);
+    const slim=se.code==='MM', w=slim?0.024:(long?0.088:0.076), h=long?0.215:0.168, rim=slim?0.022:0.026;
+    const frame=new T.Mesh(rbox(w+rim,0.030,h+rim,slim?0.012:0.026),accM);
     frame.position.set(px,0.070,pz); frame.rotation.y=-ang; root.add(frame);
-    const cap=new T.Mesh(rbox(w,0.016,h,0.022),lumeM);
+    const cap=new T.Mesh(rbox(w,0.016,h,slim?0.008:0.022),lumeM);
     cap.position.set(px,0.088,pz); cap.rotation.y=-ang; root.add(cap);
   }
   if(se.code!=='ROY') buildLugs(polM, brushM, accM);   // 皇家計時一體式殼體，鏈帶直接從殼體長出來
 
   // 把冠（車削本體＋滾花＋端面）與護橋
-  { const cr=buildCrown3D(accM, polM, se.code==='ROY'?'oct':'fluted'); if(se.code==='MM') cr.position.x+=0.24; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
+  { const cr=buildCrown3D(accM, polM, se.code==='ROY'?'oct':'fluted'); if(se.code==='MM') cr.position.x+=0.055; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
   parts.pushers=null;
   if(se.sub && !skel){                         // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）；鏤空機芯沒有計時功能→不做按把（用戶 2026-09-04）
     const p1=buildPusher(accM, polM, 1, se.code==='ROY'), p2=buildPusher(accM, polM, -1, se.code==='ROY');
     root.add(p1,p2); parts.pushers=[p1,p2];
   }
-  if(!se.sub){                                  // 潛水款才有大護肩
+  if(!se.sub && se.code!=='MM'){               // MM uses its own crown bridge; no diver crown shoulder
     const guard=new T.Mesh(new T.SphereGeometry(0.135,20,14,0,Math.PI),baseM);
     guard.rotation.y=Math.PI/2; guard.position.set(0.93,0.005,0);
     guard.scale.set(1,.92,.60); root.add(guard);
@@ -2009,13 +2073,15 @@ function buildWatch(){
   }
   parts.hourG=new T.Group(); parts.minG=new T.Group(); parts.secG=new T.Group();
   // 實體是細長的拋光針，尖端更尖 —— 原本太粗太鈍
-  parts.hourG.add(mkHand(hs.shape,0.42,0.060,true,0.098), mkLume(hs.shape,0.42,0.060,true,0.116));
-  parts.minG.add(mkHand(hs.shape,0.63,0.044,false,0.122), mkLume(hs.shape,0.63,0.044,false,0.140));
+  const mmHands=se.code==='MM'&&hs.shape==='sword', handKind=mmHands?'baton':hs.shape, hourLen=mmHands?0.39:0.42, hourW=mmHands?0.045:0.060;
+  parts.hourG.add(mkHand(handKind,hourLen,hourW,true,0.098), mkLume(handKind,hourLen,hourW,true,0.116));
+  parts.minG.add(mkHand(handKind,0.63,0.044,false,0.122), mkLume(handKind,0.63,0.044,false,0.140));
   // 秒針：潛水款實品＝針身＋靠針尖的棒棒糖圓點＋小尾錘；計時款＝細針＋小尾錘（原本尾端一顆大圓、針尖沒圓點——0906 審查抓到）
-  const sec=new T.Mesh(new T.BoxGeometry(se.sub?0.014:0.018,0.010,0.86),lumeM); sec.position.set(0,0.152,-0.30);
+  const sec=new T.Mesh(new T.BoxGeometry(se.code==='MM'?0.007:(se.sub?0.014:0.018),0.010,0.86),se.code==='MM'?polM:lumeM); sec.position.set(0,0.152,-0.30);
   const secTail=new T.Mesh(new T.CylinderGeometry(0.030,0.030,0.010,20),lumeM); secTail.position.set(0,0.152,0.13);
   parts.secG.add(sec,secTail);
-  if((DIALSPEC[se.code]||{}).lollipop){ const lolli=new T.Mesh(new T.CylinderGeometry(0.044,0.044,0.010,20),lumeM); lolli.position.set(0,0.152,-0.58); parts.secG.add(lolli); }
+  if(se.code==='MM'){const redTip=new T.Mesh(new T.BoxGeometry(0.008,0.010,0.13),new T.MeshStandardMaterial({color:0xB51E27,roughness:.35}));redTip.position.set(0,0.153,-0.665);parts.secG.add(redTip);}
+  if((DIALSPEC[se.code]||{}).lollipop){ const lolli=new T.Mesh(new T.CylinderGeometry(se.code==='MM'?0.028:0.044,se.code==='MM'?0.028:0.044,0.010,20),lumeM); lolli.position.set(0,0.152,-0.58); parts.secG.add(lolli); }
   root.add(parts.hourG,parts.minG,parts.secG);
   const pin=new T.Mesh(new T.CylinderGeometry(0.045,0.052,0.055,24),accM);
   pin.position.y=0.15; root.add(pin);
@@ -2348,6 +2414,7 @@ function addBandShadow(){
   parts.loop.add(m); parts.bandShadow=m;
 }
 function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
+  const LUG=lugSpec();
   // 實體錶帶是扣起來的：一條從 12 點錶耳繞下去、再回到 6 點錶耳的封閉圈
   parts.loop=new T.Group(); root.add(parts.loop);
   parts.loopRows=[]; parts.softStrap=null; parts.threads=null; parts.softAtt=[]; parts.flexT=null;   // softAtt＝跟著皮帶一起擺的剛性零件
@@ -2396,8 +2463,8 @@ function buildBand(bd,baseM,accM,polM,brushM,accBrush,mt){
         normalScale:new T.Vector2(1.2,1.2),roughness:.62,metalness:0,clearcoat:.25,clearcoatRoughness:.4,
         envMapIntensity:.7,side:T.DoubleSide});
       if(bd.code==='BLK'){   // 黑壓紋：皮面換十字壓紋法線圖（程序生成）、黑色；裡皮與皮環一起變深
-        const sn=saffianoTex(); sn.repeat.set(7,42);
-        softM=new T.MeshPhysicalMaterial({color:0x1A1A1A,normalMap:sn,normalScale:new T.Vector2(0.75,0.75),roughness:.60,metalness:0,clearcoat:.14,clearcoatRoughness:.5,envMapIntensity:.6,side:T.FrontSide});
+        const sn=saffianoTex(); sn.repeat.set(2,12);
+        softM=new T.MeshPhysicalMaterial({color:new T.Color(0x1A1A1A).convertSRGBToLinear(),normalMap:sn,normalScale:new T.Vector2(0.75,0.75),roughness:.50,metalness:0,clearcoat:.14,clearcoatRoughness:.5,envMapIntensity:.6,side:T.FrontSide});
         liningM.color.set(0x1C1816); keepLea.color.set(0x161616); edgeM.color.set(0x0E0E0E); }
     } else if(bd.code==='RUB'){   // 潛水橡膠：實拍橡膠顆粒，霧面幾乎不反光
       const rub=rubberTex('#'+bd.col.toString(16).padStart(6,'0'));
@@ -3164,6 +3231,7 @@ renderer.render(scene,camera);
 
 /* ── 套用選項 ─────────────────────────────────────────── */
 function apply(){
+  if(SERIES[S.series].code==='MM') S.bezel=0; // This model has one verified bezel; do not charge for invisible color changes.
   buildUI();
   if(ok){ buildWatch(); applyScene(); }
   const se=SERIES[S.series],mt=METAL[S.metal],bz=BEZEL[S.bezel],dl=DIAL[S.dial],
@@ -3174,11 +3242,12 @@ function apply(){
   const mvId=skel?'NH70':se.id, mvName=skel?'Seiko NH70 自動機械':se.mv, fnName=skel?'三針 · 鏤空':se.fn;
   const price=fixed? se.base : se.base+mt.add+bz.add+dl.add+hs.add+lm.add+bd.add;
   const sku=fixed? `${se.id}-${se.code}` : `${mvId}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
-  const spec=fixed? se.spec : {metal:mt.name,bezel:bz.name,dial:dl.name,hands:hs.name+'（'+lm.name+'）',band:bd.name};
+  const handName=se.code==='MM'&&hs.shape==='sword'?'直身夜光針':hs.name;
+  const spec=fixed? se.spec : {metal:mt.name,bezel:se.code==='MM'?'消光黑 12 小時立體字圈':bz.name,dial:se.code==='MM'&&dl.code==='CB'?'黑色錘紋':dl.name,hands:handName+'（'+lm.name+'）',band:bd.name};
   $('priceOut').textContent=nf(price); $('skuOut').textContent=sku;
   $('pk-scene').textContent=sc.name;   $('pk-series').textContent=se.name;
   $('pk-metal').textContent=spec.metal;   $('pk-bezel').textContent=spec.bezel;
-  $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(hs.name+' · '+lm.name);
+  $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(handName+' · '+lm.name);
   $('pk-band').textContent=spec.band;
   const rows=[['系列',se.name],['機芯',mvName],['功能',fnName],['錶徑',se.size+'mm'],
     ['防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
