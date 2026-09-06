@@ -644,7 +644,7 @@ function buildUI(){
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · NT$${nf(o.base)}</span>`;
-    b.onclick=()=>{S.series=i; const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}   // 切系列時套該款實品的預設指針; sc.appendChild(b);   // 只有客人親手選系列才切底圖
+    b.onclick=()=>{S.series=i; const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
@@ -910,8 +910,8 @@ function ctx2d(sz){const c=document.createElement('canvas'); c.width=c.height=sz
 //   markers：dots＝圓點＋6/9 長方＋12 三角（潛水款）／batons2＝長條、12 點雙條／batons＝長條＋12 三角
 //   date：'3'＝3 點平窗／'3c'＝3 點＋放大鏡／'430'＝4:30／'none'
 const DIALSPEC={
-  SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  SUB:{brand:'SEIKO',markers:'dots',date:'3c',lollipop:true,hands:0,bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
+  PRO:{brand:'SEIKO',markers:'dots',date:'3',lollipop:true,hands:0,bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
   MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true,hands:1},   // hands＝該款預設指針（HANDS 索引：0 賓士 1 劍 2 雪花），實品是劍針   // 實品開心款：9 點擺輪窗、無日期
   DAY:{brand:'ICHCO',markers:'batons',date:'none',hands:1,top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
