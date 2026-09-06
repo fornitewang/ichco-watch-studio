@@ -911,7 +911,7 @@ function ctx2d(sz){const c=document.createElement('canvas'); c.width=c.height=sz
 const DIALSPEC={
   SUB:{brand:'SEIKO',markers:'dots',date:'3c',bottom:['MARINEMASTER','AUTOMATIC','PROFESSIONAL','300m']},
   PRO:{brand:'SEIKO',markers:'dots',date:'3',bottom:['MARINE MASTER','AUTOMATIC','PROFESSIONAL','300m']},
-  MM:{brand:'SEIKO',markers:'batons2',date:'3',bottom:['AUTOMATIC']},
+  MM:{brand:'SEIKO',markers:'batons2',date:'none',bottom:['AUTOMATIC'],openHeart:true},   // 實品開心款：9 點擺輪窗、無日期
   DAY:{brand:'ICHCO',markers:'batons',date:'none',top:['OYSTER PERPETUAL','SUPERLATIVE CHRONOMETER','OFFICIALLY CERTIFIED','COSMOGRAPH'],label:'DAYTONA',labelY:0.17,
        sub:{'3':['24','6','12','18'],'6':['60','20','40'],'9':['60','15','30','45']}},
   ROY:{brand:'SEIKO',markers:'batons2',date:'430',sub:{'3':['30','10','20'],'6':['12','3','6','9'],'9':['24','6','12','18']}},
@@ -1028,9 +1028,25 @@ function dialTexture(d,se){
     g.fillStyle=big?d.txt:d.txt2; g.letterSpacing=big?'3px':'2.5px'; g.fillText(L,R,y0+i*SZ*0.030); });
   if(tspec.label){ g.fillStyle=d.txt; g.font=`700 ${SZ*0.026}px "Saira Condensed", sans-serif`; g.letterSpacing='4px'; g.fillText(tspec.label,R,R+R*(tspec.labelY||0.17)); }
   g.letterSpacing='0px';
+  if((DIALSPEC[se.code]||{}).openHeart){   // 9 點開心窗：挖透明圓洞（錶面材質 alphaTest），洞緣一圈深色
+    const hx=R-R*0.40, hy=R, hr=R*0.155; g.save(); g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(hx,hy,hr,0,7); g.fill(); g.restore();
+    g.strokeStyle='rgba(0,0,0,.55)'; g.lineWidth=SZ*0.006; g.beginPath(); g.arc(hx,hy,hr+SZ*0.003,0,7); g.stroke(); }
   const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
 }
 
+// 義大利海軍實品：旋轉 12 小時圈，黑底白字 1–11 沿圓周轉向、12 點一個三角
+function bezelTextureMM(bz){
+  const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2, OUT=R*0.985, IN=R*0.735;
+  g.fillStyle=(bz&&bz.a)||'#111417'; g.beginPath(); g.arc(R,R,OUT,0,7); g.fill();
+  g.globalCompositeOperation='destination-out'; g.beginPath(); g.arc(R,R,IN,0,7); g.fill(); g.globalCompositeOperation='source-over';
+  g.fillStyle='#F2F3F1'; g.strokeStyle='#F2F3F1'; g.textAlign='center'; g.textBaseline='middle';
+  for(let i=0;i<12;i++){ const a=i*Math.PI/6, rm=(OUT+IN)/2; g.save(); g.translate(R+Math.sin(a)*rm,R-Math.cos(a)*rm); g.rotate(a);
+    if(i===0){ g.beginPath(); g.moveTo(0,-R*0.10); g.lineTo(R*0.062,R*0.06); g.lineTo(-R*0.062,R*0.06); g.closePath(); g.fill(); }
+    else { g.font='700 '+(SZ*0.095)+'px "Saira Condensed", sans-serif'; g.fillText(String(i),0,0); }
+    g.restore(); }
+  for(let i=0;i<60;i++){ if(i%5===0) continue; const a=i*Math.PI/30; g.save(); g.translate(R,R); g.rotate(a); g.lineWidth=SZ*0.004; g.beginPath(); g.moveTo(0,-OUT*0.985); g.lineTo(0,-OUT*0.93); g.stroke(); g.restore(); }
+  const t=new T.CanvasTexture(c); t.encoding=T.sRGBEncoding; t.anisotropy=8; return t;
+}
 function bezelTexture(bz,lm,isChrono){
   const SZ=1024, c=ctx2d(SZ), g=c.getContext('2d'), R=SZ/2;
   const OUT=R*0.985, IN=R*0.735;
@@ -1739,11 +1755,22 @@ function buildWatch(){
   const caseGeo=latheProfile((dl.tex==='skeleton'?[[0.56,-0.21]]:[[0,-0.20],[0.55,-0.21]]).concat([
     [0.85,-0.205],[0.94,-0.185],[0.975,-0.12],[0.985,0.02],
     [1.0,0.08],[0.985,0.115],[0.955,0.124],[0.90,0.137],[0.83,0.146],[0.775,0.150]]),128);
-  root.add(new T.Mesh(caseGeo,baseM));   // 錶背本來就是透明底蓋看得到機芯（擺陀），不要再蓋一片刻字錶背（0906 試過會把機芯蓋掉）   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
+  root.add(new T.Mesh(caseGeo,baseM));   // 錶背本來就是透明底蓋看得到機芯（擺陀），不要再蓋一片刻字錶背（0906 試過會把機芯蓋掉）
+  if(se.code==='MM'){
+    // 義大利海軍實品＝Luminor 型枕形殼：圓角方形拋光殼體（x 2.26 × z 2.02，殼在 z 向短一點讓短錶耳露出來）包住車削殼
+    const cuShape=roundedRectShape(2.26,2.02,0.62); { const hole=new T.Path(); hole.absarc(0,0,0.99,0,Math.PI*2,true); cuShape.holes.push(hole); }   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
+    const cushion=new T.Mesh(extrudeUp(cuShape,0.32,0.04,3),[polM,polM]); cushion.position.y=-0.21; root.add(cushion);
+    // 護橋：C 形拋光橋跨在把冠外側，兩端接在殼體 3 點側；內側一支壓桿鉸在下端，壓著把冠（實品的鎖冠機構）
+    { const cx=0.70, ri=0.72, ro=0.84, a=64*Math.PI/180, sh=new T.Shape();
+      sh.moveTo(cx+ri*Math.cos(-a),ri*Math.sin(-a)); sh.absarc(cx,0,ri,-a,a,false); sh.lineTo(cx+ro*Math.cos(a),ro*Math.sin(a)); sh.absarc(cx,0,ro,a,-a,true); sh.closePath();
+      const guard=new T.Mesh(extrudeUp(sh,0.20,0.02,2),[polM,polM]); guard.position.y=-0.11; root.add(guard);
+      const lever=new T.Mesh(rbox(0.05,0.15,0.62,0.018),polM); lever.position.set(1.39,0.0,-0.20); lever.rotation.y=-0.06; root.add(lever);
+      const hinge=new T.Mesh(new T.CylinderGeometry(0.030,0.030,0.20,16),accM); hinge.position.set(1.39,0.0,-0.53); root.add(hinge); }
+  }   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
   const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
   const bezGeo=new T.CylinderGeometry(1.0,0.995,0.115,BEZ_SEGS,1,true);
-  if(!se.sub){                                  // 潛水／工具錶款才有止滑齒紋；計時款維持全平滑
+  if(!se.sub&&se.code!=='MM'){                  // 潛水／工具錶款才有止滑齒紋；計時款與義大利海軍（拋光圈）維持全平滑
     const pos=bezGeo.attributes.position;
     for(let i=0;i<pos.count;i++){
       const x=pos.getX(i), z=pos.getZ(i), r=Math.sqrt(x*x+z*z);
@@ -1760,7 +1787,7 @@ function buildWatch(){
   root.add(bez);
   // 錶圈面
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
-    new T.MeshPhysicalMaterial({map:bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY'),transparent:true,
+    new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY')),transparent:true,
       metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
       color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
@@ -1799,8 +1826,19 @@ function buildWatch(){
   const dial=new T.Mesh(skel? new T.RingGeometry(0.50,0.745,128) : new T.CircleGeometry(0.745,128),
     new T.MeshPhysicalMaterial({map:dialTexture(dl,se),metalness:.05,
       roughness:.30,envMapIntensity:0.6,clearcoat:.6,clearcoatRoughness:.12,
-      side:T.DoubleSide}));
+      side:T.DoubleSide,transparent:!!(DIALSPEC[se.code]||{}).openHeart,alphaTest:(DIALSPEC[se.code]||{}).openHeart?0.5:0}));
   dial.rotation.x=-Math.PI/2; dial.position.y=0.055; root.add(dial);
+  parts.balance=null;
+  if((DIALSPEC[se.code]||{}).openHeart){   // 開心窗：拋光環＋擺輪（環＋三輻＋游絲＋紅寶石），animate 裡來回擺
+    const hx=-0.40*0.745, hr=0.155*0.745;
+    const ring=new T.Mesh(new T.TorusGeometry(hr+0.008,0.010,10,48),accM); ring.rotation.x=Math.PI/2; ring.position.set(hx,0.058,0); root.add(ring);
+    const bal=new T.Group(); bal.position.set(hx,0.047,0); root.add(bal); parts.balance=bal;   // 🔴 機芯座頂在 y 0.0425，擺輪要放在它上面、錶面（0.055）下面，不然被座蓋住看不到
+    const rim=new T.Mesh(new T.TorusGeometry(hr*0.78,0.006,8,40),polM); rim.rotation.x=Math.PI/2; bal.add(rim);
+    for(let k=0;k<3;k++){ const sp=new T.Mesh(new T.BoxGeometry(hr*1.56,0.005,0.012),polM); sp.rotation.y=k*Math.PI/3; bal.add(sp); }
+    const hub=new T.Mesh(new T.CylinderGeometry(0.014,0.014,0.02,12),polM); bal.add(hub);
+    const jewel=new T.Mesh(new T.SphereGeometry(0.009,12,8),new T.MeshPhysicalMaterial({color:0xB0102A,roughness:.1,clearcoat:1,envMapIntensity:1.2})); jewel.position.y=0.005; bal.add(jewel);
+    const spring=new T.Mesh(new T.TorusGeometry(hr*0.36,0.0025,6,40),new T.MeshStandardMaterial({color:0x3A4CB8,metalness:1,roughness:.3})); spring.rotation.x=Math.PI/2; spring.position.y=0.003; bal.add(spring);
+    const plate=new T.Mesh(new T.CircleGeometry(hr*1.02,32),new T.MeshStandardMaterial({color:0x2A2D30,roughness:.5,metalness:.8})); plate.rotation.x=-Math.PI/2; plate.position.set(hx,0.0435,0); root.add(plate); }
 
   // 立體字釘
   // 夜光＝整條均勻的一個顏色，沒有暈染（用戶 0906）：夜景關掉色調映射（toneMapped:false）讓 emissive 原色直出，不會被 ACES 壓成白；白天只留顏料色
@@ -1821,6 +1859,7 @@ function buildWatch(){
   for(let i=0;i<12;i++){
     if(DSP.charAt(0)==='3' && i===3) continue;   // 3 點日期窗
     if(se.sub&&(i===3||i===6||i===9)) continue; // 計時款：3/6/9 讓給小錶盤
+    if((DIALSPEC[se.code]||{}).openHeart && i===9) continue;   // 開心窗
     const ang=i*Math.PI/6, rr=0.575;
     const px=Math.sin(ang)*rr, pz=-Math.cos(ang)*rr;
     if(i===0 && MS!=='batons2'){                 // 12 點：三角形
@@ -1851,7 +1890,7 @@ function buildWatch(){
   buildLugs(polM, brushM, accM);
 
   // 把冠（車削本體＋滾花＋端面）與護橋
-  root.add(buildCrown3D(accM, polM));
+  { const cr=buildCrown3D(accM, polM); if(se.code==='MM') cr.position.x+=0.24; root.add(cr); }   // 枕形殼比圓殼寬，把冠往外移到殼體外
   parts.pushers=null;
   if(se.sub && !skel){                         // 計時款：錶冠上下各一顆按把（按計時鈕時會按下去）；鏤空機芯沒有計時功能→不做按把（用戶 2026-09-04）
     const p1=buildPusher(accM, polM, 1), p2=buildPusher(accM, polM, -1);
@@ -2856,6 +2895,7 @@ requestAnimationFrame(animate);
       const now=t; if(!window.arLockRes && now-(parts.prT||0)>1.5){ let sc=parts.prScale;
         if(avg>1.5&&sc>0.6) sc=Math.max(0.6,sc-0.15); else if(avg<1.08&&sc<1) sc=Math.min(1,sc+0.1);
         if(sc!==parts.prScale){ parts.prScale=sc; parts.prT=now; renderer.setPixelRatio(parts.prBase*sc); resize(); } } } }
+  if(parts.balance) parts.balance.rotation.y=Math.sin(t*22)*0.55;   // 開心窗擺輪：約 3.5Hz 來回擺
   const n=new Date();
   if(parts.hourG){
     parts.hourG.rotation.y=-(10+10/60)*Math.PI/6;      // 10:10 商業攝影姿勢
