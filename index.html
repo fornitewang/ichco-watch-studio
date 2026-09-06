@@ -1807,12 +1807,23 @@ function buildWatch(){
     // 義大利海軍實品＝Luminor 型枕形殼：圓角方形拋光殼體（x 2.26 × z 2.02，殼在 z 向短一點讓短錶耳露出來）包住車削殼
     const cuShape=roundedRectShape(2.26,2.02,0.62); cuShape.holes.push(circlePath(0.99,96));   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
     const cushion=new T.Mesh(extrudeUp(cuShape,0.32,0.04,3),[polM,polM]); cushion.position.y=-0.21; root.add(cushion);
-    // 護橋：C 形拋光橋跨在把冠外側，兩端接在殼體 3 點側；內側一支壓桿鉸在下端，壓著把冠（實品的鎖冠機構）
-    { const cx=0.70, ri=0.72, ro=0.84, a=64*Math.PI/180, sh=new T.Shape();
-      sh.moveTo(cx+ri*Math.cos(-a),ri*Math.sin(-a)); sh.absarc(cx,0,ri,-a,a,false); sh.lineTo(cx+ro*Math.cos(a),ro*Math.sin(a)); sh.absarc(cx,0,ro,a,-a,true); sh.closePath();
-      const guard=new T.Mesh(extrudeUp(sh,0.20,0.02,2),[polM,polM]); guard.position.y=-0.11; root.add(guard);
-      const lever=new T.Mesh(rbox(0.05,0.15,0.62,0.018),polM); lever.position.set(1.39,0.0,-0.20); lever.rotation.y=-0.06; root.add(lever);
-      const hinge=new T.Mesh(new T.CylinderGeometry(0.030,0.030,0.20,16),accM); hinge.position.set(1.39,0.0,-0.53); root.add(hinge); }
+    // 護橋把冠（0907 照官網實拍重做）：實品是**厚實的半月形（D 形）護橋**貼著殼側，
+    //   不是一片薄弧板。平邊貼殼、半圓往 +x 凸出，外凸量約殼寬的 17%（實拍量：護橋尖端超出殼緣 123px／殼寬 733px）；
+    //   高度約殼高的 55%；上面壓一支壓桿，外端一根鉸鏈銷；把冠是粗滾花的，藏在護橋開口裡。
+    //   ⚠️ 舊版是 ri 0.72→ro 0.84 的 C 形弧板（厚度只有 0.12），從 3/4 角度看像一片刀片飄在殼外。
+    { const bx=0.98, br=0.56;                       // bx＝平邊貼在殼側的 x；br＝半圓半徑（＝護橋半高，也是外凸量）
+      const sh=new T.Shape();
+      sh.moveTo(bx,-br); sh.absarc(bx,0,br,-Math.PI/2,Math.PI/2,false); sh.lineTo(bx,-br); sh.closePath();
+      // 🔴 中間要開方窗：實品的護橋不是實心的，把冠從這個開口露出來（看得到粗滾花），
+      //    壓桿橫在窗口上方。少了這個窗，護橋就變成一坨實心金屬、看不出是「護住把冠」的機構。
+      { const hx0=bx+0.02, hx1=bx+0.46, hz=0.21, hole=new T.Path();
+        hole.moveTo(hx0,-hz); hole.lineTo(hx1,-hz); hole.lineTo(hx1,hz); hole.lineTo(hx0,hz); hole.closePath();
+        sh.holes.push(hole); }
+      const guard=new T.Mesh(extrudeUp(sh,0.30,0.03,3),[polM,polM]); guard.position.y=-0.20; root.add(guard);
+      // 壓桿：貼在護橋外弧面上，沿 z 向躺著；下端（-z）是鉸鏈
+      const lever=new T.Mesh(rbox(0.10,0.13,0.66,0.022),polM); lever.position.set(bx+br-0.06,-0.05,0.02); root.add(lever);
+      const hinge=new T.Mesh(new T.CylinderGeometry(0.042,0.042,0.20,20),accM);
+      hinge.rotation.x=Math.PI/2; hinge.position.set(bx+br-0.06,-0.05,-0.34); root.add(hinge); }
   }
   if(se.code==='ROY'){
     // 皇家計時實品＝Royal Oak 型：圓角方形拉絲中層（挖圓孔露機芯／錶盤），鏈帶第一節直接從殼體 12／6 邊長出來（一體式）
@@ -1822,7 +1833,9 @@ function buildWatch(){
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
   const BEZ_SEGS = se.sub?288:240, RIDGES=72, RDEPTH=0.0055;
   const bezGeo=new T.CylinderGeometry(1.0,0.995,0.115,BEZ_SEGS,1,true);
-  if(!se.sub&&se.code!=='MM'){                  // 潛水／工具錶款才有止滑齒紋；計時款與義大利海軍（拋光圈）維持全平滑
+  if(!se.sub){                  // 潛水／工具錶款才有止滑齒紋；計時款維持全平滑
+    // 🔴 0907 更正：原本把義大利海軍也排除（註解寫「拋光圈」），但官網 12 小時圈版實拍
+    //    外緣有一圈明顯的滾花（coin edge），跟潛水款同一種。素圈版才是光滑的。
     const pos=bezGeo.attributes.position;
     for(let i=0;i<pos.count;i++){
       const x=pos.getX(i), z=pos.getZ(i), r=Math.sqrt(x*x+z*z);
