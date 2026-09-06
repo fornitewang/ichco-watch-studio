@@ -3075,7 +3075,15 @@ requestAnimationFrame(animate);
     if(glide>0) glide--;
   }
   root.rotation.y=rotY; root.rotation.x=rotX;
-  camera.position.set(0,dist*0.51,dist);
+  // 🔴 直式窄畫布（手機 344x724＝0.475）水平視角只有桌機（590x880＝0.671）的 72%，
+  //    dist 卻是固定值，錶就被切掉左右兩邊——六款全中，Santos 方殼最明顯。
+  //    解法＝按畫布比例把鏡頭往後拉，任何畫布形狀都看到跟桌機同樣的橫向範圍：
+  //    構圖（每一段故事鏡頭的角度與相對大小）完全不變，只補畫布形狀差。
+  //    ⚠️ AR 不套用：AR 是滿版畫布且錶是相對鏡頭擺位，拉遠沒有意義。
+  const camFitK = (document.documentElement.dataset.ar==='1') ? 1
+                : Math.min(1.7, Math.max(1, 0.671/camera.aspect));
+  const camD = dist*camFitK;
+  camera.position.set(0,camD*0.51,camD);
   camera.lookAt(0,lookY,0);
   if(fx.rain){ const p=fx.rain.geometry.attributes.position;
     for(let i=1;i<p.array.length;i+=3){ p.array[i]-=0.16*fr; if(p.array[i]<-5.5) p.array[i]=5.5; }
@@ -3167,7 +3175,9 @@ let tRotY=CH[0].rotY, tRotX=CH[0].rotX, tDist=CH[0].dist;
 // 手機矮版預覽（.mini）的鏡頭：拉近到錶殼填滿矮框、視線中心從 -0.72 抬到錶殼；
 // glide＝進出 mini 時讓鏡頭用阻尼滑過去的格數（故事外平常不追目標）。
 let glide=0, lookY=-0.72, tLookY=-0.72;
-const MINI_CAM={rotX:0.40, dist:5.5, lookY:-0.32};
+const MINI_CAM={rotX:0.40, dist:6.2, lookY:-0.90};   // 🔴 lookY 原本 -0.32，但錶的實際垂直中心在 -0.94（整支含錶帶 y 從 -2.39 到 +0.51）
+                                                     //    ＝鏡頭瞄得比錶高 0.6，錶帶整段被切在卡片下緣外；dist 5.5 也太近。
+                                                     //    6.2/-0.90 是實測掃過 5 組後選的：六款的殼與錶帶都進得來又不會太小。
 let storyOn=true, storyDone=false, curCh=-1, heroP=0;   // storyDone＝故事捲到底過一次，之後不再重播
 const heroImgs=[];
 // Hero 影格是在紙色背景上算的 → 深色主題不要用，直接走即時 3D。
