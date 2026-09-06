@@ -1,0 +1,24 @@
+{
+  "products": 163,
+  "variants": 1199,
+  "unique_variant_ids": 1199,
+  "price_scale": 100,
+  "product_range_vs_variant_mismatches": [],
+  "missing_images_after_overrides": [],
+  "variant_images_not_in_own_product_gallery": [],
+  "accessory_variant_ids": [
+    69109906,
+    70332384
+  ],
+  "custom_request_variant_ids": [
+    77575450
+  ],
+  "default_title_variants_without_options": [
+    58899833,
+    58805235,
+    58805170,
+    54975611,
+    52851268
+  ],
+  "nondefault_option_arity_mismatches": []
+}

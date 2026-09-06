@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="探索 ICH 全部腕錶，依品牌、型號與搭配選擇，查看官網實拍及對應售價。">
+  <title>全部錶款 · ICHco 配錶筆記</title>
+  <link rel="stylesheet" href="assets/catalog.css?v=20260907">
+  <script src="assets/catalog.js?v=20260907" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#collection">跳至錶款</a>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="catalog.html" aria-label="ICHco 全部錶款"><span class="brand-mark" aria-hidden="true">I</span><span>ICHco<small>配錶筆記</small></span></a>
+    <nav aria-label="主要導覽"><a href="catalog.html" aria-current="page">全部錶款</a><a href="index.html">3D 配錶</a><a href="https://www.ichco.com.tw/collections/ich-watches" target="_blank" rel="noopener noreferrer">ICH 官網 ↗</a></nav>
+  </div></header>
+  <main class="page-shell">
+    <section class="catalog-hero" aria-labelledby="catalogTitle">
+      <div><p class="eyebrow">ICH WATCH COLLECTION</p><h1 id="catalogTitle">找到屬於你的<span>時間。</span></h1><p class="hero-intro">從一眼喜歡的外型，選到剛剛好的搭配。<br>每一款，都有自己的樣子與價格。</p></div>
+      <div class="hero-note"><span class="note-number" aria-hidden="true">01—</span><p>先選一支喜歡的錶，<br>再慢慢看它的細節。</p><a href="#collection">開始選錶 <span aria-hidden="true">↓</span></a></div>
+    </section>
+    <div class="collection-heading" id="collection"><div><p class="eyebrow">THE COLLECTION</p><h2>全部錶款</h2></div><p id="catalogStats" class="catalog-stats" aria-live="polite">正在整理錶款…</p></div>
+    <section class="filter-panel" aria-label="篩選錶款">
+      <div class="filter-fields">
+        <label class="search-field"><span>搜尋錶款</span><input id="catalogSearch" type="search" placeholder="品牌、系列或型號，例如 Samurai" autocomplete="off"></label>
+        <label><span>品牌</span><select id="brandFilter"><option value="all">全部品牌</option></select></label>
+        <label><span>系列類型</span><select id="typeFilter"><option value="all">全部系列</option><option value="custom">ICHco 客製系列</option><option value="brand">品牌錶款</option></select></label>
+        <label><span>排序</span><select id="sortOrder"><option value="featured">官網新上架順序</option><option value="price-asc">價格：由低到高</option><option value="price-desc">價格：由高到低</option><option value="name">名稱排序</option></select></label>
+      </div>
+      <div class="filter-bottom"><label class="check-label"><input id="favoritesOnly" type="checkbox">只看收藏系列</label><button id="resetFilters" type="button" class="text-button" hidden>清除篩選</button><p id="resultCount" aria-live="polite"></p></div>
+    </section>
+    <div id="loadingState" class="state-message" role="status">正在載入錶款…</div>
+    <div id="errorState" class="state-message" role="alert" hidden><h3>錶款資料暫時無法載入</h3><p>請稍後重試，或前往 ICH 官網查看。</p><button id="retryLoad" type="button" class="primary-button">重新載入</button></div>
+    <div id="emptyState" class="state-message" hidden><h3>還沒有符合的錶款</h3><p>試試其他品牌、型號，或清除篩選。</p></div>
+    <div id="productGrid" class="product-grid"></div>
+    <noscript><p class="state-message">請啟用 JavaScript 以瀏覽錶款，或<a href="https://www.ichco.com.tw/collections/ich-watches">前往 ICH 官網</a>。</p></noscript>
+    <aside class="workshop-note"><div><p class="eyebrow">MAKE IT YOURS</p><h2>想試試不同搭配？</h2><p>到 3D 工作台轉動手錶、試配零件，再把需求交給客服確認。</p></div><a class="secondary-button" href="index.html">進入 3D 配錶工作台 ↗</a></aside>
+  </main>
+  <footer class="site-footer"><a class="footer-brand" href="catalog.html">ICHco</a><p>實拍與商品資料來自 ICH 官網。<br>售價與庫存依官網當下資訊為準。</p><a href="#catalogTitle">回到頂端 ↑</a></footer>
+  <dialog id="productDialog" aria-labelledby="productTitle">
+    <div class="dialog-topbar"><span>ICHco <span class="topbar-divider">/</span> 款式筆記</span><button id="closeProduct" type="button" aria-label="關閉錶款">關閉 <span aria-hidden="true">×</span></button></div>
+    <div class="product-detail">
+      <div class="product-gallery"><div class="main-image-wrap"><img id="productImage" alt="官網手錶實拍"></div><p id="imageCaption" class="image-caption"></p><div id="imageThumbs" class="image-thumbs" aria-label="官網商品照片"></div></div>
+      <div class="product-content">
+        <p id="productBrand" class="eyebrow"></p><h2 id="productTitle"></h2>
+        <div class="detail-price"><strong id="productPrice"></strong><del id="comparePrice" hidden></del></div><p id="stockStatus" class="stock-status"></p>
+        <div class="detail-divider"></div><h3 class="small-heading">選擇你的搭配</h3><div id="variantOptions"></div><p id="variantNotice" class="variant-notice" hidden></p>
+        <div class="detail-actions"><a id="officialLink" class="primary-button" target="_blank" rel="noopener noreferrer">至官網查看與訂購 ↗</a><button id="saveProduct" class="secondary-button" type="button" aria-pressed="false">收藏系列</button></div>
+        <button id="copyProduct" class="copy-button" type="button">複製這款搭配給客服</button><div id="copyStatus" class="copy-status" role="status" aria-live="polite"></div>
+        <p id="customizeNote" class="detail-note"></p>
+        <section class="spec-section" aria-label="官網系列規格"><h3 class="small-heading">官網系列規格</h3><dl id="productSpecs"></dl></section>
+        <details class="description-details"><summary>官網款式說明</summary><div id="productDescription"></div></details>
+        <a id="previewLink" class="preview-link" hidden>開啟此系列 3D 搭配預覽 ↗</a><p class="preview-note">3D 為搭配示意，外觀以實拍為準。</p>
+        <p id="productSource" class="product-source"></p>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

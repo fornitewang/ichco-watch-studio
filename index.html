@@ -374,8 +374,9 @@ header{position:sticky; top:0; z-index:40;
       <path d="M32.5 20.4h2.2v3.2h-2.2"/><path d="M22 17.5V22l3 1.8"/>
     </svg>
     <b>ICHco</b><span class="hand">配錶筆記 · SeikoMod</span>
-    <span class="mono" style="font-size:10.5px;color:var(--ink-3);letter-spacing:.03em">build 08/30 23:42</span>
+    <span class="mono" style="font-size:10.5px;color:var(--ink-3);letter-spacing:.03em">3D WORKSHOP</span>
   </div>
+  <a class="ghost" href="catalog.html" style="text-decoration:none;color:var(--mint);font-weight:700">全部錶款與售價 ↗</a>
   <button class="ghost" id="resetBtn">回到預設</button>
 </div></header>
 
@@ -390,7 +391,7 @@ header{position:sticky; top:0; z-index:40;
     <div class="fallback" id="fallback">這台裝置的瀏覽器不支援 3D 顯示，請改用較新的 Chrome、Edge 或 Safari。</div>
     <div class="readout">
       <div class="sku" id="skuOut">NH35-SUB-BLKBK-STOYS</div>
-      <div class="price"><small>NT$</small><span id="priceOut">7,280</span></div>
+      <div class="price"><span id="priceOut" style="font-size:20px">搭配另詢價</span></div>
     </div>
   </div></div>
 
@@ -409,7 +410,8 @@ header{position:sticky; top:0; z-index:40;
           <span class="eyebrow">ICHco SeikoMod</span>
         </div>
         <h3>一支錶，<em>兩萬種</em>長法。</h3>
-        <p>往下捲，看它轉一圈。錶殼、錶圈、錶面、指針、錶帶 —— 每一個零件都可以換成你要的樣子。</p>
+        <p>往下捲，看它轉一圈。選擇配件，試看你喜歡的搭配。每款實際提供的選項、照片與售價，請先查看全部錶款。</p>
+        <a class="btn primary" href="catalog.html" style="margin-top:12px">瀏覽全部錶款與實拍 ↗</a>
       </div></section>
 
       <section class="chapter"><div class="card" data-ch="1">
@@ -511,8 +513,8 @@ header{position:sticky; top:0; z-index:40;
           <span class="eyebrow">06 換你了</span>
         </div>
         <h3>換你了。</h3>
-        <p>往下就是配置器。選完會自動產生 SKU 與參考價，一鍵複製規格，貼到 LINE 給客服就好。</p>
-        <div class="spec"><span>20,000+ 組合</span><span>自動 SKU</span></div>
+        <p>往下就是 3D 搭配預覽。選完可複製搭配需求，貼給客服確認是否能製作與實際報價。</p>
+        <div class="spec"><span>配件搭配預覽</span><span>可複製需求</span></div>
       </div></section>
     </div>
 
@@ -558,8 +560,9 @@ header{position:sticky; top:0; z-index:40;
         <button class="btn line" id="showBtn">看規格文字</button>
       </div>
       <textarea id="summary" hidden readonly aria-label="規格文字"></textarea>
-      <p class="note">錶款規格與可訂製配件以客服確認為準。<br>
-        <b>此處價格為搭配估算</b>，實際報價請將規格傳給客服確認。</p>
+      <p class="note">3D 用於搭配預覽，實際外觀請對照官網實拍。
+        <br>自由搭配的配件與報價請交由客服確認。</p>
+      <a class="btn line" id="seriesCatalogLink" href="catalog.html">查看此系列實拍、可選搭配與售價 ↗</a>
     </div>
   </div>
 </main>
@@ -644,8 +647,7 @@ function chipEl(o,on,swEl){
   b.setAttribute('aria-pressed',on);
   if(swEl) b.appendChild(swEl);
   const t=document.createElement('span'); t.textContent=o.name; b.appendChild(t);
-  if(o.add){const d=document.createElement('span'); d.className='dt';
-    d.textContent=(o.add>0?'+':'−')+nf(Math.abs(o.add)); b.appendChild(d);}
+  // Official variant prices live in catalog-data.json. Free-form previews have no invented surcharges.
   return b;
 }
 const sw=css=>{const s=document.createElement('span'); s.className='sw'; s.style.background=css; return s;};
@@ -657,7 +659,7 @@ function buildUI(){
     const b=document.createElement('button'); b.className='scard'; b.type='button';
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
-      `<span class="fr">${o.size}mm · ${o.wr} · NT$${nf(o.base)}</span>`;
+      `<span class="fr">${o.size}mm · ${o.wr} · 搭配預覽</span>`;
     b.onclick=()=>{const enteringMM=SERIES[i].code==='MM'&&S.series!==i; S.series=i; if(enteringMM) Object.assign(S,MM_PRESET); const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
@@ -3240,18 +3242,20 @@ function apply(){
   // 鏤空錶盤＝Seiko NH70 鏤空機芯（無日期、無計時）：規格表的機芯／功能與 SKU 前綴照 NH70 走（用戶 2026-09-04）
   const skel=!fixed&&dl.tex==='skeleton';
   const mvId=skel?'NH70':se.id, mvName=skel?'Seiko NH70 自動機械':se.mv, fnName=skel?'三針 · 鏤空':se.fn;
-  const price=fixed? se.base : se.base+mt.add+bz.add+dl.add+hs.add+lm.add+bd.add;
+  // A procedural combination is an inquiry, not an official priced variant.
+  const catalogSlugs={SUB:"ichco-nh35-series-customize",MM:"ichco-customize-seikomod-marinamilitare",PRO:"ichco-polar-prospector-customized-watch-",DAY:"ichco-daytona-series",ROY:"ichco-customize-seikomod-royal-chronograph",SAN:"ich-co-santos"};
+  $("seriesCatalogLink").href="catalog.html?product="+encodeURIComponent(catalogSlugs[se.code]);
   const sku=fixed? `${se.id}-${se.code}` : `${mvId}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
   const handName=se.code==='MM'&&hs.shape==='sword'?'直身夜光針':hs.name;
   const spec=fixed? se.spec : {metal:mt.name,bezel:se.code==='MM'?'消光黑 12 小時立體字圈':bz.name,dial:se.code==='MM'&&dl.code==='CB'?'黑色錘紋':dl.name,hands:handName+'（'+lm.name+'）',band:bd.name};
-  $('priceOut').textContent=nf(price); $('skuOut').textContent=sku;
+  $('priceOut').textContent='搭配另詢價'; $('skuOut').textContent=sku;
   $('pk-scene').textContent=sc.name;   $('pk-series').textContent=se.name;
   $('pk-metal').textContent=spec.metal;   $('pk-bezel').textContent=spec.bezel;
   $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(handName+' · '+lm.name);
   $('pk-band').textContent=spec.band;
   const rows=[['系列',se.name],['機芯',mvName],['功能',fnName],['錶徑',se.size+'mm'],
     ['防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
-    ['指針',spec.hands],['錶帶',spec.band],['SKU',sku],['參考價','NT$ '+nf(price)]];
+    ['指針',spec.hands],['錶帶',spec.band],['搭配代碼',sku],['報價','請依實際款式與配件確認']];
   const L=$('specList'); L.textContent='';
   rows.forEach(([k,v])=>{const dt=document.createElement('dt'); dt.textContent=k;
     const dd=document.createElement('dd'); dd.textContent=v; if(k==='SKU') dd.className='mono';
@@ -3446,7 +3450,17 @@ $('copyBtn').onclick=async()=>{
   catch(_){ const t=$('summary'); t.hidden=false; t.select(); }
   const to=$('toast'); to.classList.add('on'); setTimeout(()=>to.classList.remove('on'),2200);
 };
+// Open the matching existing workshop from an official catalog product.
+const catalogSeriesCode=new URLSearchParams(location.search).get('series');
+const catalogSeriesIndex=SERIES.findIndex(item=>item.code===catalogSeriesCode);
+if(catalogSeriesIndex>=0){
+  S.series=catalogSeriesIndex;
+  if(catalogSeriesCode==='MM')Object.assign(S,MM_PRESET);
+  const hd=(DIALSPEC[catalogSeriesCode]||{}).hands;if(hd!=null)S.hands=hd;
+  storyOn=false;storyDone=true;
+}
 if(ok){ init(); } else { $('fallback').style.display='grid'; apply(); }
+if(catalogSeriesIndex>=0)window.addEventListener('load',()=>{ $('configHead').scrollIntoView(); if(window.setArt)setArt(SERIES[S.series]); },{once:true});
 onScroll();
 setTimeout(onScroll,300);
 </script>

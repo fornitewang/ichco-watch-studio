@@ -39,3 +39,8 @@ git add -A && git commit -m "..." && git push
 - 外部只依賴 Google Fonts 與 cdnjs 的 three.js r134
 - `CylinderGeometry` 預設 `openEnded=false` 會自動加上下蓋，改 3D 零件時要注意，
   這個坑讓錶面和透底背蓋各被遮死過一次
+
+## 全部錶款目錄（2026-09-07）
+
+[瀏覽全錶款](https://fornitewang.github.io/ichco-watch-studio/catalog.html)：163 商品、16 品牌，依官方 1,196 個整錶搭配顯示照片與價格。
+原 `index.html` 保留 3D 工作台。資料來源、價格單位、配件排除與驗證記錄見 [CATALOG_REVIEW.md](docs/CATALOG_REVIEW.md)。

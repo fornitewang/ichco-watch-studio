@@ -1,0 +1,43 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "cards": 163
+    },
+    {
+      "width": 1440,
+      "dialogOverflow": false,
+      "nh35price": "NT$ 6,880",
+      "focus": "NH35-40mm-SWH"
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "cards": 163
+    },
+    {
+      "width": 390,
+      "dialogOverflow": false,
+      "nh35price": "NT$ 6,880",
+      "focus": "NH35-40mm-SWH"
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "cards": 163
+    },
+    {
+      "width": 320,
+      "dialogOverflow": false,
+      "nh35price": "NT$ 6,880",
+      "focus": "NH35-40mm-SWH"
+    },
+    {
+      "linkSeries": "MM",
+      "price": "搭配另詢價",
+      "catalogLink": "catalog.html?product=ichco-customize-seikomod-marinamilitare"
+    }
+  ],
+  "errors": []
+}

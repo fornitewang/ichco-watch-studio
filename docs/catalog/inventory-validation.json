@@ -1,0 +1,11 @@
+{
+  "allCountEquals292": true,
+  "allIdsUnique": true,
+  "watchCollectionCountEquals176": true,
+  "watchCollectionIdsUnique": true,
+  "inventoryCountEquals163": true,
+  "inventoryUrlsUnique": true,
+  "detailsCountEquals150": true,
+  "detailDescriptionsComplete": true,
+  "sitemapMatchesAll": true
+}
