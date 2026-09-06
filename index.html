@@ -1575,10 +1575,22 @@ function handShape(kind,len,w,isHour){
 
 let parts={};
 // 🔴 要遞迴：鏈節掛在 parts.loop 這個 Group 底下，只 pop 第一層等於整條錶帶每次重建都洩漏
+const DISPOSE_MAPS=['map','normalMap','roughnessMap','metalnessMap','alphaMap','emissiveMap',
+                    'aoMap','bumpMap','displacementMap','clearcoatNormalMap','specularMap','lightMap'];
 function clearGroup(g){
+  // 🔴 material.dispose() **不會**連帶釋放它的貼圖。錶盤／錶圈那幾張是 1024x1024 的 CanvasTexture，
+  //    每重建一次就漏一組，手機切幾輪選項就把顯示記憶體吃光 → 金屬全黑。
+  //    快取在 parts 上的共用貼圖要留著（下次重建還用同一張）；envMap 一律不碰（那是環境貼圖，不屬於這支錶）。
+  const keep=new Set();
+  for(const k in parts){ const v=parts[k]; if(v&&v.isTexture) keep.add(v); }
+  if(parts.cubeRT&&parts.cubeRT.texture) keep.add(parts.cubeRT.texture);
+  if(envRT) keep.add(envRT);
   g.traverse(function(o){ if(o===g) return;
     if(o.geometry) o.geometry.dispose();
-    if(o.material) (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){ m.dispose(); }); });
+    if(o.material) (Array.isArray(o.material)?o.material:[o.material]).forEach(function(m){
+      DISPOSE_MAPS.forEach(function(k){ const t=m[k];
+        if(t&&t.isTexture&&!keep.has(t)&&!(t.userData&&t.userData.keepTex)) t.dispose(); });
+      m.dispose(); }); });
   while(g.children.length) g.children.pop();
 }
 
@@ -2756,11 +2768,15 @@ function addLumeHalos(){ parts.lumeHalos=[]; if(!parts.lumeM) return;
       sp.scale.set(sc,sc,1); sp.position.copy(pos); sp.visible=show; o.add(sp); parts.lumeHalos.push(sp); } }); }
 function applyScene(){
   const sc=SCENES[S.scene];
-  if(envRT) envRT.dispose&&envRT.dispose();
+  // 🔴 只 dispose `envRT`（＝rt.texture）不夠，PMREM 的 WebGLRenderTarget 本體會留著：
+  //    每換一次情境光線就漏一個 render target。手機顯示記憶體有限，漏到一個程度之後
+  //    新的環境貼圖產不出來 → 金屬材質沒有反射可取樣 → 整支錶變黑（用戶 0906 手機實測）。
+  if(parts.envPMREM) parts.envPMREM.dispose();          // dispose RT 會連它的 texture 一起釋放
+  else if(envRT) envRT.dispose&&envRT.dispose();        // 舊路徑留著：第一次進來還沒有 envPMREM
   let rt;
   if(hdrTex){ const eq=tintHDR(hdrTex,sc); rt=pmrem.fromEquirectangular(eq); eq.dispose(); }
   else { const cube=envCube(sc); rt=pmrem.fromCubemap(cube); cube.dispose(); }
-  envRT=rt.texture; scene.environment=envRT;
+  parts.envPMREM=rt; envRT=rt.texture; scene.environment=envRT;
   // 🔴之前 fog 密度算成 sc.fog*22（0.13~1.1），等於把產品埋進色霧 → 整支錶變剪影。
   //   改成不打霧，情境改用「背景漸層＋環境貼圖＋光色＋粒子」表現。
   scene.fog=null;
