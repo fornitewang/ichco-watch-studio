@@ -1016,7 +1016,7 @@ function dialTexture(d,se){
   g.save(); g.translate(R,R);
   for(let i=0;i<60;i++){
     const maj=i%5===0;
-    g.rotate(Math.PI/30);
+    if(i>0) g.rotate(Math.PI/30);   // 🔴 原本先轉再畫，整圈分刻往順時針偏一分鐘（長刻不在整點、跑到時標旁邊）——用戶 0906 圈出
     g.strokeStyle=d.txt2; g.globalAlpha=maj?.85:.45;
     g.lineWidth=maj?SZ*0.0055:SZ*0.0026;
     g.beginPath(); g.moveTo(0,-R*0.955); g.lineTo(0,maj?-R*0.905:-R*0.925); g.stroke();
