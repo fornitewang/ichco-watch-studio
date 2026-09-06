@@ -1,0 +1,434 @@
+{
+  "checks": [
+    {
+      "name": "A09 missing unique photo not claimed exact",
+      "pass": true,
+      "detail": {
+        "scope": "unmatched",
+        "badge": "此搭配沒有獨立照片",
+        "caption": "此搭配沒有獨立照片，現顯示系列參考圖；請至官網確認外觀。所選：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1080,
+        "image": "91622854",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "A10 failed main photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "1360px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 117,
+        "y": 135,
+        "width": 551.359375,
+        "height": 581.5,
+        "top": 135,
+        "right": 668.359375,
+        "bottom": 716.5,
+        "left": 117
+      }
+    },
+    {
+      "name": "1360px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "390px failed photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "390px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 68,
+        "width": 354,
+        "height": 213,
+        "top": 68,
+        "right": 372,
+        "bottom": 281,
+        "left": 18
+      }
+    },
+    {
+      "name": "390px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "390px frame stable on recovery",
+      "pass": true,
+      "detail": {
+        "bad": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "restored": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        }
+      }
+    },
+    {
+      "name": "320px failed photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 284,
+          "height": 147,
+          "top": 68,
+          "right": 302,
+          "bottom": 215,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "320px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 68,
+        "width": 284,
+        "height": 147,
+        "top": 68,
+        "right": 302,
+        "bottom": 215,
+        "left": 18
+      }
+    },
+    {
+      "name": "320px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 284,
+          "height": 147,
+          "top": 68,
+          "right": 302,
+          "bottom": 215,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "320px frame stable on recovery",
+      "pass": true,
+      "detail": {
+        "bad": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "restored": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        }
+      }
+    },
+    {
+      "name": "Loading new image hides previous photo",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "照片載入中",
+        "caption": "官網對應款式：NH35-40mm-SBC",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SBC",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": false,
+        "naturalWidth": 0,
+        "image": "91622852",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "Held loading response recovers correct new photo",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SBC",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SBC",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622852",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "passed": 14,
+  "total": 14
+}

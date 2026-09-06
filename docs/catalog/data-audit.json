@@ -1,14 +1,23 @@
 {
   "products": 163,
-  "variants": 1199,
-  "unique_variant_ids": 1199,
+  "variants": 1194,
+  "unique_variant_ids": 1194,
   "price_scale": 100,
   "product_range_vs_variant_mismatches": [],
   "missing_images_after_overrides": [],
   "variant_images_not_in_own_product_gallery": [],
+  "nondefault_option_arity_mismatches": [],
+  "variant_price_mismatches": [],
+  "variant_compare_at_price_mismatches": [],
+  "variant_option_tuple_mismatches": [],
+  "variant_image_mapping_mismatches": [],
+  "shared_image_flag_mismatches": [],
+  "variant_availability_mismatches": [],
   "accessory_variant_ids": [
     69109906,
-    70332384
+    70332384,
+    71186538,
+    71186639
   ],
   "custom_request_variant_ids": [
     77575450
@@ -20,5 +29,1967 @@
     54975611,
     52851268
   ],
-  "nondefault_option_arity_mismatches": []
+  "checked_date": "2026-09-07",
+  "audit_status": "PASS",
+  "audit_scope": "Published catalogue data compared with the saved official source snapshot; image source mappings checked, not all variant appearances visually verified.",
+  "raw_source_products": 163,
+  "raw_source_variants": 1199,
+  "expected_filtered_watch_variants": 1194,
+  "catalogue_sha256": "07f776880b19d36386a842a4212196a3e6fa6d790115a67a4b9769a184af9b4b",
+  "official_snapshot_sha256": "ff429fb0c580b5dbf16229da13add924465902b089a747254a69dbceb1acdbd5",
+  "image_overrides_sha256": "8f321f7eb206c2ee72b4d7894dcb2771437b069a7f1d6869bbe4b616a4a939ef",
+  "missing_expected_variant_ids": [],
+  "unexpected_variant_ids": [],
+  "excluded_variant_ids_present_in_catalogue": [],
+  "checks_passed": {
+    "product_id_set_matches_official_watch_inventory": true,
+    "all_filtered_variant_ids_match": true,
+    "all_1194_prices_match_official_cents_divided_by_100": true,
+    "all_1194_option_tuples_match_official_after_trim": true,
+    "all_1194_image_mappings_match_official_or_documented_gallery_override": true,
+    "all_1194_images_belong_to_own_official_product_gallery": true,
+    "all_163_price_ranges_use_filtered_watch_variants": true,
+    "all_shared_image_flags_match_actual_duplicate_use": true
+  },
+  "image_source_counts": {
+    "official_variant": 1154,
+    "official_gallery_model_label": 31,
+    "official_gallery_visual_check": 9
+  },
+  "image_mapping_override_count": 40,
+  "shared_reference_variant_count": 162,
+  "shared_reference_product_count": 11,
+  "shared_reference_products": [
+    {
+      "product_id": 14146634,
+      "shared_reference_variant_count": 14,
+      "variant_count": 14
+    },
+    {
+      "product_id": 12754901,
+      "shared_reference_variant_count": 4,
+      "variant_count": 4
+    },
+    {
+      "product_id": 12754728,
+      "shared_reference_variant_count": 2,
+      "variant_count": 2
+    },
+    {
+      "product_id": 12754535,
+      "shared_reference_variant_count": 12,
+      "variant_count": 12
+    },
+    {
+      "product_id": 12754429,
+      "shared_reference_variant_count": 2,
+      "variant_count": 2
+    },
+    {
+      "product_id": 12733565,
+      "shared_reference_variant_count": 12,
+      "variant_count": 12
+    },
+    {
+      "product_id": 12728036,
+      "shared_reference_variant_count": 14,
+      "variant_count": 14
+    },
+    {
+      "product_id": 12344142,
+      "shared_reference_variant_count": 4,
+      "variant_count": 4
+    },
+    {
+      "product_id": 11469380,
+      "shared_reference_variant_count": 60,
+      "variant_count": 60
+    },
+    {
+      "product_id": 11448751,
+      "shared_reference_variant_count": 26,
+      "variant_count": 26
+    },
+    {
+      "product_id": 11447486,
+      "shared_reference_variant_count": 12,
+      "variant_count": 12
+    }
+  ],
+  "excluded_accessories": [
+    {
+      "product_id": 15197426,
+      "variant_id": 70332384,
+      "title": "選配真碳纖圈",
+      "official_price_raw_cents": 148000,
+      "price_twd": 1480.0
+    },
+    {
+      "product_id": 14542045,
+      "variant_id": 69109906,
+      "title": "Buckle",
+      "official_price_raw_cents": 45000,
+      "price_twd": 450.0
+    },
+    {
+      "product_id": 12733186,
+      "variant_id": 71186538,
+      "title": "活動價-單獨鋼錶帶",
+      "official_price_raw_cents": 88000,
+      "price_twd": 880.0
+    },
+    {
+      "product_id": 11463783,
+      "variant_id": 71186639,
+      "title": "活動價-單獨購買鋼錶帶",
+      "official_price_raw_cents": 138000,
+      "price_twd": 1380.0
+    }
+  ],
+  "excluded_custom_inquiries": [
+    {
+      "product_id": 15827664,
+      "variant_id": 77575450,
+      "title": "客製化選項",
+      "official_price_raw_cents": 728000,
+      "price_twd": 7280.0
+    }
+  ],
+  "retained_watch_variants_requiring_detail_confirmation": [
+    {
+      "product_id": 11578044,
+      "variant_id": 53420747,
+      "title": "備註款式+額外錶帶",
+      "official_price_raw_cents": 376000,
+      "price_twd": 3760.0
+    },
+    {
+      "product_id": 11448670,
+      "variant_id": 52853117,
+      "title": "其餘錶帶",
+      "official_price_raw_cents": 428000,
+      "price_twd": 4280.0
+    }
+  ],
+  "keyword_scan": {
+    "scanned_raw_variants": 1199,
+    "matched_variants": 171,
+    "matched_products": 24,
+    "standalone_accessories_confirmed": 4,
+    "custom_inquiries_confirmed": 1,
+    "retained_watch_bundles_needing_detail": 2
+  },
+  "classification_counts": {
+    "listed_model_or_bundle": 137,
+    "single_component_choice": 10,
+    "multi_option": 8,
+    "fixed_listing": 8
+  },
+  "raw_multi_field_products": 9,
+  "true_multi_option_products": 8,
+  "unlisted_cartesian_combinations_in_nautilus": 24,
+  "stale_declared_option_values_product_count": 7,
+  "stale_declared_option_value_count": 18,
+  "visual_verification": {
+    "all_1194_variant_appearances_individually_verified": false,
+    "status": "SOURCE_MAPPING_CHECKED",
+    "note": "An official variant image or gallery mapping is evidence of image provenance. Shared images are references and do not verify every dial, strap, movement or case combination. See separate visual-check records for the limited checks actually performed."
+  },
+  "product_results": [
+    {
+      "product_id": 17238599,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 7880.0,
+      "max_watch_price_twd": 7880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 17077557,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 7580.0,
+      "max_watch_price_twd": 7580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 16478346,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 30150.0,
+      "max_watch_price_twd": 30150.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 16406285,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 16386519,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 16324748,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 15827664,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 7280.0,
+      "max_watch_price_twd": 7280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 15490315,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 15197426,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 7580.0,
+      "max_watch_price_twd": 8680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 15077881,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 15014579,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14899749,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 6580.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14736368,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 8980.0,
+      "max_watch_price_twd": 8980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14718828,
+      "watch_variant_count": 21,
+      "min_watch_price_twd": 4980.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1,
+        "official_gallery_model_label": 20
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14542045,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 6880.0,
+      "max_watch_price_twd": 7580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14537942,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14301641,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 6980.0,
+      "max_watch_price_twd": 6980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14146634,
+      "watch_variant_count": 14,
+      "min_watch_price_twd": 4980.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 14
+      },
+      "shared_reference_variant_count": 14
+    },
+    {
+      "product_id": 14126257,
+      "watch_variant_count": 10,
+      "min_watch_price_twd": 6380.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 10
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14114637,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4980.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14076612,
+      "watch_variant_count": 10,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 10
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 14026170,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5380.0,
+      "max_watch_price_twd": 5380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13989623,
+      "watch_variant_count": 18,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 18
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13975445,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 6980.0,
+      "max_watch_price_twd": 6980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13753998,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13743668,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13696863,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 7280.0,
+      "max_watch_price_twd": 7280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13576837,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13510519,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13353177,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 6880.0,
+      "max_watch_price_twd": 6880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13227944,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13227855,
+      "watch_variant_count": 18,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 18
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13185149,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13094357,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13089799,
+      "watch_variant_count": 47,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 47
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13077200,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13035399,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 1880.0,
+      "max_watch_price_twd": 1880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 13033064,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12995203,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12934062,
+      "watch_variant_count": 14,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 14800.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 14
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12934044,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933997,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933981,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933951,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933938,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933854,
+      "watch_variant_count": 11,
+      "min_watch_price_twd": 11880.0,
+      "max_watch_price_twd": 11880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 11
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933808,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933784,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12933568,
+      "watch_variant_count": 16,
+      "min_watch_price_twd": 7880.0,
+      "max_watch_price_twd": 8480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 16
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12914773,
+      "watch_variant_count": 11,
+      "min_watch_price_twd": 7280.0,
+      "max_watch_price_twd": 8580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 11
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12894638,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 2880.0,
+      "max_watch_price_twd": 2880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882586,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882493,
+      "watch_variant_count": 11,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 11
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882434,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882392,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882297,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12882065,
+      "watch_variant_count": 25,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 25
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12881968,
+      "watch_variant_count": 15,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 15
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12881903,
+      "watch_variant_count": 7,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 7
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754901,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 3980.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 4
+    },
+    {
+      "product_id": 12754863,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 3880.0,
+      "max_watch_price_twd": 3880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754811,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754728,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 3380.0,
+      "max_watch_price_twd": 5580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 2
+    },
+    {
+      "product_id": 12754647,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754592,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 3880.0,
+      "max_watch_price_twd": 3880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754535,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 5380.0,
+      "max_watch_price_twd": 5780.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 12
+    },
+    {
+      "product_id": 12754429,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 2
+    },
+    {
+      "product_id": 12754362,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12754283,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 5580.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733667,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4480.0,
+      "max_watch_price_twd": 4480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733640,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 5380.0,
+      "max_watch_price_twd": 5380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733602,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733565,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 12
+    },
+    {
+      "product_id": 12733494,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 3980.0,
+      "max_watch_price_twd": 3980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733472,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733461,
+      "watch_variant_count": 7,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 7
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733408,
+      "watch_variant_count": 10,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 10
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733345,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733315,
+      "watch_variant_count": 7,
+      "min_watch_price_twd": 4780.0,
+      "max_watch_price_twd": 4780.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 7
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733186,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733151,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733114,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12733052,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12732602,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12732536,
+      "watch_variant_count": 13,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 13
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12732466,
+      "watch_variant_count": 17,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 5680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 17
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12732207,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12732127,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12731913,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12728757,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 6480.0,
+      "max_watch_price_twd": 6480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12728510,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12728221,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12728134,
+      "watch_variant_count": 13,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 13
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12728036,
+      "watch_variant_count": 14,
+      "min_watch_price_twd": 6500.0,
+      "max_watch_price_twd": 6500.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 14
+      },
+      "shared_reference_variant_count": 14
+    },
+    {
+      "product_id": 12727879,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12698653,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12563856,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1,
+        "official_gallery_model_label": 11
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12541638,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12513910,
+      "watch_variant_count": 26,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 26
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12358095,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12346996,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12346665,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12346611,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4980.0,
+      "max_watch_price_twd": 4980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12346575,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 6800.0,
+      "max_watch_price_twd": 6800.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12346553,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 6380.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12344142,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4780.0,
+      "max_watch_price_twd": 4780.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 4
+    },
+    {
+      "product_id": 12247919,
+      "watch_variant_count": 16,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 16
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12246648,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 12246542,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11885283,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 6480.0,
+      "max_watch_price_twd": 6480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11885163,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11884848,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 20800.0,
+      "max_watch_price_twd": 20800.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11884824,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 20000.0,
+      "max_watch_price_twd": 20000.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11884793,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11578044,
+      "watch_variant_count": 27,
+      "min_watch_price_twd": 3280.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 27
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11540754,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 6580.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11540687,
+      "watch_variant_count": 18,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 18
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11540487,
+      "watch_variant_count": 10,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 10
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11540377,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11540262,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11498180,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11498158,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 7880.0,
+      "max_watch_price_twd": 7880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11498115,
+      "watch_variant_count": 13,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 13
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11497902,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11497870,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 6580.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11497681,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 5980.0,
+      "max_watch_price_twd": 5980.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11477849,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 6880.0,
+      "max_watch_price_twd": 6880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11477812,
+      "watch_variant_count": 8,
+      "min_watch_price_twd": 7680.0,
+      "max_watch_price_twd": 7680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 8
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11477791,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11477662,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11470190,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11470132,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11470066,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11469993,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11469912,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 6580.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11469767,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11469718,
+      "watch_variant_count": 6,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 6
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11469380,
+      "watch_variant_count": 60,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 60
+      },
+      "shared_reference_variant_count": 60
+    },
+    {
+      "product_id": 11469090,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_gallery_visual_check": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11468985,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_gallery_visual_check": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11464529,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 3880.0,
+      "max_watch_price_twd": 3880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11464490,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 5880.0,
+      "max_watch_price_twd": 5880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11464401,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11464315,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11464102,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 4680.0,
+      "max_watch_price_twd": 4680.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11463971,
+      "watch_variant_count": 3,
+      "min_watch_price_twd": 3880.0,
+      "max_watch_price_twd": 3880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 3
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11463874,
+      "watch_variant_count": 9,
+      "min_watch_price_twd": 4380.0,
+      "max_watch_price_twd": 4380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 9
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11463783,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 6580.0,
+      "max_watch_price_twd": 6580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11463676,
+      "watch_variant_count": 9,
+      "min_watch_price_twd": 5480.0,
+      "max_watch_price_twd": 5480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 9
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11463123,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11462968,
+      "watch_variant_count": 17,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 5580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 17
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11462662,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11448751,
+      "watch_variant_count": 26,
+      "min_watch_price_twd": 6380.0,
+      "max_watch_price_twd": 6380.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 26
+      },
+      "shared_reference_variant_count": 26
+    },
+    {
+      "product_id": 11448670,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 4280.0,
+      "max_watch_price_twd": 4280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11448628,
+      "watch_variant_count": 5,
+      "min_watch_price_twd": 5580.0,
+      "max_watch_price_twd": 5580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 5
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11448596,
+      "watch_variant_count": 13,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 13
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11448384,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 3880.0,
+      "max_watch_price_twd": 3880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11447587,
+      "watch_variant_count": 21,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 21
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11447486,
+      "watch_variant_count": 12,
+      "min_watch_price_twd": 4580.0,
+      "max_watch_price_twd": 4580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 12
+      },
+      "shared_reference_variant_count": 12
+    },
+    {
+      "product_id": 11447341,
+      "watch_variant_count": 2,
+      "min_watch_price_twd": 4480.0,
+      "max_watch_price_twd": 4480.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 2
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11447238,
+      "watch_variant_count": 4,
+      "min_watch_price_twd": 5580.0,
+      "max_watch_price_twd": 5580.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 4
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11447072,
+      "watch_variant_count": 1,
+      "min_watch_price_twd": 4880.0,
+      "max_watch_price_twd": 4880.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 1
+      },
+      "shared_reference_variant_count": 0
+    },
+    {
+      "product_id": 11443145,
+      "watch_variant_count": 7,
+      "min_watch_price_twd": 5280.0,
+      "max_watch_price_twd": 5280.0,
+      "price_tuple_image_source_status": "PASS",
+      "image_source_counts": {
+        "official_variant": 7
+      },
+      "shared_reference_variant_count": 0
+    }
+  ]
 }

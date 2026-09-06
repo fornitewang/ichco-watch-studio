@@ -409,8 +409,8 @@ header{position:sticky; top:0; z-index:40;
           </svg>
           <span class="eyebrow">ICHco SeikoMod</span>
         </div>
-        <h3>一支錶，<em>兩萬種</em>長法。</h3>
-        <p>往下捲，看它轉一圈。選擇配件，試看你喜歡的搭配。每款實際提供的選項、照片與售價，請先查看全部錶款。</p>
+        <h3>先看外型，再確認<em>搭配</em>。</h3>
+        <p>這裡是系列外型示意。實際可選的款式與配件，請先查看商品頁；概念配色只用來表達想法。</p>
         <a class="btn primary" href="catalog.html" style="margin-top:12px">瀏覽全部錶款與實拍 ↗</a>
       </div></section>
 
@@ -527,7 +527,7 @@ header{position:sticky; top:0; z-index:40;
         <path d="M195.6 6.4 196.4 2h7.2l.8 4.4M195.6 19.6l.8 4.4h7.2l.8-4.4"/>
         <path d="M200 9.4V13l2.4 1.4"/>
       </svg>
-      <p class="lead">好了，換你把它配起來。</p>
+      <p class="lead">先選系列看外型，再到商品頁確認可選款式。</p>
     </div>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2.6M12 18.8v2.6M21.4 12h-2.6M5.2 12H2.6M18.6 5.4l-1.8 1.8M18.6 18.6l-1.8-1.8M5.4 18.6l1.8-1.8M5.4 5.4l1.8 1.8"/></svg>情境光線</h2><div class="pick" id="pk-scene"></div></div>
       <div class="chips" id="opt-scene"></div></section>
@@ -540,6 +540,12 @@ header{position:sticky; top:0; z-index:40;
           <a class="btn line" href="https://www.ichco.com.tw/products/ichco-customize-seikomod-marinamilitare" target="_blank" rel="noopener noreferrer">查看官網款式 ↗</a>
         </div>
       </div></section>
+    <section class="group" id="conceptScope">
+      <h2 style="font-size:16px;margin:0 0 10px">3D 外型示意</h2>
+      <p class="note">可訂購的搭配以各商品頁選項為準。這裡的模型與概念配色不代表該款能使用所有配件。</p>
+      <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer"><input id="conceptModeToggle" type="checkbox">開啟概念搭配（需另外確認）</label>
+      <p class="note" id="conceptModeNote" hidden>以下為希望嘗試的搭配。配件相容性、供貨、防水與報價，需依最終配置確認。</p>
+    </section>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6.2"/><path d="M8 7.6 6.6 3.4M16 7.6l1.4-4.2M8 16.4 6.6 20.6M16 16.4l1.4 4.2"/></svg>錶殼材質</h2><div class="pick" id="pk-metal"></div></div>
       <div class="chips" id="opt-metal"></div></section>
     <section class="group"><div class="ghead"><h2><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="5.2"/><path d="M12 3.6V2M20.4 12H22M12 20.4V22M3.6 12H2"/><circle cx="12" cy="1.4" r="1.2"/></svg>錶框</h2><div class="pick" id="pk-bezel"></div></div>
@@ -653,6 +659,13 @@ function chipEl(o,on,swEl){
 const sw=css=>{const s=document.createElement('span'); s.className='sw'; s.style.background=css; return s;};
 const hex=n=>'#'+n.toString(16).padStart(6,'0');
 
+let conceptMode=false;
+function resetSeriesPreview(){
+  const series=S.series,scene=S.scene;Object.assign(S,DEF,{series,scene});
+  if(SERIES[series].code==='MM')Object.assign(S,MM_PRESET);
+  const hd=(DIALSPEC[SERIES[series].code]||{}).hands;if(hd!=null)S.hands=hd;
+}
+$('conceptModeToggle').onchange=()=>{conceptMode=$('conceptModeToggle').checked;if(!conceptMode)resetSeriesPreview();apply();};
 function buildUI(){
   const sc=$('opt-series'); sc.textContent='';
   SERIES.forEach((o,i)=>{
@@ -660,7 +673,7 @@ function buildUI(){
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · 搭配預覽</span>`;
-    b.onclick=()=>{const enteringMM=SERIES[i].code==='MM'&&S.series!==i; S.series=i; if(enteringMM) Object.assign(S,MM_PRESET); const hd=(typeof DIALSPEC!=='undefined'&&DIALSPEC[SERIES[i].code]||{}).hands; if(hd!=null){ S.hands=hd; mk('opt-hands',HANDS,'hands'); } apply(); if(window.setArt) setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
+    b.onclick=()=>{S.series=i;conceptMode=false;resetSeriesPreview();apply();if(window.setArt)setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
@@ -674,16 +687,18 @@ function buildUI(){
   mk('opt-hands',HANDS.map(o=>SERIES[S.series].code==='MM'&&o.shape==='sword'?{...o,name:'直身夜光針'}:o),'hands');
   $('mmReferenceActions').hidden=SERIES[S.series].code!=='MM';
   $('mmModelLabel').textContent=DIAL[S.dial].tex==='skeleton'?'目前款式：NH70 鏤空搭配':'目前款式：NH38 開心款 · 9 點開窗';
-  $('mmPresetBtn').onclick=()=>{Object.assign(S,MM_PRESET);apply();};
+  $('mmPresetBtn').onclick=()=>{conceptMode=false;Object.assign(S,MM_PRESET);apply();};
   mk('opt-lume', LUME, 'lume', o=>sw(o.mat));
   mk('opt-band', BAND, 'band', o=>sw(o.type==='metal'
     ? `linear-gradient(180deg,#fff6,${hex(METAL[S.metal].base)} 45%,#0006)`
     : `linear-gradient(180deg,#ffffff22,${hex(o.col)})`));
   // 固定規格系列（Santos）：把客製選項整組收起來，只留情境與系列
   const fixed=!!SERIES[S.series].fixed;
+  $('conceptModeToggle').checked=conceptMode; $('conceptModeToggle').disabled=fixed;
+  $('conceptModeNote').hidden=!conceptMode||fixed;
   if($('chronoCtl')) $('chronoCtl').hidden=!SERIES[S.series].sub || DIAL[S.dial].tex==='skeleton';   // 三眼款才有計時按鈕；鏤空機芯（NH70）沒有計時功能→按鈕一併收起（用戶 2026-09-04）
   ['opt-metal','opt-bezel','opt-dial','opt-hands','opt-band'].forEach(function(id){
-    const sec=$(id)&&$(id).closest('section'); if(sec) sec.hidden=fixed; });
+    const sec=$(id)&&$(id).closest('section'); if(sec) sec.hidden=fixed||!conceptMode; });
 }
 
 /* ══ 3D ═══════════════════════════════════════════════════ */
@@ -3248,19 +3263,20 @@ function apply(){
   const sku=fixed? `${se.id}-${se.code}` : `${mvId}-${se.code}-${bz.code}${dl.code}-${mt.code}${bd.code}`;
   const handName=se.code==='MM'&&hs.shape==='sword'?'直身夜光針':hs.name;
   const spec=fixed? se.spec : {metal:mt.name,bezel:se.code==='MM'?'消光黑 12 小時立體字圈':bz.name,dial:se.code==='MM'&&dl.code==='CB'?'黑色錘紋':dl.name,hands:handName+'（'+lm.name+'）',band:bd.name};
-  $('priceOut').textContent='搭配另詢價'; $('skuOut').textContent=sku;
+  $('priceOut').textContent=conceptMode?'概念搭配 · 待確認':'系列外型示意'; $('skuOut').textContent=sku;
   $('pk-scene').textContent=sc.name;   $('pk-series').textContent=se.name;
   $('pk-metal').textContent=spec.metal;   $('pk-bezel').textContent=spec.bezel;
   $('pk-dial').textContent=spec.dial;     $('pk-hands').textContent=fixed?spec.hands:(handName+' · '+lm.name);
   $('pk-band').textContent=spec.band;
-  const rows=[['系列',se.name],['機芯',mvName],['功能',fnName],['錶徑',se.size+'mm'],
-    ['防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
-    ['指針',spec.hands],['錶帶',spec.band],['搭配代碼',sku],['報價','請依實際款式與配件確認']];
+  const rows=[['示意系列',se.name],['示意機芯',mvName],['示意功能',fnName],['系列參考尺寸',se.size+'mm'],
+    ['系列參考防水',se.wr],['錶殼',spec.metal],['錶框',spec.bezel],['錶面',spec.dial],
+    ['指針',spec.hands],['錶帶',spec.band],['預覽代碼',sku],['實際製作與報價','配件相容性、供貨、防水及售價均需確認']];
   const L=$('specList'); L.textContent='';
   rows.forEach(([k,v])=>{const dt=document.createElement('dt'); dt.textContent=k;
     const dd=document.createElement('dd'); dd.textContent=v; if(k==='SKU') dd.className='mono';
     L.appendChild(dt); L.appendChild(dd);});
-  $('summary').value='ICHco 客製錶詢價\n'+'─'.repeat(22)+'\n'
+  $('copyBtn').textContent=conceptMode?'複製概念需求（待確認）':'複製系列參考';
+  $('summary').value=(conceptMode?'ICHco 概念搭配需求（待確認）\n':'ICHco 系列外型參考（非完整商品配置）\n')+'─'.repeat(22)+'\n'
     +rows.map(([k,v])=>k.padEnd(4,'　')+'：'+v).join('\n')
     +'\n'+'─'.repeat(22)+'\n（此規格由客製錶工作台產生）';
 }
@@ -3441,7 +3457,7 @@ function pressPusher(i){ const p=parts.pushers&&parts.pushers[i]; if(p) p.userDa
 $('chStart').onclick=function(){ if(chrono.run){ chrono.acc=chronoElapsed(); chrono.run=false; } else { chrono.t0=performance.now(); chrono.run=true; }
   this.textContent=chrono.run?'■ 停止':'▶ 計時'; pressPusher(0); };
 $('chReset').onclick=function(){ chrono.acc=0; if(chrono.run) chrono.t0=performance.now(); pressPusher(1); };
-$('resetBtn').onclick=()=>{Object.assign(S,DEF); setBandFade(1); rotY=-0.50; rotX=-0.13; dist=7.8;
+$('resetBtn').onclick=()=>{conceptMode=false;Object.assign(S,DEF); setBandFade(1); rotY=-0.50; rotX=-0.13; dist=7.8;
   loopTwist=loopTwistV=loopSway=loopSwayV=0; apply();};
 $('showBtn').onclick=()=>{const t=$('summary'); t.hidden=!t.hidden;
   $('showBtn').textContent=t.hidden?'看規格文字':'收起規格文字';};

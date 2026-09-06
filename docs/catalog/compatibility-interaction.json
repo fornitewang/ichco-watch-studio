@@ -1,0 +1,230 @@
+{
+  "report": [
+    {
+      "name": "No silent option change 1440",
+      "passed": true
+    },
+    {
+      "name": "Copy disabled while incomplete 1440",
+      "passed": true
+    },
+    {
+      "name": "Partial state saved in URL 1440",
+      "passed": true
+    },
+    {
+      "name": "Reload preserves incomplete 1440",
+      "passed": true
+    },
+    {
+      "name": "Complete price restored 1440",
+      "passed": true
+    },
+    {
+      "name": "Shared photo label 1440",
+      "passed": true
+    },
+    {
+      "name": "Gallery explicitly separate 1440",
+      "passed": true
+    },
+    {
+      "name": "Gallery keeps selected price 1440",
+      "passed": true
+    },
+    {
+      "name": "Return selected photo 1440",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 1440",
+      "passed": true
+    },
+    {
+      "name": "No silent option change 390",
+      "passed": true
+    },
+    {
+      "name": "Copy disabled while incomplete 390",
+      "passed": true
+    },
+    {
+      "name": "Partial state saved in URL 390",
+      "passed": true
+    },
+    {
+      "name": "Reload preserves incomplete 390",
+      "passed": true
+    },
+    {
+      "name": "Complete price restored 390",
+      "passed": true
+    },
+    {
+      "name": "Shared photo label 390",
+      "passed": true
+    },
+    {
+      "name": "Gallery explicitly separate 390",
+      "passed": true
+    },
+    {
+      "name": "Gallery keeps selected price 390",
+      "passed": true
+    },
+    {
+      "name": "Return selected photo 390",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 390",
+      "passed": true
+    },
+    {
+      "name": "Independent mobile scroll 390",
+      "passed": true
+    },
+    {
+      "name": "Photo stays visible 390",
+      "passed": true
+    },
+    {
+      "name": "No silent option change 320",
+      "passed": true
+    },
+    {
+      "name": "Copy disabled while incomplete 320",
+      "passed": true
+    },
+    {
+      "name": "Partial state saved in URL 320",
+      "passed": true
+    },
+    {
+      "name": "Reload preserves incomplete 320",
+      "passed": true
+    },
+    {
+      "name": "Complete price restored 320",
+      "passed": true
+    },
+    {
+      "name": "Shared photo label 320",
+      "passed": true
+    },
+    {
+      "name": "Gallery explicitly separate 320",
+      "passed": true
+    },
+    {
+      "name": "Gallery keeps selected price 320",
+      "passed": true
+    },
+    {
+      "name": "Return selected photo 320",
+      "passed": true
+    },
+    {
+      "name": "No horizontal overflow 320",
+      "passed": true
+    },
+    {
+      "name": "Independent mobile scroll 320",
+      "passed": true
+    },
+    {
+      "name": "Photo stays visible 320",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 0",
+      "passed": true
+    },
+    {
+      "name": "Explicit concept mode opens parts 0",
+      "passed": true
+    },
+    {
+      "name": "Copy labels reference specs 0",
+      "passed": true
+    },
+    {
+      "name": "Leaving concept resets view 0",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 1",
+      "passed": true
+    },
+    {
+      "name": "Explicit concept mode opens parts 1",
+      "passed": true
+    },
+    {
+      "name": "Copy labels reference specs 1",
+      "passed": true
+    },
+    {
+      "name": "Leaving concept resets view 1",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 2",
+      "passed": true
+    },
+    {
+      "name": "Explicit concept mode opens parts 2",
+      "passed": true
+    },
+    {
+      "name": "Copy labels reference specs 2",
+      "passed": true
+    },
+    {
+      "name": "Leaving concept resets view 2",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 3",
+      "passed": true
+    },
+    {
+      "name": "Explicit concept mode opens parts 3",
+      "passed": true
+    },
+    {
+      "name": "Copy labels reference specs 3",
+      "passed": true
+    },
+    {
+      "name": "Leaving concept resets view 3",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 4",
+      "passed": true
+    },
+    {
+      "name": "Explicit concept mode opens parts 4",
+      "passed": true
+    },
+    {
+      "name": "Copy labels reference specs 4",
+      "passed": true
+    },
+    {
+      "name": "Leaving concept resets view 4",
+      "passed": true
+    },
+    {
+      "name": "Series preview hides free parts 5",
+      "passed": true
+    },
+    {
+      "name": "No JS errors",
+      "passed": true,
+      "detail": []
+    }
+  ],
+  "errors": []
+}

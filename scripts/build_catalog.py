@@ -19,8 +19,16 @@ byid={p['id']:p for p in raw}
 verified={p['id']:p for p in read('variants/custom-products-normalized.json')['products']}
 overrides=read('variants/variant-image-overrides.json')
 supplements=read('inventory/specs-supplement.json')
-excluded={69109906:'accessory',70332384:'accessory',77575450:'custom_request'}
+excluded={69109906:'accessory',70332384:'accessory',71186538:'accessory',71186639:'accessory',77575450:'custom_request'}
 previews={'ichco-nh35-series-customize':'SUB','ichco-customize-seikomod-marinamilitare':'MM','ichco-polar-prospector-customized-watch-':'PRO','ichco-daytona-series':'DAY','ichco-customize-seikomod-royal-chronograph':'ROY','ich-co-santos':'SAN'}
+def option_label(option):
+ name=option['name'].strip();key=name.lower()
+ if key in ['color','colors','tips color']:return '款式／配色'
+ if key=='type':return '款式'
+ if key=='set':return '套組'
+ if key=='watch strap':return '錶帶'
+ if key=='material':return '錶帶' if all('帶' in v for v in option['values']) else '機芯'
+ return name
 def local(image,thumb=False):
  key=str(image['id']);path='assets/catalog/images/'+key+('-t' if thumb else '')+'.webp'
  return path if (repo/path).exists() else image.get('src') or image['img_url']
@@ -58,7 +66,7 @@ for entry in inventory:
    omitted.append({'id':v['id'],'title':v['title'],'kind':excluded[v['id']],'price':v['price']/100});continue
   override=overrides.get(str(v['id']));im=ims[override['image_id']] if override else v.get('featured_image')
   assert im,(p['id'],v['id'],'missing image')
-  variants.append({'id':v['id'],'title':'標準款' if v['title'].strip().lower()=='default title' else v['title'].strip(),'sku':v.get('sku') or '', 'options':[str(o).strip() for o in v.get('options',[])], 'price':v['price']/100, 'compareAtPrice':(v.get('compare_at_price') or 0)/100, 'available':bool(v.get('available')),'imageId':int(im['id']),'imageSource':override['source'] if override else 'official_variant','sourceImage':im['src']})
+  variants.append({'id':v['id'],'title':'標準款' if v['title'].strip().lower()=='default title' else v['title'].strip(),'sku':v.get('sku') or '', 'options':[str(o).strip() for o in v.get('options',[])], 'price':v['price']/100, 'compareAtPrice':(v.get('compare_at_price') or 0)/100, 'available':bool(v.get('available')),'imageId':int(im['id']),'imageSource':override['source'] if override else 'official_variant','sourceImage':im['src'],'requiresClarification':v['id'] in [53420747,52853117]})
  title=p['title'].strip()
  display=re.sub(r'^(?:瑞士|美國|日本|英國|德國)\s*','',title)
  display=re.sub(r'^(?:ICH\s*\.?\s*CO|ICHCO|ICHco)\s*[-–]?\s*','',display,flags=re.I)
@@ -70,11 +78,11 @@ for entry in inventory:
  if any(x['kind']=='custom_request' for x in omitted):note+=' 官網另有「客製化選項」洽詢服務，具體搭配與售價需另行確認。'
  photoCounts=Counter(v['imageId'] for v in variants)
  for v in variants:v['sharedImage']=photoCounts[v['imageId']]>1
- products.append({'id':p['id'],'slug':p['handle'],'title':title,'displayName':display,'brand':entry['brand'],'kind':kind,'officialUrl':p['share_url'],'cover':local(p['featured_image'],True),'coverSource':p['featured_image']['src'],'options':[{'name':o['name'],'values':[str(x).strip() for x in o['values']]} for o in p['options_with_values']],'variants':variants,'images':[{'id':key,'src':local(im),'thumb':local(im,True),'source':im.get('src') or im['img_url'],'alt':im.get('alt') or ''} for key,im in ims.items()],'specs':specs,'descriptionLines':lines,'descriptionImages':supplement.get('descriptionImages',[]),'specImageSource':(vproof.get('verified_image_specs') or {}).get('source') if vproof else None,'customizeNote':note,'accessoryCount':sum(x['kind']=='accessory' for x in omitted),'excludedOptions':omitted,'previewSeries':previews.get(p['handle'])})
+ products.append({'id':p['id'],'slug':p['handle'],'title':title,'displayName':display,'brand':entry['brand'],'kind':kind,'officialUrl':p['share_url'],'cover':local(p['featured_image'],True),'coverSource':p['featured_image']['src'],'options':[{'name':option_label(o),'sourceName':o['name'],'values':[str(x).strip() for x in o['values']]} for o in p['options_with_values']],'variants':variants,'images':[{'id':key,'src':local(im),'thumb':local(im,True),'source':im.get('src') or im['img_url'],'alt':im.get('alt') or ''} for key,im in ims.items()],'specs':specs,'descriptionLines':lines,'descriptionImages':supplement.get('descriptionImages',[]),'specImageSource':(vproof.get('verified_image_specs') or {}).get('source') if vproof else None,'customizeNote':note,'accessoryCount':sum(x['kind']=='accessory' for x in omitted),'excludedOptions':omitted,'previewSeries':previews.get(p['handle']),'previewVariantIds':[67164557] if p['handle']=='ichco-customize-seikomod-marinamilitare' else []})
 assert len(products)==163
-assert sum(len(p['variants']) for p in products)==1196
+assert sum(len(p['variants']) for p in products)==1194
 assert len({p['slug'] for p in products})==163
-assert len({v['id'] for p in products for v in p['variants']})==1196
+assert len({v['id'] for p in products for v in p['variants']})==1194
 for p in products:
  assert all(v['price']>0 and v['imageId'] in {im['id'] for im in p['images']} for v in p['variants'])
  assert len({tuple(v['options']) for v in p['variants']})==len(p['variants']),(p['slug'],'duplicate choices')

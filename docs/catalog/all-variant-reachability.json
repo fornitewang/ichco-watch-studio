@@ -1,0 +1,7 @@
+{
+  "case": "A17",
+  "total": 1194,
+  "passed": 1194,
+  "failed": [],
+  "method": "Exact new reconciliation algorithm, targets selected by ascending option index. Fixed one-value fields are skipped like the UI."
+}

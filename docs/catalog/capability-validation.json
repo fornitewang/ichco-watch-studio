@@ -1,0 +1,11 @@
+{
+  "all163ProductsCovered": true,
+  "all1199VariantsPartitionedOnce": true,
+  "allPricesEqualSnapshot": true,
+  "allOptionVectorsEqualSnapshotAfterTrim": true,
+  "allUnlistedCombinationsAbsentFromVariants": true,
+  "watchVariants1194": true,
+  "explicitAccessories4": true,
+  "customInquiry1": true,
+  "retainedNeedsClarification2": true
+}

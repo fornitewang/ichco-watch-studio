@@ -1,0 +1,827 @@
+{
+  "checks": [
+    {
+      "name": "A01 MM exact variant changes all fields",
+      "pass": true,
+      "detail": {
+        "a": {
+          "price": "NT$ 6,880",
+          "title": "已選：NH35-40mm-SWH",
+          "notice": "",
+          "scope": "selected",
+          "caption": "官網對應款式：NH35-40mm-SWH",
+          "stock": "官網標示可訂購",
+          "image": "91622857",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=ichco-customize-seikomod-marinamilitare&variant=67164558",
+          "focus": null
+        },
+        "b": {
+          "price": "NT$ 7,580",
+          "title": "已選：NH38-42mm-SBGOLF",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "selected",
+          "caption": "官網對應款式：NH38-42mm-SBGOLF",
+          "stock": "官網標示可訂購",
+          "image": "91622854",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=ichco-customize-seikomod-marinamilitare&variant=67164557",
+          "focus": "NH38-42mm-SBGOLF"
+        }
+      }
+    },
+    {
+      "name": "A02 valid downstream choices preserved",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 6,580",
+        "title": "已選：ST-BLU, 日本星辰Miyota機械, 加購-白線棕底皮錶帶",
+        "notice": "已更新所選款式；照片與售價同步更新。",
+        "scope": "shared",
+        "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：ST-BLU, 日本星辰Miyota機械, 加購-白線棕底皮錶帶",
+        "stock": "官網標示可訂購",
+        "image": "89174548",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&variant=65719053",
+        "focus": "ST-BLU"
+      }
+    },
+    {
+      "name": "A03 invalid downstream clears without replacement",
+      "pass": true,
+      "detail": {
+        "price": "請先完成選擇",
+        "title": "待選：機芯、錶帶選擇",
+        "notice": "新選項沒有原先的對應組合，請重新選擇：機芯、錶帶選擇。",
+        "scope": "incomplete",
+        "caption": "請先完成下方選項；這張照片只供查看型號外觀。",
+        "stock": "選項尚未完成",
+        "image": "90414843",
+        "copyDisabled": true,
+        "requestDisabled": true,
+        "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&choices=%5B%22WK-ST-SBLU%28Quartz%29%22%2Cnull%2Cnull%5D",
+        "focus": "WK-ST-SBLU(Quartz)"
+      }
+    },
+    {
+      "name": "A11 incomplete state survives URL reload",
+      "pass": true,
+      "detail": {
+        "price": "請先完成選擇",
+        "title": "待選：機芯、錶帶選擇",
+        "notice": "請選擇：機芯、錶帶選擇",
+        "scope": "incomplete",
+        "caption": "請先完成下方選項；這張照片只供查看型號外觀。",
+        "stock": "選項尚未完成",
+        "image": "90414843",
+        "copyDisabled": true,
+        "requestDisabled": true,
+        "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&choices=%5B%22WK-ST-SBLU%28Quartz%29%22%2Cnull%2Cnull%5D",
+        "focus": null
+      }
+    },
+    {
+      "name": "A05 unlisted distinct visible state",
+      "pass": true,
+      "detail": "日本星辰Miyota機械\n未列此組合"
+    },
+    {
+      "name": "A03 resolved exact target after explicit selections",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 5,580",
+        "title": "已選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+        "notice": "已更新所選款式；照片與售價同步更新。",
+        "scope": "shared",
+        "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+        "stock": "官網標示可訂購",
+        "image": "90414843",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&variant=66429309",
+        "focus": "加購-白線棕底皮錶帶"
+      }
+    },
+    {
+      "name": "A12 complete deep link exact variant",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "A06 shared photo three correct totals",
+      "pass": true,
+      "detail": [
+        {
+          "price": "NT$ 4,280",
+          "title": "已選：黑圈GMT款, 原裝鋼帶",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "shared",
+          "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：黑圈GMT款, 原裝鋼帶",
+          "stock": "官網標示可訂購",
+          "image": "78533449",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805075",
+          "focus": "原裝鋼帶"
+        },
+        {
+          "price": "NT$ 4,880",
+          "title": "已選：黑圈GMT款, 加購專用膠帶",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "shared",
+          "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：黑圈GMT款, 加購專用膠帶",
+          "stock": "官網標示可訂購",
+          "image": "78533449",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805076",
+          "focus": "加購專用膠帶"
+        },
+        {
+          "price": "NT$ 4,580",
+          "title": "已選：黑圈GMT款, 五銖鋼帶",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "shared",
+          "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：黑圈GMT款, 五銖鋼帶",
+          "stock": "官網標示可訂購",
+          "image": "78533449",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077",
+          "focus": "五銖鋼帶"
+        }
+      ]
+    },
+    {
+      "name": "A07 gallery keeps exact selection and marks browse",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 4,580",
+        "title": "已選：黑圈GMT款, 五銖鋼帶",
+        "notice": "已更新所選款式；照片與售價同步更新。",
+        "scope": "gallery",
+        "caption": "正在查看系列相簿；這張照片不代表目前所選搭配，下方選項與售價尚未更改。",
+        "stock": "官網標示可訂購",
+        "image": "78533441",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077",
+        "focus": null
+      }
+    },
+    {
+      "name": "A07 return selected photo",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 4,580",
+        "title": "已選：黑圈GMT款, 五銖鋼帶",
+        "notice": "已更新所選款式；照片與售價同步更新。",
+        "scope": "shared",
+        "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：黑圈GMT款, 五銖鋼帶",
+        "stock": "官網標示可訂購",
+        "image": "78533449",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077",
+        "focus": null
+      }
+    },
+    {
+      "name": "A08 no implicit photo-to-product selection",
+      "pass": true,
+      "detail": "One-click select photo feature intentionally absent; gallery browsing is explicit and does not alter variants."
+    },
+    {
+      "name": "Extra request clipboard excludes additions from base price",
+      "pass": true,
+      "detail": "ICHco 額外變更需求（待確認）\r\nPARNIS - Submariner\r\n已選完整配置：黑圈GMT款, 五銖鋼帶\r\n官網整錶售價：NT$ 4,580（不含下列額外需求）\r\n希望變更：希望換成紅色皮錶帶，請確認是否適用。\r\n請確認是否適用、能否製作、供貨及最終報價。\r\n資料核對：2026-09-07\r\nhttps://www.ichco.com.tw/products/parnis-submariner\r\n款式連結：http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077"
+    },
+    {
+      "name": "Official variant clipboard does not silently include extras",
+      "pass": true,
+      "detail": "ICHco 官網款式詢問\r\nPARNIS - Submariner\r\n已選完整配置：黑圈GMT款, 五銖鋼帶\r\n官網整錶售價：NT$ 4,580\r\n資料核對：2026-09-07\r\nhttps://www.ichco.com.tw/products/parnis-submariner\r\n款式連結：http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077"
+    },
+    {
+      "name": "Single model has no interchangeable option button",
+      "pass": true,
+      "detail": {
+        "badge": "官網單一款式",
+        "fixed": "型號\n\nHB1513758（官網此欄僅一種）"
+      }
+    },
+    {
+      "name": "Fixed movement is text not interchangeable button",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "A04 soldout exact variant kept",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 4,880",
+        "title": "已選：黑圈GMT款, 加購專用膠帶",
+        "notice": "",
+        "scope": "shared",
+        "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：黑圈GMT款, 加購專用膠帶",
+        "stock": "官網標示售完，可向客服詢問",
+        "image": "78533449",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805076",
+        "focus": null
+      }
+    },
+    {
+      "name": "Soldout is selectable, not incompatible",
+      "pass": true,
+      "detail": "加購專用膠帶\n官網標示售完"
+    },
+    {
+      "name": "A09 missing unique photo not claimed exact",
+      "pass": true,
+      "detail": {
+        "scope": "unmatched",
+        "badge": "此搭配沒有獨立照片",
+        "caption": "此搭配沒有獨立照片，現顯示系列參考圖；請至官網確認外觀。所選：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1080,
+        "image": "91622854",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "A10 failed main photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "A13 accessories not masquerading as watches",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "Unknown listed configuration needs clarification",
+      "pass": true,
+      "detail": {
+        "price": "NT$ 4,280",
+        "title": "已選：其餘錶帶",
+        "notice": "",
+        "scope": "selected",
+        "caption": "官網對應款式：其餘錶帶",
+        "stock": "此選項需要補充款式或錶帶內容，請先詢問客服。",
+        "image": "69311806",
+        "copyDisabled": false,
+        "requestDisabled": false,
+        "url": "http://127.0.0.1:8791/catalog.html?product=%E7%91%9E%E5%A3%ABparnis-flieger11&variant=52853117",
+        "focus": null
+      }
+    },
+    {
+      "name": "A14 40mm white MM is not sent to black preset",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "A14 mapped MM reference can enter series preview",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "3D defaults hide editable parts",
+      "pass": true,
+      "detail": {
+        "concept": false,
+        "checked": false,
+        "hidden": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "summary": "ICHco 系列外型參考（非完整商品配置）\n──────────────────────\n示意系列：義大利海軍\n示意機芯：Seiko NH38 自動機械\n示意功能：三針 · 透視機芯\n系列參考尺寸：42mm\n系列參考防水：100m\n錶殼　　：316L 不鏽鋼\n錶框　　：消光黑 12 小時立體字圈\n錶面　　：黑色錘紋\n指針　　：直身夜光針（C3 夜光綠）\n錶帶　　：黑壓紋皮帶\n預覽代碼：NH38-MM-BLKCB-STBLK\n實際製作與報價：配件相容性、供貨、防水及售價均需確認\n──────────────────────\n（此規格由客製錶工作台產生）"
+      }
+    },
+    {
+      "name": "A15 explicit concept mode outputs unconfirmed request",
+      "pass": true,
+      "detail": "ICHco 概念搭配需求（待確認）\r\n──────────────────────\r\n示意系列：義大利海軍\r\n示意機芯：Seiko NH70 自動機械\r\n示意功能：三針 · 鏤空\r\n系列參考尺寸：42mm\r\n系列參考防水：100m\r\n錶殼　　：316L 不鏽鋼\r\n錶框　　：消光黑 12 小時立體字圈\r\n錶面　　：鏤空機芯\r\n指針　　：直身夜光針（C3 夜光綠）\r\n錶帶　　：黑壓紋皮帶\r\n預覽代碼：NH70-MM-BLKSK-STBLK\r\n實際製作與報價：配件相容性、供貨、防水及售價均需確認\r\n──────────────────────\r\n（此規格由客製錶工作台產生）"
+    },
+    {
+      "name": "3D switching series clears concept mode",
+      "pass": true,
+      "detail": {
+        "concept": false,
+        "series": 2,
+        "checked": false,
+        "dial": 0,
+        "hidden": true
+      }
+    },
+    {
+      "name": "A16 320px dependent options and fixed photo",
+      "pass": true,
+      "detail": {
+        "a": {
+          "price": "請先完成選擇",
+          "title": "待選：機芯、錶帶選擇",
+          "notice": "新選項沒有原先的對應組合，請重新選擇：機芯、錶帶選擇。",
+          "scope": "incomplete",
+          "caption": "請先完成下方選項；這張照片只供查看型號外觀。",
+          "stock": "選項尚未完成",
+          "image": "90414843",
+          "copyDisabled": true,
+          "requestDisabled": true,
+          "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&choices=%5B%22WK-ST-SBLU%28Quartz%29%22%2Cnull%2Cnull%5D",
+          "focus": "WK-ST-SBLU(Quartz)"
+        },
+        "b": {
+          "price": "NT$ 5,580",
+          "title": "已選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "shared",
+          "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+          "stock": "官網標示可訂購",
+          "image": "90414843",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&variant=66429309",
+          "focus": "加購-白線棕底皮錶帶"
+        },
+        "width": {
+          "sw": 320,
+          "cw": 320
+        },
+        "photo": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 211
+        }
+      }
+    },
+    {
+      "name": "A16 390px dependent options and fixed photo",
+      "pass": true,
+      "detail": {
+        "a": {
+          "price": "請先完成選擇",
+          "title": "待選：機芯、錶帶選擇",
+          "notice": "新選項沒有原先的對應組合，請重新選擇：機芯、錶帶選擇。",
+          "scope": "incomplete",
+          "caption": "請先完成下方選項；這張照片只供查看型號外觀。",
+          "stock": "選項尚未完成",
+          "image": "90414843",
+          "copyDisabled": true,
+          "requestDisabled": true,
+          "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&choices=%5B%22WK-ST-SBLU%28Quartz%29%22%2Cnull%2Cnull%5D",
+          "focus": "WK-ST-SBLU(Quartz)"
+        },
+        "b": {
+          "price": "NT$ 5,580",
+          "title": "已選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+          "notice": "已更新所選款式；照片與售價同步更新。",
+          "scope": "shared",
+          "caption": "多種配置共用此照片，未呈現所有錶帶／加購差異。所選：WK-ST-SBLU(Quartz), 日製石英, 加購-白線棕底皮錶帶",
+          "stock": "官網標示可訂購",
+          "image": "90414843",
+          "copyDisabled": false,
+          "requestDisabled": false,
+          "url": "http://127.0.0.1:8791/catalog.html?product=didun-nautilus-classic&variant=66429309",
+          "focus": "加購-白線棕底皮錶帶"
+        },
+        "width": {
+          "sw": 390,
+          "cw": 390
+        },
+        "photo": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211
+        }
+      }
+    },
+    {
+      "name": "1360px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 117,
+        "y": 135,
+        "width": 551.359375,
+        "height": 581.5,
+        "top": 135,
+        "right": 668.359375,
+        "bottom": 716.5,
+        "left": 117
+      }
+    },
+    {
+      "name": "1360px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 118,
+          "y": 136,
+          "width": 549.359375,
+          "height": 579.5,
+          "top": 136,
+          "right": 667.359375,
+          "bottom": 715.5,
+          "left": 118
+        },
+        "frame": {
+          "x": 117,
+          "y": 135,
+          "width": 551.359375,
+          "height": 581.5,
+          "top": 135,
+          "right": 668.359375,
+          "bottom": 716.5,
+          "left": 117
+        }
+      }
+    },
+    {
+      "name": "390px failed photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "390px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 68,
+        "width": 354,
+        "height": 213,
+        "top": 68,
+        "right": 372,
+        "bottom": 281,
+        "left": 18
+      }
+    },
+    {
+      "name": "390px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "390px frame stable on recovery",
+      "pass": true,
+      "detail": {
+        "bad": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "restored": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        }
+      }
+    },
+    {
+      "name": "320px failed photo visible status",
+      "pass": true,
+      "detail": {
+        "scope": "unavailable",
+        "badge": "照片暫時無法載入",
+        "caption": "照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。",
+        "price": "NT$ 7,580",
+        "title": "已選：NH38-42mm-SBGOLF",
+        "placeholder": "照片暫時無法載入，請至官網查看外觀。",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": true,
+        "naturalWidth": 0,
+        "image": "91622854",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 284,
+          "height": 147,
+          "top": 68,
+          "right": 302,
+          "bottom": 215,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "320px failed main image keeps frame",
+      "pass": true,
+      "detail": {
+        "x": 18,
+        "y": 68,
+        "width": 284,
+        "height": 147,
+        "top": 68,
+        "right": 302,
+        "bottom": 215,
+        "left": 18
+      }
+    },
+    {
+      "name": "320px error then valid variant recovers",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SWH",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SWH",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622857",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 284,
+          "height": 147,
+          "top": 68,
+          "right": 302,
+          "bottom": 215,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "320px frame stable on recovery",
+      "pass": true,
+      "detail": {
+        "bad": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        },
+        "restored": {
+          "x": 19,
+          "y": 69,
+          "width": 282,
+          "height": 145,
+          "top": 69,
+          "right": 301,
+          "bottom": 214,
+          "left": 19
+        }
+      }
+    },
+    {
+      "name": "Loading new image hides previous photo",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "照片載入中",
+        "caption": "官網對應款式：NH35-40mm-SBC",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SBC",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": false,
+        "opacity": "0",
+        "complete": false,
+        "naturalWidth": 0,
+        "image": "91622852",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    },
+    {
+      "name": "Held loading response recovers correct new photo",
+      "pass": true,
+      "detail": {
+        "scope": "selected",
+        "badge": "所選款式照片",
+        "caption": "官網對應款式：NH35-40mm-SBC",
+        "price": "NT$ 6,880",
+        "title": "已選：NH35-40mm-SBC",
+        "placeholder": "正在載入官網照片…",
+        "placeholderHidden": true,
+        "opacity": "1",
+        "complete": true,
+        "naturalWidth": 1400,
+        "image": "91622852",
+        "rect": {
+          "x": 19,
+          "y": 69,
+          "width": 352,
+          "height": 211,
+          "top": 69,
+          "right": 371,
+          "bottom": 280,
+          "left": 19
+        },
+        "frame": {
+          "x": 18,
+          "y": 68,
+          "width": 354,
+          "height": 213,
+          "top": 68,
+          "right": 372,
+          "bottom": 281,
+          "left": 18
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "clipboard": {
+    "extra_request": "ICHco 額外變更需求（待確認）\r\nPARNIS - Submariner\r\n已選完整配置：黑圈GMT款, 五銖鋼帶\r\n官網整錶售價：NT$ 4,580（不含下列額外需求）\r\n希望變更：希望換成紅色皮錶帶，請確認是否適用。\r\n請確認是否適用、能否製作、供貨及最終報價。\r\n資料核對：2026-09-07\r\nhttps://www.ichco.com.tw/products/parnis-submariner\r\n款式連結：http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077",
+    "official_variant": "ICHco 官網款式詢問\r\nPARNIS - Submariner\r\n已選完整配置：黑圈GMT款, 五銖鋼帶\r\n官網整錶售價：NT$ 4,580\r\n資料核對：2026-09-07\r\nhttps://www.ichco.com.tw/products/parnis-submariner\r\n款式連結：http://127.0.0.1:8791/catalog.html?product=parnis-submariner&variant=58805077",
+    "concept": "ICHco 概念搭配需求（待確認）\r\n──────────────────────\r\n示意系列：義大利海軍\r\n示意機芯：Seiko NH70 自動機械\r\n示意功能：三針 · 鏤空\r\n系列參考尺寸：42mm\r\n系列參考防水：100m\r\n錶殼　　：316L 不鏽鋼\r\n錶框　　：消光黑 12 小時立體字圈\r\n錶面　　：鏤空機芯\r\n指針　　：直身夜光針（C3 夜光綠）\r\n錶帶　　：黑壓紋皮帶\r\n預覽代碼：NH70-MM-BLKSK-STBLK\r\n實際製作與報價：配件相容性、供貨、防水及售價均需確認\r\n──────────────────────\r\n（此規格由客製錶工作台產生）"
+  },
+  "passed": 40,
+  "total": 40,
+  "photo_retest": "Missing match, forced HTTP 404, recovery, 320/390 frame stability, delayed-image opacity checked on latest source."
+}

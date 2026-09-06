@@ -18,6 +18,10 @@ Confirmed stand-alone accessory variants embedded within a watch product:
 |---|---|---|---:|
 | 69109906 | MarinaMilitare | Buckle | NT$450 |
 | 70332384 | Carbon Tattoo | 選配真碳纖圈 | NT$1,480 |
+| 71186538 | Pagani PD-1661 | 活動價-單獨鋼錶帶 | NT$880 |
+| 71186639 | Pagani PD-1651 | 活動價-單獨購買鋼錶帶 | NT$1,380 |
+
+Full audit correction: 1,199 raw variants minus four accessories and one enquiry leaves 1,194 complete-watch configurations. The two Pagani strap-only variants were missed in the initial two-accessory audit; this supersedes that count.
 
 Exclude these from the parent complete-watch minimum/maximum prices. They may remain in a separately labeled accessory area. Adding the carbon bezel to a watch is not an officially published complete variant, so do not invent fitment or installation price.
 
