@@ -926,7 +926,7 @@ function dialTexture(d,se){
   g.fillStyle=grd; g.beginPath(); g.arc(R,R,R,0,7); g.fill();
 
   if((DIALSPEC[se.code]||{}).tapisserie && d.tex!=='skeleton'){   // 皇家計時實品：格紋面（Grande Tapisserie）——方格截角錐，左上受光、右下落影
-    const N=30, cs=SZ/N; g.save(); g.beginPath(); g.arc(R,R,R,0,7); g.clip();
+    const N=30, cs=SZ/N; g.save(); g.beginPath(); g.arc(R,R,R*0.885,0,7); g.clip();   // 實品格紋只到內圈，外圈分刻軌是平的（QC T1 也才量得到分刻）
     for(let iy=0;iy<N;iy++) for(let ix=0;ix<N;ix++){ const x0=ix*cs, y0=iy*cs;
       g.fillStyle='rgba(255,255,255,.10)'; g.fillRect(x0+cs*0.16,y0+cs*0.16,cs*0.68,cs*0.68);          // 台面略亮
       g.fillStyle='rgba(255,255,255,.22)'; g.fillRect(x0,y0,cs,cs*0.16); g.fillRect(x0,y0,cs*0.16,cs);   // 上、左斜面受光
