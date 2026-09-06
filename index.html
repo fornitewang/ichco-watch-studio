@@ -1575,6 +1575,8 @@ function clearGroup(g){
    照 ICH.CO Santos 實品照片做：圓角方形錶殼（拉絲側面）、錶圈整個拋光（頂面＋倒角，用戶確認）＋八顆鍍鉻一字螺絲、
    錶圈 12／6 點兩端往下彎接錶帶（Santos 的招牌「彎角」）、銀白乳光面盤＋黑色羅馬字（IIII）＋內圈鐵軌分刻、
    藍鋼劍形針、七角錶冠嵌藍色凸圓寶石、螺絲鏈節鋼帶（每排三片對齊不錯開、外側兩片各一顆螺絲）、摺疊扣。 */
+// 給 Shape.holes 用的圓孔：🔴 不能用 absarc(0,2π)，閉合點重疊會在 3 點方向擠出一片三角形碎片（皇家八角圈內緣，用戶 0906 圈出）
+function circlePath(r,N){ const p=new T.Path(); N=N||96; for(let k=0;k<N;k++){ const a=k/N*Math.PI*2, x=Math.cos(a)*r, y=Math.sin(a)*r; if(k===0) p.moveTo(x,y); else p.lineTo(x,y); } p.closePath(); return p; }
 function roundedRectShape(w,h,r){
   const s=new T.Shape(), hw=w/2, hh=h/2; r=Math.min(r,hw,hh);
   s.moveTo(-hw+r,-hh); s.lineTo(hw-r,-hh); s.absarc(hw-r,-hh+r,r,-Math.PI/2,0,false);
@@ -1780,7 +1782,7 @@ function buildWatch(){
   root.add(new T.Mesh(caseGeo,baseM));   // 錶背本來就是透明底蓋看得到機芯（擺陀），不要再蓋一片刻字錶背（0906 試過會把機芯蓋掉）
   if(se.code==='MM'){
     // 義大利海軍實品＝Luminor 型枕形殼：圓角方形拋光殼體（x 2.26 × z 2.02，殼在 z 向短一點讓短錶耳露出來）包住車削殼
-    const cuShape=roundedRectShape(2.26,2.02,0.62); { const hole=new T.Path(); hole.absarc(0,0,0.99,0,Math.PI*2,true); cuShape.holes.push(hole); }   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
+    const cuShape=roundedRectShape(2.26,2.02,0.62); cuShape.holes.push(circlePath(0.99,96));   // 🔴 殼體中央要挖圓孔，不然整片蓋住錶盤與時針分針（v1 忘了）
     const cushion=new T.Mesh(extrudeUp(cuShape,0.32,0.04,3),[polM,polM]); cushion.position.y=-0.21; root.add(cushion);
     // 護橋：C 形拋光橋跨在把冠外側，兩端接在殼體 3 點側；內側一支壓桿鉸在下端，壓著把冠（實品的鎖冠機構）
     { const cx=0.70, ri=0.72, ro=0.84, a=64*Math.PI/180, sh=new T.Shape();
@@ -1791,7 +1793,7 @@ function buildWatch(){
   }
   if(se.code==='ROY'){
     // 皇家計時實品＝Royal Oak 型：圓角方形拉絲中層（挖圓孔露機芯／錶盤），鏈帶第一節直接從殼體 12／6 邊長出來（一體式）
-    const bodyShape=roundedRectShape(2.10,2.02,0.60); { const hole=new T.Path(); hole.absarc(0,0,0.99,0,Math.PI*2,true); bodyShape.holes.push(hole); }   // 🔴 中層要比八角圈的平邊（內切圓 1.08）小，讓錶圈略微外懸；v1 做 2.30 反而凸出一圈台階
+    const bodyShape=roundedRectShape(2.10,2.02,0.60); bodyShape.holes.push(circlePath(0.99,96));   // 🔴 中層要比八角圈的平邊（內切圓 1.08）小，讓錶圈略微外懸；v1 做 2.30 反而凸出一圈台階
     const body=new T.Mesh(extrudeUp(bodyShape,0.33,0.04,3),[brushM,brushM]); body.position.y=-0.21; root.add(body);
   }   // 錶背：拉絲＋刻字環，鏈節內側的反射裡會看到
   // 錶圈本體：側壁真滾花（真幾何凹凸，不是靠 flatShading 硬凹出來的假分格）
@@ -1814,7 +1816,7 @@ function buildWatch(){
   root.add(bez);
   // 錶圈面
   const bezTop=new T.Mesh(new T.CircleGeometry(0.995,128),
-    new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY',se.code==='PRO'?[['HELIUM ESCAPE VALVE',-54,54],['LIMITED EDITION',208,262]]:null)),transparent:true,
+    new T.MeshPhysicalMaterial({map:(se.code==='MM'?bezelTextureMM(bz):bezelTexture(bz,lm,!!se.sub&&se.code!=='ROY',se.code==='PRO'?[['HELIUM ESCAPE VALVE',-54,54],['LIMITED EDITION',196,234]]:null)),transparent:true,
       metalness:bz.steel?1:0.05,roughness:bz.steel?mt.rough:0.09,
       color:bz.steel?mt.base:0xffffff,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:bz.steel?1.0:0.55}));
   bezTop.rotation.x=-Math.PI/2; bezTop.position.y=0.2335; root.add(bezTop);
@@ -1822,7 +1824,7 @@ function buildWatch(){
     bez.visible=false; bezTop.visible=false;
     // 八角圈：平邊在 12／3／6／9（頂點在 22.5°＋k·45°），外接圓 1.17；頂面拉絲、倒角與側面拋光；中央圓孔 0.80 露錶鏡
     const oct=new T.Shape(); for(let k=0;k<8;k++){ const a=(22.5+k*45)*Math.PI/180, x=Math.cos(a)*1.17, y=Math.sin(a)*1.17; if(k===0) oct.moveTo(x,y); else oct.lineTo(x,y); } oct.closePath();
-    { const hole=new T.Path(); hole.absarc(0,0,0.80,0,Math.PI*2,true); oct.holes.push(hole); }
+    oct.holes.push(circlePath(0.80,128));
     const obez=new T.Mesh(extrudeUp(oct,0.10,0.030,3),[brushM,polM]); obez.position.y=0.16; root.add(obez);
     // 8 顆六角螺絲：每邊中央（0°＋k·45°），半徑 1.02；六角頭（accM）＋內凹六角孔
     for(let k=0;k<8;k++){ const a=k*Math.PI/4, x=Math.sin(a)*1.02, z=-Math.cos(a)*1.02;
