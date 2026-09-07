@@ -1,0 +1,130 @@
+{
+  "mean_abs_error_255": 0.2155161111111111,
+  "max_abs_error_255": 124.0,
+  "visible_mae_255": 0.7630779701558301,
+  "pixels_delta_over10": 7919,
+  "opaque_pixels": 338916,
+  "bytes": {
+    "1_glass.png": 50366,
+    "2_hands.png": 9806,
+    "3_dial.png": 120856,
+    "4_gears.png": 30179,
+    "5_case.png": 288201,
+    "assembled.png": 413005,
+    "full-original.png": 409482
+  },
+  "layers": {
+    "1_glass.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        304,
+        353,
+        696,
+        706
+      ],
+      "alpha_extrema": [
+        0,
+        142
+      ],
+      "sha256": "f81cd5ccf8223dc56fa4c9c634b666338ef70b9174d1974e5e5ffac4eb568ed6"
+    },
+    "2_hands.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        422,
+        478,
+        649,
+        691
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "833a91f362758de3f829e15e995d63a697d66cfdab4be3e912bc7229627b978f"
+    },
+    "3_dial.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        314,
+        384,
+        686,
+        713
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "6507880ebd2be7184c179b21db11c181e966a0e1183625ce6fbb737dad3961df"
+    },
+    "4_gears.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        352,
+        487,
+        584,
+        649
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "0e86a2cfe842e9010079a8a92925823d5818e67cefb71715cef505e56b0f78e0"
+    },
+    "5_case.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        234,
+        232,
+        849,
+        1068
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "45ca97f45da14cf77485785d5dfe89966bd9afad00c0ee438f7188ba7f272899"
+    },
+    "assembled.png": {
+      "size": [
+        1000,
+        1200
+      ],
+      "mode": "RGBA",
+      "alpha_bounds": [
+        234,
+        232,
+        849,
+        1068
+      ],
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "sha256": "4f15aece957625586aee80751cd9614a6819e566ceeaf20230fe0445418249a5"
+    }
+  },
+  "production_total_bytes": 912413,
+  "all_same_canvas": true,
+  "all_have_transparency": true,
+  "assembled": "Pixel-identical RGBA composite of case, gears, dial, hands, glass, in that order. All rendered from existing MM model with common camera and no new geometry."
+}

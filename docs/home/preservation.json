@@ -1,0 +1,9 @@
+{
+  "source_commit": "1384b8b7d19632b4f81bd0ceb9c2effebd95a7d8",
+  "original_index_sha256": "d7dcadc6a2e350f8e0ddc851907cb916b445c10ada252285cd912d3dd8829cde",
+  "embedded_large_lines": 4,
+  "model_material_code_unchanged": true,
+  "background_and_ar_scripts_identical": true,
+  "main_script_only_mobile_pin_offset_changed": true,
+  "catalog_data_sha256": "07f776880b19d36386a842a4212196a3e6fa6d790115a67a4b9769a184af9b4b"
+}

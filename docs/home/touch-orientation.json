@@ -1,0 +1,21 @@
+{
+  "device": "Chrome iPhone 13 emulation, not a physical Safari device",
+  "swipe": {
+    "scroll": 545,
+    "progress": 0.41039156626506024,
+    "innerWidth": 390
+  },
+  "rotate": {
+    "count": 1,
+    "progress": 1,
+    "actual": -90.72,
+    "expected": -90.72,
+    "overflow": false
+  },
+  "reload": {
+    "count": 1,
+    "priceDataUntouched": true,
+    "progress": 1
+  },
+  "passed": true
+}

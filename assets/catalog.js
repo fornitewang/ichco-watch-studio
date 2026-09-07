@@ -137,7 +137,7 @@
     $('productSource').textContent='資料核對：'+state.data.checkedDate+' · 價格與庫存依官網當下資訊為準';
     $('officialLink').href=p.officialUrl;$('officialLink').textContent=v?.available&&!v.requiresClarification?'至官網確認與訂購 ↗':'至官網查看與詢問 ↗';
     const preview=$('previewLink');preview.hidden=!(v&&p.previewSeries&&p.previewVariantIds?.includes(v.id));
-    if(!preview.hidden)preview.href='index.html?series='+encodeURIComponent(p.previewSeries)+'#configHead';
+    if(!preview.hidden)preview.href='studio.html?series='+encodeURIComponent(p.previewSeries)+'#configHead';
     if(v?.requiresClarification)$('customRequest').closest('details').open=true;
   }
 

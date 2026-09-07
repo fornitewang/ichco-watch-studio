@@ -1,0 +1,199 @@
+{
+  "testedAt": "2026-09-07T01:28:18.222Z",
+  "scope": "Targeted 320px header/mini regression after final header width fix; unchanged prior functional results retained.",
+  "cases": [
+    {
+      "name": "Mini below header 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Mini horizontal centering 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Narrow phone 12px gutters",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Studio no horizontal overflow 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "320 viewport remains actual width",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "320 normal-flow elements within viewport",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320 layout retest no browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "metrics": {
+    "innerWidth": 320,
+    "clientWidth": 320,
+    "scrollWidth": 320,
+    "visualWidth": 320,
+    "header": {
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 61.5,
+      "top": 0,
+      "right": 320,
+      "bottom": 61.5,
+      "left": 0
+    },
+    "stage": {
+      "x": 12,
+      "y": 62,
+      "width": 296,
+      "height": 286.953125,
+      "top": 62,
+      "right": 308,
+      "bottom": 348.953125,
+      "left": 12
+    },
+    "overflow": []
+  },
+  "errors": []
+}

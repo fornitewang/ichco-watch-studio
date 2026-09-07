@@ -1,0 +1,595 @@
+{
+  "report": [
+    {
+      "name": "Homepage cache query stays on homepage",
+      "pass": true
+    },
+    {
+      "name": "Homepage has no WebGL engine",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "Homepage no Three/HDR/MediaPipe network",
+      "pass": true,
+      "detail": [
+        "http://127.0.0.1:8791/?v=independent",
+        "http://127.0.0.1:8791/assets/exploded/assembled.png",
+        "http://127.0.0.1:8791/assets/home.css?v=20260907a",
+        "http://127.0.0.1:8791/assets/vendor/gsap-3.13.0.min.js",
+        "http://127.0.0.1:8791/assets/vendor/ScrollTrigger-3.13.0.min.js",
+        "http://127.0.0.1:8791/assets/home.js?v=20260907a",
+        "http://127.0.0.1:8791/assets/exploded/5_case.png",
+        "http://127.0.0.1:8791/assets/exploded/4_gears.png",
+        "http://127.0.0.1:8791/assets/exploded/3_dial.png",
+        "http://127.0.0.1:8791/assets/exploded/2_hands.png",
+        "http://127.0.0.1:8791/assets/exploded/1_glass.png",
+        "http://127.0.0.1:8791/assets/favicon.svg"
+      ]
+    },
+    {
+      "name": "Home reaches catalog",
+      "pass": true
+    },
+    {
+      "name": "MM selected 67164557 price matches official",
+      "pass": true,
+      "detail": "NT$ 7,580"
+    },
+    {
+      "name": "MM preview explicitly links studio",
+      "pass": true
+    },
+    {
+      "name": "Catalog matching MM studio opens",
+      "pass": true
+    },
+    {
+      "name": "Studio logo returns homepage",
+      "pass": true
+    },
+    {
+      "name": "Internal link HTTP ?v=independent#collection",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP index.html",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP studio.html?series=MM#configHead",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html?product=ichco-customize-seikomod-marinamilitare",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html?product=ichco-samurai",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html?product=ich-co-santos",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP index.html#collection",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html#collection",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html#catalogTitle",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Internal link HTTP catalog.html?product=ichco-nh35-series-customize",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "Legacy redirect ?series=MM#configHead",
+      "pass": true,
+      "detail": "http://127.0.0.1:8791/studio.html?series=MM#configHead"
+    },
+    {
+      "name": "Legacy redirect ?artilt=28",
+      "pass": true,
+      "detail": "http://127.0.0.1:8791/studio.html?artilt=28"
+    },
+    {
+      "name": "Legacy redirect ?ardebug=1",
+      "pass": true,
+      "detail": "http://127.0.0.1:8791/studio.html?ardebug=1"
+    },
+    {
+      "name": "Legacy redirect ?mpcpu=1",
+      "pass": true,
+      "detail": "http://127.0.0.1:8791/studio.html?mpcpu=1"
+    },
+    {
+      "name": "Legacy redirect #configHead",
+      "pass": true,
+      "detail": "http://127.0.0.1:8791/studio.html#configHead"
+    },
+    {
+      "name": "Incomplete option suppresses price 390",
+      "pass": true
+    },
+    {
+      "name": "Incomplete copy disabled 390",
+      "pass": true
+    },
+    {
+      "name": "Complete configuration correct price 390",
+      "pass": true
+    },
+    {
+      "name": "Catalog independent mobile scroll 390",
+      "pass": true
+    },
+    {
+      "name": "Catalog image stays visible 390",
+      "pass": true
+    },
+    {
+      "name": "Catalog no horizontal overflow 390",
+      "pass": true
+    },
+    {
+      "name": "Studio mini active 390",
+      "pass": true
+    },
+    {
+      "name": "Mini below header 390",
+      "pass": true,
+      "detail": {
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 61.5,
+          "top": 0,
+          "right": 390,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 22,
+          "y": 62,
+          "width": 346,
+          "height": 286.953125,
+          "top": 62,
+          "right": 368,
+          "bottom": 348.953125,
+          "left": 22
+        }
+      }
+    },
+    {
+      "name": "Mini horizontal centering 390",
+      "pass": true,
+      "detail": {
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 61.5,
+          "top": 0,
+          "right": 390,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 22,
+          "y": 62,
+          "width": 346,
+          "height": 286.953125,
+          "top": 62,
+          "right": 368,
+          "bottom": 348.953125,
+          "left": 22
+        }
+      }
+    },
+    {
+      "name": "Studio series 390 0",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 0",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 390 0",
+      "pass": true
+    },
+    {
+      "name": "Studio series 390 1",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 1",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 390 1",
+      "pass": true
+    },
+    {
+      "name": "Studio series 390 2",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 2",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 390 2",
+      "pass": true
+    },
+    {
+      "name": "Studio series 390 3",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 3",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 390 3",
+      "pass": true
+    },
+    {
+      "name": "Studio series 390 4",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 4",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 390 4",
+      "pass": true
+    },
+    {
+      "name": "Studio series 390 5",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 390 5",
+      "pass": true
+    },
+    {
+      "name": "Mobile horizontal touch rotates model 390",
+      "pass": true,
+      "detail": {
+        "start": -0.00009431062123901372,
+        "end": 0.524905803819679
+      }
+    },
+    {
+      "name": "Mini fold works 390",
+      "pass": true
+    },
+    {
+      "name": "Mini unfold works 390",
+      "pass": true
+    },
+    {
+      "name": "Studio no horizontal overflow 390",
+      "pass": true
+    },
+    {
+      "name": "Incomplete option suppresses price 320",
+      "pass": true
+    },
+    {
+      "name": "Incomplete copy disabled 320",
+      "pass": true
+    },
+    {
+      "name": "Complete configuration correct price 320",
+      "pass": true
+    },
+    {
+      "name": "Catalog independent mobile scroll 320",
+      "pass": true
+    },
+    {
+      "name": "Catalog image stays visible 320",
+      "pass": true
+    },
+    {
+      "name": "Catalog no horizontal overflow 320",
+      "pass": true
+    },
+    {
+      "name": "Studio mini active 320",
+      "pass": true
+    },
+    {
+      "name": "Mini below header 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Mini horizontal centering 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Narrow phone 12px gutters",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "Studio series 320 0",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 0",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 320 0",
+      "pass": true
+    },
+    {
+      "name": "Studio series 320 1",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 1",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 320 1",
+      "pass": true
+    },
+    {
+      "name": "Studio series 320 2",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 2",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 320 2",
+      "pass": true
+    },
+    {
+      "name": "Studio series 320 3",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 3",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 320 3",
+      "pass": true
+    },
+    {
+      "name": "Studio series 320 4",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 4",
+      "pass": true
+    },
+    {
+      "name": "Concept opens choices 320 4",
+      "pass": true
+    },
+    {
+      "name": "Studio series 320 5",
+      "pass": true
+    },
+    {
+      "name": "Studio keeps concept opt in 320 5",
+      "pass": true
+    },
+    {
+      "name": "Mobile horizontal touch rotates model 320",
+      "pass": true,
+      "detail": {
+        "start": -0.00009431062123901372,
+        "end": 0.5249056893787609
+      }
+    },
+    {
+      "name": "Mini fold works 320",
+      "pass": true
+    },
+    {
+      "name": "Mini unfold works 320",
+      "pass": true
+    },
+    {
+      "name": "Studio no horizontal overflow 320",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "No JavaScript exceptions",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "No console errors",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320 viewport remains actual width",
+      "pass": true,
+      "detail": {
+        "innerWidth": 320,
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "visualWidth": 320,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 61.5,
+          "top": 0,
+          "right": 320,
+          "bottom": 61.5,
+          "left": 0
+        },
+        "stage": {
+          "x": 12,
+          "y": 62,
+          "width": 296,
+          "height": 286.953125,
+          "top": 62,
+          "right": 308,
+          "bottom": 348.953125,
+          "left": 12
+        },
+        "overflow": []
+      }
+    },
+    {
+      "name": "320 normal-flow elements within viewport",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "320 layout retest no browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "failures": [],
+  "errors": [],
+  "consoleErrors": [],
+  "finalHeaderRetest": {
+    "testedAt": "2026-09-07T01:28:18.222Z",
+    "evidence": "header-retest.json",
+    "scope": "Targeted 320px header/mini regression after final header width fix; unchanged prior functional results retained."
+  }
+}

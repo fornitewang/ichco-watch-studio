@@ -1,0 +1,16 @@
+[
+  {
+    "name": "gsap",
+    "version": "3.13.0",
+    "source": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js",
+    "sha256": "96c01b81f44a3290e2b4532f55e2c9534b2adc43273a19f3756b2cb41f0fd0b6",
+    "bytes": 72435
+  },
+  {
+    "name": "ScrollTrigger",
+    "version": "3.13.0",
+    "source": "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js",
+    "sha256": "308219390e5e3b84cda0c481e70caa9820883ae10bda44e6e9a149a81aac4b3f",
+    "bytes": 44157
+  }
+]
