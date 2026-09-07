@@ -1,0 +1,70 @@
+[
+  {
+    "name": "mobile held expression",
+    "pass": true
+  },
+  {
+    "name": "mobile dragging expression",
+    "pass": true
+  },
+  {
+    "name": "drag does not scroll catalog",
+    "pass": true
+  },
+  {
+    "name": "mobile soft landing",
+    "pass": true
+  },
+  {
+    "name": "cancel clears held pose",
+    "pass": true
+  },
+  {
+    "name": "mobile dog wag",
+    "pass": true
+  },
+  {
+    "name": "mobile human greets dog",
+    "pass": true
+  },
+  {
+    "name": "mobile dog sits",
+    "pass": true
+  },
+  {
+    "name": "sitting tail joins lowered haunch",
+    "pass": true
+  },
+  {
+    "name": "mobile throw",
+    "pass": true
+  },
+  {
+    "name": "reduce stops throw and dog",
+    "pass": true
+  },
+  {
+    "name": "reduce disables animation control",
+    "pass": true
+  },
+  {
+    "name": "home-copy no overflow",
+    "pass": true
+  },
+  {
+    "name": "codex-copy no overflow",
+    "pass": true
+  },
+  {
+    "name": "studio-copy no overflow",
+    "pass": true
+  },
+  {
+    "name": "homepage featured products unchanged",
+    "pass": true
+  },
+  {
+    "name": "zero page errors",
+    "pass": true
+  }
+]

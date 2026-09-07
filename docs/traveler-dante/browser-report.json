@@ -1,0 +1,458 @@
+{
+  "protected": [
+    {
+      "file": "assets/catalog-data.json",
+      "unchanged": true,
+      "hash": "07f776880b19d36386a842a4212196a3e6fa6d790115a67a4b9769a184af9b4b"
+    },
+    {
+      "file": "assets/catalog.js",
+      "unchanged": true,
+      "hash": "73f29cfdf6cda014e03f9bd3c0568a6312caa2e8f056de369173c6c3fb538a8d"
+    },
+    {
+      "file": "studio.html inline model/data scripts",
+      "unchanged": true
+    }
+  ],
+  "views": [
+    {
+      "engine": "chrome",
+      "label": "mobile",
+      "overflow": false,
+      "human": {
+        "x": 179.3300018310547,
+        "y": 647,
+        "width": 112.00001525878906,
+        "height": 130.65625,
+        "top": 647,
+        "right": 291.33001708984375,
+        "bottom": 777.65625,
+        "left": 179.3300018310547
+      },
+      "dog": {
+        "x": 78.72000122070312,
+        "y": 703.0999755859375,
+        "width": 92,
+        "height": 71.296875,
+        "top": 703.0999755859375,
+        "right": 170.72000122070312,
+        "bottom": 774.3968505859375,
+        "left": 78.72000122070312
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "narrow",
+      "overflow": false,
+      "human": {
+        "x": 129.47000122070312,
+        "y": 371,
+        "width": 112,
+        "height": 130.65625,
+        "top": 371,
+        "right": 241.47000122070312,
+        "bottom": 501.65625,
+        "left": 129.47000122070312
+      },
+      "dog": {
+        "x": 29.3799991607666,
+        "y": 427.1000061035156,
+        "width": 92,
+        "height": 71.296875,
+        "top": 427.1000061035156,
+        "right": 121.3799991607666,
+        "bottom": 498.3968811035156,
+        "left": 29.3799991607666
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "landscape",
+      "overflow": false,
+      "human": {
+        "x": 502.8299560546875,
+        "y": 212,
+        "width": 96,
+        "height": 112,
+        "top": 212,
+        "right": 598.8299560546875,
+        "bottom": 324,
+        "left": 502.8299560546875
+      },
+      "dog": {
+        "x": 614.4099731445312,
+        "y": 258.75,
+        "width": 80,
+        "height": 62,
+        "top": 258.75,
+        "right": 694.4099731445312,
+        "bottom": 320.75,
+        "left": 614.4099731445312
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "desktop",
+      "overflow": false,
+      "human": {
+        "x": 886.6500244140625,
+        "y": 666,
+        "width": 144,
+        "height": 168,
+        "top": 666,
+        "right": 1030.6500244140625,
+        "bottom": 834,
+        "left": 886.6500244140625
+      },
+      "dog": {
+        "x": 1046.5799560546875,
+        "y": 731.4500122070312,
+        "width": 126,
+        "height": 97.640625,
+        "top": 731.4500122070312,
+        "right": 1172.5799560546875,
+        "bottom": 829.0906372070312,
+        "left": 1046.5799560546875
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "dark",
+      "overflow": false,
+      "human": {
+        "x": 178.86000061035156,
+        "y": 647,
+        "width": 111.99998474121094,
+        "height": 130.65625,
+        "top": 647,
+        "right": 290.8599853515625,
+        "bottom": 777.65625,
+        "left": 178.86000061035156
+      },
+      "dog": {
+        "x": 78.4000015258789,
+        "y": 703.0999755859375,
+        "width": 91.99999237060547,
+        "height": 71.296875,
+        "top": 703.0999755859375,
+        "right": 170.39999389648438,
+        "bottom": 774.3968505859375,
+        "left": 78.4000015258789
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "mobile",
+      "file": "index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "mobile",
+      "file": "codex/index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "mobile",
+      "file": "studio.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "desktop",
+      "file": "index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "desktop",
+      "file": "codex/index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "chrome",
+      "label": "desktop",
+      "file": "studio.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "mobile",
+      "overflow": false,
+      "human": {
+        "x": 177.92999267578125,
+        "y": 647,
+        "width": 112,
+        "height": 130.65625,
+        "top": 647,
+        "right": 289.92999267578125,
+        "bottom": 777.65625,
+        "left": 177.92999267578125
+      },
+      "dog": {
+        "x": 77.83999633789062,
+        "y": 703.0999755859375,
+        "width": 92,
+        "height": 71.296875,
+        "top": 703.0999755859375,
+        "right": 169.83999633789062,
+        "bottom": 774.3968505859375,
+        "left": 77.83999633789062
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "narrow",
+      "overflow": false,
+      "human": {
+        "x": 129.80999755859375,
+        "y": 371,
+        "width": 112,
+        "height": 130.65625,
+        "top": 371,
+        "right": 241.80999755859375,
+        "bottom": 501.65625,
+        "left": 129.80999755859375
+      },
+      "dog": {
+        "x": 28.950000762939453,
+        "y": 427.1000061035156,
+        "width": 92,
+        "height": 71.296875,
+        "top": 427.1000061035156,
+        "right": 120.95000076293945,
+        "bottom": 498.3968811035156,
+        "left": 28.950000762939453
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "landscape",
+      "overflow": false,
+      "human": {
+        "x": 503.1400146484375,
+        "y": 212,
+        "width": 96,
+        "height": 112,
+        "top": 212,
+        "right": 599.1400146484375,
+        "bottom": 324,
+        "left": 503.1400146484375
+      },
+      "dog": {
+        "x": 614.760009765625,
+        "y": 258.75,
+        "width": 80,
+        "height": 62,
+        "top": 258.75,
+        "right": 694.760009765625,
+        "bottom": 320.75,
+        "left": 614.760009765625
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "desktop",
+      "overflow": false,
+      "human": {
+        "x": 886.239990234375,
+        "y": 666,
+        "width": 144,
+        "height": 168,
+        "top": 666,
+        "right": 1030.239990234375,
+        "bottom": 834,
+        "left": 886.239990234375
+      },
+      "dog": {
+        "x": 1046.1199951171875,
+        "y": 731.4500122070312,
+        "width": 126,
+        "height": 97.640625,
+        "top": 731.4500122070312,
+        "right": 1172.1199951171875,
+        "bottom": 829.0906372070312,
+        "left": 1046.1199951171875
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "dark",
+      "overflow": false,
+      "human": {
+        "x": 178.58999633789062,
+        "y": 647,
+        "width": 112,
+        "height": 130.65625,
+        "top": 647,
+        "right": 290.5899963378906,
+        "bottom": 777.65625,
+        "left": 178.58999633789062
+      },
+      "dog": {
+        "x": 78.66999816894531,
+        "y": 703.0999755859375,
+        "width": 92,
+        "height": 71.296875,
+        "top": 703.0999755859375,
+        "right": 170.6699981689453,
+        "bottom": 774.3968505859375,
+        "left": 78.66999816894531
+      },
+      "flat": true,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "mobile",
+      "file": "index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "mobile",
+      "file": "codex/index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "desktop",
+      "file": "index.html",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "engine": "webkit",
+      "label": "desktop",
+      "file": "codex/index.html",
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "interaction": [
+    {
+      "name": "chrome touch single does not navigate",
+      "pass": true
+    },
+    {
+      "name": "chrome double tap one page",
+      "pass": true
+    },
+    {
+      "name": "chrome product dialog hides companions",
+      "pass": true
+    },
+    {
+      "name": "chrome product dialog restores companions",
+      "pass": true
+    },
+    {
+      "name": "held pose and expression",
+      "pass": true
+    },
+    {
+      "name": "drag expression",
+      "pass": true
+    },
+    {
+      "name": "slow release landing",
+      "pass": true
+    },
+    {
+      "name": "throw expression",
+      "pass": true
+    },
+    {
+      "name": "husky reacts to throw",
+      "pass": true
+    },
+    {
+      "name": "dog wagging",
+      "pass": true
+    },
+    {
+      "name": "human answers dog wagging",
+      "pass": true
+    },
+    {
+      "name": "dog sitting",
+      "pass": true
+    },
+    {
+      "name": "human answers dog sitting",
+      "pass": true
+    },
+    {
+      "name": "dog hopping",
+      "pass": true
+    },
+    {
+      "name": "human answers dog hopping",
+      "pass": true
+    },
+    {
+      "name": "pause both",
+      "pass": true
+    },
+    {
+      "name": "hide both",
+      "pass": true
+    },
+    {
+      "name": "restore both",
+      "pass": true
+    },
+    {
+      "name": "reduced motion stops both",
+      "pass": true
+    },
+    {
+      "name": "reduced control sync",
+      "pass": true
+    },
+    {
+      "name": "webkit touch single does not navigate",
+      "pass": true
+    },
+    {
+      "name": "webkit double tap one page",
+      "pass": true
+    },
+    {
+      "name": "webkit product dialog hides companions",
+      "pass": true
+    },
+    {
+      "name": "webkit product dialog restores companions",
+      "pass": true
+    }
+  ]
+}

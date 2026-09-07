@@ -17,15 +17,67 @@
 .traveler-panel a{display:block;text-align:center;background:var(--accent);color:var(--surface);text-decoration:none;margin-bottom:10px}
 .traveler-panel>div{display:flex;gap:8px}.traveler-panel>div button{flex:1;padding:9px 8px}
 .traveler[data-suspended="true"]{visibility:hidden}
-.traveler-facing .t-leg-near{transform-box:view-box;transform-origin:119px 119px;animation:traveler-stride .56s ease-in-out infinite alternate}
-.traveler-facing .t-leg-far{transform-box:view-box;transform-origin:111px 119px;animation:traveler-stride .56s ease-in-out -.56s infinite alternate}
-.traveler-facing .t-arm-free{transform-box:view-box;transform-origin:131px 82px;animation:traveler-arm .56s ease-in-out -.56s infinite alternate}
-.traveler-facing .t-wheel{transform-box:view-box;animation:traveler-wheel .6s linear infinite}
-.traveler-actor:not([data-state="walking"]) .traveler-facing *{animation-play-state:paused!important}
+.traveler-facing [class]{transform-box:view-box}
+.traveler-facing .t-leg-near{transform-origin:119px 119px}
+.traveler-facing .t-leg-far{transform-origin:111px 119px}
+.traveler-facing .t-arm-free{transform-origin:131px 82px}
+.traveler-facing .t-suitcase{transform-origin:74px 100px;transform:rotate(var(--case-sway,0deg));transition:transform .16s ease-out}
+.traveler-actor[data-state="walking"] .t-leg-near{animation:traveler-stride .56s ease-in-out infinite alternate}
+.traveler-actor[data-state="walking"] .t-leg-far{animation:traveler-stride .56s ease-in-out -.56s infinite alternate}
+.traveler-actor[data-state="walking"] .t-arm-free{animation:traveler-arm .56s ease-in-out -.56s infinite alternate}
+.traveler-actor[data-state="walking"] .t-wheel{animation:traveler-wheel .6s linear infinite}
+.traveler-facing .t-face,.traveler-facing .t-blink-line{display:none}
+.traveler-actor:not([data-face]) .t-face-calm,.traveler-actor[data-face="calm"] .t-face-calm,.traveler-actor[data-face="surprised"] .t-face-surprised,.traveler-actor[data-face="effort"] .t-face-effort,.traveler-actor[data-face="air"] .t-face-air,.traveler-actor[data-face="landing"] .t-face-landing,.traveler-actor[data-face="wink"] .t-face-wink{display:inline}
+.traveler-actor[data-state="walking"] .t-eyes{transform-origin:133px 49px;animation:traveler-blink 5.3s linear infinite}
+.traveler-actor:is([data-state="held"],[data-state="dragging"]) .t-arm-free{transform:rotate(-132deg)}
+.traveler-actor:is([data-state="held"],[data-state="dragging"]) .t-leg-near{transform:rotate(-24deg)}
+.traveler-actor:is([data-state="held"],[data-state="dragging"]) .t-leg-far{transform:rotate(27deg)}
+.traveler-actor:is([data-state="held"],[data-state="dragging"]) .t-head{transform:rotate(-7deg)}
+.traveler-actor[data-state="thrown"] .t-arm-free{transform:rotate(-103deg)}
+.traveler-actor[data-state="thrown"] .t-leg-near{transform:rotate(-32deg)}
+.traveler-actor[data-state="thrown"] .t-leg-far{transform:rotate(36deg)}
+.traveler-actor[data-state="thrown"] .t-hair{transform:rotate(8deg)}
+.traveler-actor[data-state="landing"] .traveler-facing svg{transform-origin:50% 93%;animation:traveler-land .65s ease-out both}
+.traveler-actor[data-state="greeting"] .t-arm-free{animation:traveler-wave .32s ease-in-out 3 alternate}
+.traveler-actor[data-state="greeting"] .t-head{transform:rotate(5deg)}
 .traveler-actor[data-state="dragging"] .traveler-facing svg{filter:drop-shadow(0 13px 8px #17262025)}
 @keyframes traveler-stride{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
 @keyframes traveler-arm{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
 @keyframes traveler-wheel{to{transform:rotate(360deg)}}
+@keyframes traveler-blink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.08)}}
+@keyframes traveler-land{0%{transform:scale(1.06,.88)}38%{transform:scale(.98,1.035)}70%,100%{transform:scale(1)}}
+@keyframes traveler-wave{from{transform:rotate(-113deg)}to{transform:rotate(-132deg)}}
+.husky-actor{position:absolute;left:0;top:0;width:126px;contain:layout style;will-change:transform}
+.husky-pet{display:block;width:100%;padding:0;border:0;background:none;pointer-events:auto;cursor:pointer;touch-action:manipulation;border-radius:28px;user-select:none;-webkit-user-select:none}
+.husky-pet:focus-visible{outline:2px dashed var(--accent);outline-offset:3px}
+.husky-facing{display:block;transform:scaleX(var(--husky-facing,1))}
+.husky-facing svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 3px 2px #27332124)}
+.husky-facing [class]{transform-box:view-box}
+.h-happy-eyes,.h-sitting-body{display:none}
+.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-near-back,.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-far-front{animation:husky-step .4s ease-in-out infinite alternate}
+.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-far-back,.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-near-front{animation:husky-step .4s ease-in-out -.4s infinite alternate}
+.husky-actor[data-state="chasing"] .h-leg{animation-duration:.25s}
+.husky-actor:is([data-state="wagging"],[data-state="hopping"]) .h-tail{animation:husky-tail .16s ease-in-out infinite alternate}
+.husky-actor:is([data-state="happy"],[data-state="wagging"],[data-state="hopping"],[data-state="sitting"]) .h-eyes{display:none}
+.husky-actor:is([data-state="happy"],[data-state="wagging"],[data-state="hopping"],[data-state="sitting"]) .h-happy-eyes{display:inline}
+.husky-actor[data-state="sitting"] :is(.h-torso,.h-leg-near-back,.h-leg-far-back){display:none}
+.husky-actor[data-state="sitting"] .h-sitting-body{display:inline}
+.husky-actor[data-state="sitting"] .h-tail{transform:translate(34px,43px) rotate(-18deg)}
+.husky-actor[data-state="sniffing"] .h-head{transform:rotate(18deg);animation:husky-sniff .5s ease-in-out infinite alternate}
+.husky-actor:is([data-state="alert"],[data-state="startled"]) .h-head{transform:rotate(-17deg)}
+.husky-actor[data-state="startled"] .h-ear-near{transform:rotate(-19deg)}
+.husky-actor[data-state="hopping"] svg{animation:husky-hop .48s ease-out 2}
+.husky-affection{position:absolute;right:30%;top:-13px;font:24px/1 Georgia,serif;color:#bf635b;opacity:0;pointer-events:none}
+.husky-actor:is([data-state="wagging"],[data-state="sitting"],[data-state="hopping"]) .husky-affection{animation:husky-love 1.4s ease-out both}
+.traveler[data-suspended="true"] *,.husky-actor[data-state="paused"] *{animation-play-state:paused!important}
+@keyframes husky-step{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+@keyframes husky-tail{from{transform:rotate(-12deg)}to{transform:rotate(13deg)}}
+@keyframes husky-sniff{from{transform:rotate(14deg)}to{transform:rotate(20deg)}}
+@keyframes husky-hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-16px)}75%{transform:translateY(0) scaleY(.95)}}
+@keyframes husky-love{0%{opacity:0;transform:translateY(5px)}25%,70%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+@media(max-width:700px){.husky-actor{width:92px}}
+@media(max-height:450px){.husky-actor{width:80px}}
+@media(prefers-reduced-motion:reduce){.traveler-facing *,.husky-actor *{animation:none!important;transition:none!important}.husky-actor{will-change:auto}}
 @media(max-width:700px){.traveler{--traveler-width:112px}.traveler-hint{width:154px;font-size:11px}.traveler-dock>button{padding:8px 12px}}
 @media(max-height:450px){.traveler{--traveler-width:96px}}
 @media(prefers-reduced-motion:reduce){.traveler-facing *{animation:none!important}.traveler-actor{will-change:auto}}

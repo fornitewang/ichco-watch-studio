@@ -16,15 +16,38 @@
   let paused = !!saved.paused, concealed = !!saved.hidden, ready = false;
   let x = 0, y = 0, vx = 0, vy = 0, facing = 1, angle = 0;
   let bounds = {}, pointer = null, tap = null, thrown = false, hovering = false;
-  let navigationUntil = 0;
+  let navigationUntil = 0, recoveryUntil = 0, greetingUntil = 0, recoveryTimer = 0;
   let suspended = false, frame = 0, lastFrame = 0, restUntil = 0, hintTimer = 0, suppressUntil = 0;
   const persist = () => { try { sessionStorage.setItem('ich-traveler', JSON.stringify({paused, hidden:concealed})); } catch (_) {} };
   const isStill = () => paused || reduced.matches || hovering || grab.matches(':focus-visible') || !panel.hidden;
-  function state(value) { if (actor.dataset.state !== value) actor.dataset.state = value; }
+  function state(value) {
+    const now = performance.now();
+    if (!pointer && value !== 'thrown' && !paused && !reduced.matches && !suspended) {
+      if (now < recoveryUntil) value = 'landing';
+      else if (now < greetingUntil) value = 'greeting';
+    }
+    if (actor.dataset.state !== value) actor.dataset.state = value;
+    actor.dataset.face = ({held:'surprised',dragging:'effort',thrown:'air',landing:'landing',greeting:'wink'})[value] || 'calm';
+  }
+  function publish() {
+    if (!ready) return;
+    dispatchEvent(new CustomEvent('ich:traveler', {detail:{
+      x,y,facing,width:bounds.width,height:actor.offsetHeight,state:actor.dataset.state,
+      minX:bounds.minX,maxX:bounds.viewportWidth-10,minY:bounds.minY,
+      bottom:bounds.maxY+actor.offsetHeight,paused:paused||reduced.matches,
+      hidden:concealed||suspended,reduced:reduced.matches
+    }}));
+  }
+  function recover() {
+    recoveryUntil = performance.now() + 650;
+    clearTimeout(recoveryTimer); recoveryTimer = setTimeout(wake, 680);
+  }
   function paint() {
     actor.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) rotate(' + angle.toFixed(2) + 'deg)';
     art.style.setProperty('--facing', facing);
+    art.style.setProperty('--case-sway', (pointer ? -angle*facing*.7 : thrown ? clamp(-vx*facing*.009,-11,11) : 0) + 'deg');
     hint.style.left = clamp(bounds.width / 2, 90 - x, bounds.viewportWidth - x - 90) + 'px';
+    publish();
   }
   function measure(initial = false) {
     const viewport = window.visualViewport;
@@ -57,6 +80,7 @@
     menu.innerHTML = '<span aria-hidden="true">↟</span> ' + (concealed ? '叫出小旅人' : '小旅人');
     actor.hidden = concealed;
     if (stopped) state('paused');
+    publish();
   }
   function schedule() { if (!frame && ready && !suspended && !concealed) frame = requestAnimationFrame(tick); }
   function tick(time) {
@@ -69,7 +93,7 @@
     const dt = Math.min(.032, (time - (lastFrame || time)) / 1000);
     lastFrame = time;
     if (suspended || concealed) return;
-    if (pointer) { state(pointer.moved ? 'dragging' : 'paused'); }
+    if (pointer) { state(pointer.moved ? 'dragging' : 'held'); }
     else if (thrown && !paused && !reduced.matches) {
       state('thrown');
       vy += 1450 * dt; x += vx * dt; y += vy * dt;
@@ -78,7 +102,7 @@
       if (y < bounds.minY) { y = bounds.minY; vy = Math.abs(vy) * .3; }
       if (y >= bounds.maxY) {
         y = bounds.maxY; vy *= -.3; vx *= .65;
-        if (Math.abs(vy) < 125) { thrown = false; angle = 0; restUntil = time + 650; }
+        if (Math.abs(vy) < 125) { thrown = false; angle = 0; restUntil = time + 800; recover(); state('landing'); }
       }
     } else if (isStill() || time < restUntil) { state('paused'); angle = 0; }
     else {
@@ -101,13 +125,14 @@
   function syncSuspension() {
     suspended = document.hidden || !!$('productDialog')?.open || document.body.classList.contains('dialog-open');
     root.dataset.suspended = String(suspended);
-    if (suspended) { cancelPointer(); state('paused'); thrown = false; angle = 0; tap = null; hint.hidden = true; cancelAnimationFrame(frame); frame = 0; }
+    if (suspended) { cancelPointer(); state('paused'); thrown = false; angle = 0; tap = null; hint.hidden = true; cancelAnimationFrame(frame); frame = 0; publish(); }
     else if (ready) { if (!concealed) measure(); wake(); }
   }
   function visit() {
     const now = performance.now();
     if (now < navigationUntil) return;
     navigationUntil = now + 1000;
+    greetingUntil = now + 900; state('greeting'); paint(); setTimeout(wake, 950);
     tap = null; thrown = false; restUntil = performance.now() + 800;
     // 使用真實連結開新分頁，保留使用者正在看的錶款。
     destination.click();
@@ -118,7 +143,8 @@
     thrown = false; angle = 0; hint.hidden = true; panel.hidden = true; menu.setAttribute('aria-expanded', 'false');
     const now = performance.now();
     pointer = {id:event.pointerId, startX:event.clientX, startY:event.clientY, offsetX:event.clientX - x, offsetY:event.clientY - y, moved:false, samples:[{x:event.clientX,y:event.clientY,t:now}]};
-    grab.setPointerCapture(event.pointerId); state('paused'); wake();
+    recoveryUntil = 0; greetingUntil = 0;
+    grab.setPointerCapture(event.pointerId); state('held'); paint(); wake();
   });
   grab.addEventListener('pointermove', event => {
     if (!pointer || event.pointerId !== pointer.id) return;
@@ -148,6 +174,7 @@
       thrown = !paused && !reduced.matches && Math.hypot(vx, vy) > 230;
       if (vx) facing = vx < 0 ? -1 : 1;
       restUntil = now + 1200;
+      if (!thrown) recover();
       state(thrown ? 'thrown' : 'paused');
     } else if (now >= suppressUntil) {
       if (tap && now - tap.time < 420 && Math.hypot(event.clientX - tap.x, event.clientY - tap.y) < 28) visit();
@@ -193,8 +220,13 @@
   addEventListener('resize', () => { if (ready && !concealed) { measure(); wake(); } });
   window.visualViewport?.addEventListener('resize', () => { if (ready && !concealed) { measure(); wake(); } });
   reduced.addEventListener('change', () => { lastReduced = reduced.matches; thrown = false; angle = 0; updateControls(); wake(); });
+  addEventListener('ich:companion-pet', () => {
+    if (pointer || thrown || concealed || suspended || paused || reduced.matches) return;
+    greetingUntil = performance.now()+1100; state('greeting'); paint(); wake(); setTimeout(wake,1150);
+  });
+  addEventListener('ich:companion-ready', publish);
   // 自有 SVG 同源載入，保留向量子部件，讓腿、手臂、輪子分別活動。
-  fetch('assets/traveler.svg?v=20260907a').then(response => {
+  fetch('assets/traveler-cel.svg?v=20260907b').then(response => {
     if (!response.ok) throw new Error('Traveler artwork unavailable');
     return response.text();
   }).then(source => {
