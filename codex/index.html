@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0f0e0d">
+  <meta name="description" content="ICH.co 概念設計：以星象、黃金比例與手工機械，探索時間的五個層次。">
+  <title>ICH.co — The Anatomy of Time</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%230f0e0d'/%3E%3Ccircle cx='32' cy='32' r='25' fill='none' stroke='%23c5a059'/%3E%3Cpath d='M32 13v19l12 8' fill='none' stroke='%23c5a059' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Noto+Serif+TC:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--ink:#0f0e0d;--gold:#c5a059;--ivory:#e9dfca;--muted:#b1a48e;--hair:rgba(197,160,89,.24);--unit:min(74vw,42svh,430px)}
+    *{box-sizing:border-box}html{background:var(--ink);scroll-behavior:auto}body{margin:0;color:var(--ivory);font-family:"Noto Serif TC",serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button{font:inherit}a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:6px}::selection{background:#c5a059;color:#0f0e0d}
+    .skip{position:fixed;left:24px;top:-100px;padding:12px;background:var(--ink);z-index:20}.skip:focus{top:24px}
+    .masthead{position:fixed;background:#0f0e0de8;backdrop-filter:blur(10px);top:0;left:0;width:100%;height:88px;padding:0 4.5%;display:flex;align-items:center;justify-content:space-between;z-index:10;border-bottom:1px solid var(--hair)}
+    .brand{font-family:"Cinzel",serif;font-size:29px;letter-spacing:-1.2px}.brand i{font-style:normal;color:var(--gold)}.brand-note{font:9px/1.6 "Cinzel",serif;letter-spacing:2.3px;margin-left:22px;color:var(--muted)}.signature{display:flex;align-items:center}
+    .masthead nav{display:flex;gap:32px;align-items:center;font-size:11px;letter-spacing:2px}.nav-index{color:var(--muted)}.nav-collection{padding-bottom:7px;border-bottom:1px solid var(--gold)}
+    .story{height:100vh;height:100svh;position:relative}.motion .story{height:300vh;height:300svh}
+    .stage{height:100vh;height:100svh;position:sticky;top:0;overflow:clip;background:radial-gradient(ellipse at 50% 50%,#29251e 0%,#171511 31%,#0f0e0d 71%)}
+    .marble{position:absolute;inset:0;pointer-events:none;opacity:.2;background:linear-gradient(118deg,transparent 15%,#c8b8990a 15.1%,transparent 15.6%,transparent 37%,#c8b8990b 37.12%,transparent 37.8%),repeating-linear-gradient(27deg,transparent 0 19%,#b9ac9120 19.08%,transparent 19.3% 39%)}
+    .grain{position:absolute;inset:0;width:100%;height:100%;opacity:.065;pointer-events:none}.frame{position:absolute;inset:110px 24px 26px;border:1px solid #c5a05916;pointer-events:none}.frame::before,.frame::after{position:absolute;color:var(--gold);font:18px serif;content:"+";top:-12px}.frame::before{left:-6px}.frame::after{right:-6px}
+    .introduction{position:absolute;left:7%;top:23%;z-index:5;max-width:350px;pointer-events:none}.eyebrow{font:9px/1.8 "Cinzel",serif;letter-spacing:3px;color:var(--gold);margin:0 0 23px}.introduction h1{font:500 clamp(34px,4.7vw,70px)/1.08 "Cinzel",serif;letter-spacing:-1.8px;margin:0}.introduction h1 em{font:italic 400 1.14em/.95 "Cormorant Garamond",serif;letter-spacing:-1px;color:var(--gold)}
+    .intro-rule{height:1px;width:48px;background:var(--gold);margin:28px 0 20px}.intro-copy{font-size:12px;line-height:2.2;letter-spacing:2px;color:var(--muted)}.concept{display:block;margin-top:22px;font-size:9px;letter-spacing:1px;color:#c0b296}
+    .plate-title{position:absolute;top:15%;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap;color:var(--muted);font:9px "Cinzel",serif;letter-spacing:4px}.plate-title span{display:block;margin-top:9px;font:italic 19px "Cormorant Garamond",serif;letter-spacing:1px;color:var(--gold)}
+    .marginalia{position:absolute;right:6%;top:27%;font:italic 18px/1.65 "Cormorant Garamond",serif;color:#c5a05983;transform:rotate(-7deg);max-width:130px}.marginalia small{display:block;margin-top:24px;font:9px "Cinzel",serif;letter-spacing:2px}.folio{position:absolute;right:5%;bottom:25%;writing-mode:vertical-rl;font:9px "Cinzel",serif;letter-spacing:3px;color:#a18d69}
+    .cosmos{position:absolute;left:50%;top:52%;width:min(88vw,78svh,790px);aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none}.cosmos svg{width:100%;height:100%;overflow:visible}.orbit{transform-box:view-box}.astrolabe{opacity:.3}.golden-grid{opacity:.14}.constellations{opacity:.38}
+    /* 保持 3D 容器乾淨：不要在這兩層添加 filter、opacity 或 overflow:hidden。 */
+    .watch-position{position:absolute;left:50%;top:52%;width:var(--unit);aspect-ratio:1;transform:translate(-50%,-50%);perspective:1400px;perspective-origin:50% 50%;z-index:3}
+    .watch{width:100%;height:100%;position:relative;transform:scale(1.18);transform-style:preserve-3d}
+    .layer{position:absolute;inset:0;width:100%;height:100%;transform-origin:50% 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+    .layer svg,.layer img{display:block;width:100%;height:100%;object-fit:contain}.layer-case{z-index:1}.layer-gears{z-index:2}.layer-dial{z-index:3}.layer-hands{z-index:4}.layer-glass{z-index:5}
+    .roman{font-family:"Cinzel",Georgia,serif;font-size:25px;fill:#cfb47d;text-anchor:middle;dominant-baseline:middle}.dial-text{font-family:"Cinzel",serif;text-anchor:middle;fill:#bba36e;letter-spacing:4px}
+    .annotations{position:absolute;inset:0;pointer-events:none;z-index:4}.annotation{position:absolute;opacity:0;width:180px;color:#d4b478}.annotation strong{font:italic 25px/1.15 "Cormorant Garamond",serif;display:block;white-space:nowrap;font-weight:400}.annotation small{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:8px}.annotation .leader{display:block;position:absolute;top:20px;width:90px;height:1px;background:var(--gold);opacity:.7;transform:scaleX(0)}.leader::after{content:"";width:4px;height:4px;border:1px solid var(--gold);border-radius:50%;position:absolute;top:-2px}
+    .a-glass{right:calc(50% + var(--unit)*.48);top:calc(52% - var(--unit)*.75 - 10px);text-align:right}.a-glass .leader,.a-gears .leader{left:calc(100% + 14px);transform-origin:left center}.a-glass .leader::after,.a-gears .leader::after{right:0}.a-dial{left:calc(50% + var(--unit)*.48);top:calc(52% - 16px)}.a-dial .leader{right:calc(100% + 14px);transform-origin:right center}.a-dial .leader::after{left:0}.a-gears{right:calc(50% + var(--unit)*.48);top:calc(52% + var(--unit)*.34);text-align:right}
+    .stage-bottom{position:absolute;bottom:7%;left:7%;right:7%;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;z-index:6}.scroll-note{font-size:10px;letter-spacing:2px;line-height:2;color:var(--muted);margin:0}.scroll-note span{display:block;font:9px "Cinzel",serif;letter-spacing:3px;color:var(--gold);margin-bottom:9px}.controls{display:flex;align-items:center;gap:24px}.meter{width:70px}.meter-label{display:block;font:9px "Cinzel",serif;color:var(--gold);letter-spacing:2px;margin-bottom:10px}progress{display:block;width:100%;height:1px;appearance:none;border:0;background:#c5a05933}progress::-webkit-progress-bar{background:#c5a05933}progress::-webkit-progress-value{background:var(--gold)}progress::-moz-progress-bar{background:var(--gold)}
+    .toggle{border:1px solid #c5a05966;border-radius:0;padding:14px 18px;min-height:46px;color:var(--ivory);background:#0f0e0d80;cursor:pointer;font-size:10px;letter-spacing:2px}.toggle:hover{background:#c5a05915}.toggle:disabled{display:none}.static-note{display:none}.static .static-note{display:block}.static .dynamic-note,.static .meter{display:none}
+    .colophon{position:relative;padding:85px 7% 32px;border-top:1px solid var(--hair);background:radial-gradient(ellipse at 20% 0%,#28211770,transparent 55%),var(--ink)}.colophon-top{display:flex;align-items:flex-end;justify-content:space-between;gap:35px;padding-bottom:46px;border-bottom:1px solid var(--hair)}.colophon h2{font-size:clamp(23px,2.6vw,36px);line-height:1.65;font-weight:400;letter-spacing:3px;margin:0}.colophon .eyebrow{margin-bottom:18px}.colophon-top>a{font-size:12px;letter-spacing:2px;white-space:nowrap;color:var(--gold);padding:15px 0;border-bottom:1px solid var(--gold)}
+    .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:50px;margin:44px 0 60px}.principles article{position:relative;padding-left:34px}.principles .number{position:absolute;left:0;top:3px;font:italic 17px "Cormorant Garamond",serif;color:var(--gold)}.principles h3{font:14px "Cinzel",serif;letter-spacing:1px;font-weight:400;margin:0 0 12px;color:#d6c3a1}.principles p{font-size:11px;line-height:2.1;color:var(--muted);margin:0}.fineprint{display:flex;justify-content:space-between;gap:25px;padding-top:22px;border-top:1px solid var(--hair);font-size:9px;line-height:1.9;letter-spacing:1px;color:#a89b86}.fineprint p{margin:0}.fineprint span{white-space:nowrap;font-family:"Cinzel",serif;color:var(--gold)}
+    @media(min-width:1800px){.introduction{left:12%}.marginalia{right:12%}}
+    @media(max-width:1050px){.introduction{left:5%;max-width:260px}.introduction h1{font-size:42px}.intro-copy{font-size:10px}.marginalia{right:5%;max-width:95px;font-size:15px}.annotation{width:145px}.annotation strong{font-size:22px}.annotation .leader{width:55px}}
+    @media(min-width:701px) and (max-width:1100px) and (min-height:581px){.introduction{left:0;top:13%;width:100%;max-width:none;text-align:center}.introduction h1{font-size:44px}.introduction h1 br{display:none}.introduction h1 em{display:inline}.introduction .eyebrow{margin-bottom:16px}.intro-rule,.intro-copy,.plate-title,.marginalia{display:none}.concept{margin-top:18px}}
+    @media(max-width:700px){
+      .masthead{height:68px;padding:0 22px}.brand{font-size:25px}.brand-note,.nav-index{display:none}.masthead nav{font-size:10px;letter-spacing:1px}.frame{inset:85px 12px 16px}.introduction{left:0;top:12%;text-align:center;width:100%;max-width:none}.eyebrow{font-size:8px;letter-spacing:2.5px;margin-bottom:15px}.introduction h1{font-size:36px;letter-spacing:-.8px}.introduction h1 br{display:none}.introduction h1 em{display:block;font-size:1.23em;margin-top:4px}.intro-rule{display:none}.intro-copy{font-size:10px;line-height:1.8;letter-spacing:1px;margin-top:16px}.concept{position:absolute;top:58svh;left:0;width:100%;font-size:8px;margin-top:0}.plate-title,.marginalia,.folio{display:none}.cosmos{width:110vw;max-width:620px;opacity:.85}
+      .annotation{width:115px}.annotation strong{font-size:20px;white-space:normal}.annotation small{font-size:8px;letter-spacing:1px;line-height:1.7;margin-top:5px}.annotation .leader{width:26px;top:15px}.a-glass{left:6%;right:auto;top:calc(52% - var(--unit)*.75 - 10px);text-align:left}.a-dial{left:auto;right:6%;top:calc(52% - 16px);text-align:right}.a-gears{left:6%;right:auto;top:calc(52% + var(--unit)*.34);text-align:left}.a-glass .leader,.a-gears .leader{left:calc(100% + 5px)}.a-dial .leader{right:calc(100% + 5px)}
+      .stage-bottom{bottom:6%;left:7%;right:7%;gap:10px}.scroll-note{font-size:9px;letter-spacing:1px}.scroll-note span{font-size:8px;letter-spacing:2px;margin-bottom:5px}.controls{gap:14px}.meter{width:35px}.meter-label{font-size:7px;letter-spacing:0;white-space:nowrap}.toggle{padding:12px 14px;font-size:9px;letter-spacing:1px}.colophon{padding:55px 7% 24px}.colophon-top{display:block;padding-bottom:30px}.colophon-top>a{display:inline-block;margin-top:20px}.principles{grid-template-columns:1fr;gap:28px;margin:30px 0 38px}.fineprint{display:block}.fineprint span{display:block;margin-top:16px}
+    }
+    @media(max-width:380px){:root{--unit:min(62vw,36svh)}.introduction h1{font-size:30px}.introduction{top:16%}.intro-copy{display:none}.annotation{width:88px}.annotation strong{font-size:18px}.annotation small{font-size:7px}.annotation .leader{width:16px}.stage-bottom{left:7%;right:7%;bottom:7%}.meter{display:none}.scroll-note{font-size:8px}.toggle{font-size:8px;padding:12px}.concept{top:60svh;margin-top:0}}
+    @media(max-height:580px) and (min-width:600px){:root{--unit:min(40vw,35svh,300px)}.masthead{height:54px}.frame{inset:65px 14px 12px}.brand{font-size:24px}.introduction{top:27%;max-width:220px}.introduction h1{font-size:32px}.introduction .eyebrow{font-size:7px;margin-bottom:12px}.intro-rule,.intro-copy,.plate-title,.marginalia,.folio{display:none}.concept{font-size:8px;margin-top:16px}.stage-bottom{bottom:7%}.scroll-note{font-size:8px}.scroll-note span{margin-bottom:0}.toggle{min-height:40px;padding:11px}.annotation{width:140px}.annotation strong{font-size:20px}.annotation small{font-size:8px}.annotation .leader{width:36px}.a-glass{top:calc(52% - var(--unit)*.75 - 10px)}.a-dial{top:calc(52% - 16px)}.a-gears{top:calc(52% + var(--unit)*.34)}}
+    @media(prefers-reduced-motion:reduce){.story,.motion .story{height:100vh;height:100svh}.annotations{display:none}}
+  </style>
+</head>
+<body class="static">
+  <a class="skip" href="#craft">跳至設計理念</a>
+  <header class="masthead">
+    <div class="signature"><a class="brand" href="#" aria-label="ICH.co 概念設計首頁">ICH<i>.</i>co</a><span class="brand-note">INDEPENDENT SPIRIT<br>PERSONAL EXPRESSION</span></div>
+    <nav aria-label="主要導覽"><a class="nav-index" href="#craft">設計手記</a><a class="nav-collection" href="https://fornitewang.github.io/ichco-watch-studio/catalog.html">探索錶款 ↗</a></nav>
+  </header>
+  <!-- 共用 SVG 材質定義；五層不依賴任何外部圖片或 3D 模型。 -->
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#efd8a2"/><stop offset=".18" stop-color="#86704a"/><stop offset=".34" stop-color="#d7bd7b"/><stop offset=".53" stop-color="#6d552f"/><stop offset=".72" stop-color="#c7ac71"/><stop offset="1" stop-color="#50412b"/></linearGradient>
+    <linearGradient id="bevel" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#fff0c5"/><stop offset=".25" stop-color="#b59960"/><stop offset=".5" stop-color="#322a1d"/><stop offset=".73" stop-color="#c9ab6d"/><stop offset="1" stop-color="#57462b"/></linearGradient>
+    <linearGradient id="steel"><stop stop-color="#3e3b33"/><stop offset=".45" stop-color="#bbb39b"/><stop offset=".51" stop-color="#4d483d"/><stop offset="1" stop-color="#25221c"/></linearGradient>
+    <radialGradient id="dialSurface" cx=".45" cy=".36" r=".7"><stop stop-color="#30332f"/><stop offset=".45" stop-color="#1c2322"/><stop offset=".8" stop-color="#111817"/><stop offset="1" stop-color="#080c0c"/></radialGradient>
+    <radialGradient id="recess"><stop stop-color="#252018"/><stop offset=".85" stop-color="#14120f"/><stop offset="1" stop-color="#050504"/></radialGradient>
+    <linearGradient id="crystal" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#f9f0d7" stop-opacity=".22"/><stop offset=".35" stop-color="#d4e7d9" stop-opacity=".02"/><stop offset=".68" stop-color="#e7efd9" stop-opacity="0"/><stop offset="1" stop-color="#b4d3d6" stop-opacity=".13"/></linearGradient>
+    <linearGradient id="reflection" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9e3" stop-opacity=".4"/><stop offset=".65" stop-color="#fff9e3" stop-opacity="0"/></linearGradient>
+    <pattern id="dialLines" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 0H5" stroke="#cab680" stroke-opacity=".04" stroke-width=".7"/></pattern>
+    <filter id="paperGrain"><feTurbulence type="fractalNoise" baseFrequency=".77" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  </defs></svg>
+  <main>
+    <section class="story" id="story" aria-labelledby="title">
+      <div class="stage">
+        <div class="marble" aria-hidden="true"></div><svg class="grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#paperGrain)" opacity=".8"/></svg><div class="frame" aria-hidden="true"></div>
+        <div class="introduction"><p class="eyebrow">MYTH · PROPORTION · CRAFT</p><h1 id="title">The Anatomy<br> <em>of Time.</em></h1><div class="intro-rule"></div><p class="intro-copy">以神話為序，以雙手為度。<br>在時間深處，拆閱一枚錶的靈魂。</p><span class="concept">ICH.co 概念錶研究 · 非販售配置</span></div>
+        <p class="plate-title" aria-hidden="true">PLATE I / TEMPUS<span>In pursuit of a perfect moment</span></p>
+        <p class="marginalia" aria-hidden="true">Between the orbit<br>of the heavens<br>& the work of<br>human hands.<small>φ = 1.618…</small></p><span class="folio" aria-hidden="true">FIG. 01 — ANATOMIA TEMPORIS</span>
+        <div class="cosmos" aria-hidden="true"><svg viewBox="0 0 800 800" fill="none" stroke="#c5a059" stroke-width=".65">
+          <g class="golden-grid"><rect x="120" y="227" width="560" height="346.11"/><path d="M466.11 227V573.11M466.11 440.91H680M547.8 440.91V573.11M466.11 491.4H547.8M516.6 440.91V491.4"/><path d="M120 573.11A346.11 346.11 0 0 1 466.11 227A213.89 213.89 0 0 1 680 440.91A132.2 132.2 0 0 1 547.8 573.11A81.69 81.69 0 0 1 466.11 491.42A50.51 50.51 0 0 1 516.62 440.91"/><path d="M95 95L705 705M95 705L705 95M400 30V770M30 400H770" stroke-dasharray="3 9"/><circle cx="400" cy="400" r="272"/></g>
+          <g class="orbit astrolabe"><circle cx="400" cy="400" r="350"/><circle cx="400" cy="400" r="340"/><circle cx="400" cy="400" r="311"/><g id="orbitTicks"></g><ellipse cx="400" cy="400" rx="350" ry="139" transform="rotate(-34 400 400)"/><ellipse cx="400" cy="400" rx="350" ry="139" transform="rotate(56 400 400)"/><path d="M400 32L408 48L400 64L392 48ZM400 736L408 752L400 768L392 752ZM32 400L48 392L64 400L48 408ZM736 400L752 392L768 400L752 408Z"/><g fill="#c5a059" stroke="none" font-family="Cinzel,serif" font-size="10" text-anchor="middle" letter-spacing="4"><text x="400" y="108">CHRONOS</text><text x="400" y="704">COSMOS</text></g></g>
+          <g class="orbit constellations"><path d="M170 226L298 142L455 183L620 293L571 470L636 603M298 142L278 349L170 226M278 349L455 183M571 470L472 623L229 601L147 466L278 349" stroke-dasharray="2 5"/><g fill="#c5a059"><circle cx="170" cy="226" r="2"/><circle cx="298" cy="142" r="2.5"/><circle cx="455" cy="183" r="2"/><circle cx="620" cy="293" r="2"/><circle cx="571" cy="470" r="3"/><circle cx="636" cy="603" r="2"/><circle cx="229" cy="601" r="2"/><circle cx="147" cy="466" r="2"/></g><circle cx="400" cy="400" r="217" stroke-dasharray="1 14"/></g>
+        </svg></div>
+        <div class="watch-position">
+          <div class="watch" id="watch" role="img" aria-label="ICH.co 概念錶的五層設計示意：鏡面、指針、羅馬數字星象錶盤、機芯與底殼；非實際商品的拆解圖">
+            <!-- 圖片替換位置：把每個 .layer 內的 SVG 換成 img 即可，例如
+                 <img src="images/5_case.png" alt="">。其餘依序為 4_gears.png、
+                 3_dial.png、2_hands.png、1_glass.png。五張 PNG 必須使用相同
+                 畫布尺寸、透明背景與對位中心；保留外層 class 和 data-layer。 -->
+            <div class="layer layer-case" data-layer="case"><svg viewBox="0 0 600 600" aria-hidden="true">
+              <path d="M178 144L186 60Q215 43 242 52L251 125M349 125L358 52Q385 43 414 60L422 144M178 456L186 540Q215 557 242 548L251 475M349 475L358 548Q385 557 414 540L422 456" fill="url(#brass)" stroke="#a78b56" stroke-width="1.5"/>
+              <path d="M192 104L197 67L231 62M369 62L403 67L409 104M192 496L197 533L231 538M369 538L403 533L409 496" fill="none" stroke="#f0db9c" stroke-opacity=".4"/>
+              <rect x="516" y="280" width="36" height="40" rx="6" fill="url(#steel)" stroke="#a98d58"/><path d="M523 283V317M529 282V318M535 282V318M541 282V318M547 284V316" stroke="#1a1711" stroke-width="2"/>
+              <circle cx="300" cy="304" r="229" fill="#080706"/><circle cx="300" cy="300" r="229" fill="url(#bevel)" stroke="#dcc48b" stroke-width="1"/><circle cx="300" cy="300" r="218" fill="url(#brass)" stroke="#342919" stroke-width="2"/><circle cx="300" cy="300" r="204" fill="url(#recess)" stroke="#e5c47d" stroke-width="1.2"/><circle cx="300" cy="300" r="183" fill="none" stroke="#796444" stroke-width=".7"/><circle cx="300" cy="300" r="178" fill="none" stroke="#514530" stroke-dasharray="1 4"/>
+              <g fill="url(#steel)" stroke="#17150f"><circle cx="300" cy="90" r="4"/><circle cx="510" cy="300" r="4"/><circle cx="300" cy="510" r="4"/><circle cx="90" cy="300" r="4"/></g><path d="M297 90H303M507 300H513M297 510H303M87 300H93" stroke="#342e20"/>
+              <path d="M133 181A209 209 0 0 1 371 103" fill="none" stroke="#fff0bf" stroke-width="2" opacity=".42"/>
+            </svg></div>
+            <div class="layer layer-gears" data-layer="gears"><svg viewBox="0 0 600 600" aria-hidden="true">
+              <circle cx="300" cy="300" r="197" fill="url(#brass)" stroke="#dbbd7b" stroke-width="1.2"/><circle cx="300" cy="300" r="184" fill="url(#recess)"/><g id="gearwork"></g>
+              <path d="M199 168Q295 131 380 180L354 226L287 238L255 279L211 263L231 216Z" fill="url(#brass)" stroke="#d6b97b" stroke-width="1.3"/><path d="M165 325L208 285L247 304L262 344L344 381L376 366L411 391Q314 485 215 417L234 381Z" fill="url(#brass)" stroke="#d6b97b" stroke-width="1.3"/>
+              <path d="M209 182Q299 150 363 187M181 326L209 303L234 315M252 363L342 402L374 385" fill="none" stroke="#ffdf94" stroke-opacity=".45"/>
+              <g fill="#642c37" stroke="#b49c70" stroke-width="3"><circle cx="251" cy="215" r="7"/><circle cx="349" cy="198" r="7"/><circle cx="225" cy="332" r="7"/><circle cx="328" cy="403" r="7"/></g><g fill="#b6b0a0" stroke="#4e4738" stroke-width="2"><circle cx="211" cy="194" r="5"/><circle cx="366" cy="204" r="5"/><circle cx="190" cy="331" r="5"/><circle cx="363" cy="406" r="5"/></g><path d="M207 194H215M362 204H370M186 331H194M359 406H367" stroke="#38332b" stroke-width="1.4"/>
+              <circle cx="300" cy="300" r="19" fill="url(#steel)" stroke="#d7bc7b"/><circle cx="300" cy="300" r="6" fill="#100f0c"/>
+            </svg></div>
+            <div class="layer layer-dial" data-layer="dial"><svg viewBox="0 0 600 600" aria-hidden="true">
+              <circle cx="300" cy="300" r="203" fill="url(#dialSurface)" stroke="#a88d57" stroke-width="2"/><circle cx="300" cy="300" r="201" fill="url(#dialLines)"/><g fill="none" stroke="#c5a059"><circle cx="300" cy="300" r="195" stroke-width=".6"/><circle cx="300" cy="300" r="170" stroke-width=".45" opacity=".5"/><circle cx="300" cy="300" r="128" stroke-width=".45" opacity=".4"/><circle cx="300" cy="300" r="124" stroke-width=".5" opacity=".3"/></g><g id="minuteTicks"></g><g id="guilloche" fill="none" stroke="#bfa671" stroke-width=".35" opacity=".12"></g>
+              <!-- 羅馬數字共 12 個；XII 在 12 點鐘，順時針排列。 -->
+              <g class="roman"><text x="300" y="149">XII</text><text x="377.5" y="169.77">I</text><text x="434.23" y="226.5">II</text><text x="455" y="304">III</text><text x="434.23" y="381.5">IV</text><text x="377.5" y="438.23">V</text><text x="300" y="459">VI</text><text x="222.5" y="438.23">VII</text><text x="165.77" y="381.5">VIII</text><text x="145" y="304">IX</text><text x="165.77" y="226.5">X</text><text x="222.5" y="169.77">XI</text></g>
+              <text class="dial-text" x="300" y="230" font-size="22" letter-spacing="2">ICH.co</text><text class="dial-text" x="300" y="250" font-size="7.5">CHRONOS · ATELIER</text>
+              <path d="M247 381A53 53 0 0 1 353 381Z" fill="#0b121a" stroke="#a99261" stroke-width=".8"/><path d="M306 336A18 18 0 1 0 318 363A16 16 0 0 1 306 336Z" fill="url(#brass)"/><path d="M268 354V362M264 358H272M333 363V369M330 366H336" stroke="#d4bd83" stroke-width=".8"/><circle cx="283" cy="341" r="1" fill="#d4bd83"/><circle cx="324" cy="345" r="1.2" fill="#d4bd83"/><text class="dial-text" x="300" y="401" font-size="6" letter-spacing="2">CELESTIAL STUDY</text>
+              <circle cx="300" cy="300" r="5" fill="#080b0a" stroke="#bb9e62"/>
+            </svg></div>
+            <div class="layer layer-hands" data-layer="hands"><svg viewBox="0 0 600 600" aria-hidden="true">
+              <g transform="rotate(-52 300 300)"><path d="M300 194L307 231L304 316L300 327L296 316L293 231Z" fill="url(#brass)" stroke="#e8d49a" stroke-width=".8"/><path d="M300 210V297" stroke="#f5e6b6" stroke-width="1"/><path d="M298 227H302V279H298Z" fill="#17201b"/></g>
+              <g transform="rotate(57 300 300)"><path d="M300 142L306 180L303 320L300 333L297 320L294 180Z" fill="url(#brass)" stroke="#e8d49a" stroke-width=".8"/><path d="M300 157V298" stroke="#f5e6b6" stroke-width="1"/><path d="M298.5 177H301.5V269H298.5Z" fill="#17201b"/></g>
+              <g transform="rotate(174 300 300)"><path d="M300 122V346" stroke="#d0b06b" stroke-width="1.4"/><circle cx="300" cy="335" r="6" fill="none" stroke="#d0b06b" stroke-width="2"/></g><circle cx="300" cy="300" r="9" fill="url(#brass)" stroke="#e8d49a"/><circle cx="300" cy="300" r="3" fill="#33382e"/>
+            </svg></div>
+            <div class="layer layer-glass" data-layer="glass"><svg viewBox="0 0 600 600" aria-hidden="true">
+              <circle cx="300" cy="300" r="208" fill="url(#crystal)" stroke="#e2d5aa" stroke-opacity=".38" stroke-width="1.2"/><circle cx="300" cy="300" r="205" fill="none" stroke="#f4e3b8" stroke-opacity=".18" stroke-width=".7"/>
+              <path d="M136 190A198 198 0 0 1 396 127" fill="none" stroke="url(#reflection)" stroke-width="6" stroke-linecap="round"/><path d="M137 207Q213 104 380 126Q239 149 157 274Z" fill="url(#reflection)" opacity=".28"/><path d="M432 449A199 199 0 0 1 288 499" fill="none" stroke="#e4e7cc" stroke-opacity=".23" stroke-width="1.5"/>
+            </svg></div>
+          </div>
+        </div>
+        <div class="annotations" aria-hidden="true">
+          <div class="annotation a-glass"><span class="leader"></span><strong>Chronos Order</strong><small>01 / 鏡面 · 時間的邊界</small></div>
+          <div class="annotation a-dial"><span class="leader"></span><strong>Proportio Divina</strong><small>03 / 錶盤 · 天體的比例</small></div>
+          <div class="annotation a-gears"><span class="leader"></span><strong>Bespoke Movement</strong><small>04 / 機芯 · 手作的秩序</small></div>
+        </div>
+        <div class="stage-bottom"><p class="scroll-note"><span id="phase">I / THE WHOLE</span><b class="dynamic-note" style="font-weight:400">向下滑動，拆閱時間</b><b class="static-note" style="font-weight:400">時間的五層設計研究</b></p><div class="controls"><div class="meter"><span class="meter-label" id="percent" aria-hidden="true">000 / 100</span><progress id="progress" value="0" max="100" aria-label="拆解進度"></progress></div><button class="toggle" id="toggle" type="button" disabled>展開零件 ↧</button></div></div>
+      </div>
+    </section>
+    <section class="colophon" id="craft" aria-labelledby="craft-title">
+      <div class="colophon-top"><div><p class="eyebrow">THE HAND BEHIND THE HOURS</p><h2 id="craft-title">在秩序之間，<br>留下手的痕跡。</h2></div><a href="https://fornitewang.github.io/ichco-watch-studio/catalog.html">尋找你的 ICHco 錶款 ↗</a></div>
+      <div class="principles"><article><span class="number">I.</span><h3>The Myth</h3><p>星象圓環緩慢轉動。<br>以天體的軌跡，描繪時間的無形秩序。</p></article><article><span class="number">II.</span><h3>The Proportion</h3><p>黃金比例藏在細線之間。<br>如同一頁手稿，讓結構成為美的註解。</p></article><article><span class="number">III.</span><h3>The Human Touch</h3><p>每一層都有自己的節奏。<br>在微小的轉動與停頓中，感受組裝的耐心。</p></article></div>
+      <footer class="fineprint"><p>此為 ICH.co 概念視覺研究；羅馬數字星象錶盤與機芯為設計示意。<br>實際販售外觀、機芯、可選搭配與價格，請以商品頁及 ICH 官網資訊為準。</p><span>ICH.co / A STUDY IN TIME · MMXXVI</span></footer>
+    </section>
+  </main>
+  <!-- CDN 只提供動畫引擎；無需安裝工具，連網後直接開啟本檔即可。 -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script>
+  (() => {
+    'use strict';
+    const $ = (selector) => document.querySelector(selector);
+    // 若改用 PNG，對應 SVG 節點將不存在；安全略過向量細節繪製。
+    const draw = (selector, markup) => { const node = $(selector); if (node) node.innerHTML = markup; };
+    const point = (r, degrees, center = 300) => {
+      const a = (degrees - 90) * Math.PI / 180;
+      return [center + Math.cos(a) * r, center + Math.sin(a) * r];
+    };
+    const line = (a, b) => `M${a[0].toFixed(2)} ${a[1].toFixed(2)}L${b[0].toFixed(2)} ${b[1].toFixed(2)}`;
+    // 60 個分刻，逢 5 加長；使用固定座標，旋轉與往回滾動皆可重現。
+    draw('#minuteTicks', Array.from({length:60}, (_,i) => `<path d="${line(point(i%5 ? 185:181,i*6),point(190,i*6))}" stroke="#c8af77" stroke-width="${i%5 ? .65:1.4}"/>`).join(''));
+    draw('#guilloche', Array.from({length:40}, (_,i) => `<ellipse cx="300" cy="300" rx="119" ry="67" transform="rotate(${i*4.5} 300 300)"/>`).join(''));
+    draw('#orbitTicks', Array.from({length:120}, (_,i) => `<path d="${line(point(i%5 ? 333:323,i*3,400),point(339,i*3,400))}"/>`).join(''));
+    // 有限、固定的齒輪輪廓。這是工藝插圖，不冒充任何實售機芯的結構。
+    function gear(cx, cy, radius, teeth) {
+      const points = Array.from({length:teeth*4}, (_,i) => {
+        const r = radius * (i%4===0 || i%4===3 ? .89:1);
+        const a = i / (teeth*4) * Math.PI*2;
+        return `${(cx+Math.cos(a)*r).toFixed(2)},${(cy+Math.sin(a)*r).toFixed(2)}`;
+      }).join(' ');
+      const spokes = Array.from({length:6}, (_,i) => `<path d="M${cx} ${cy-radius*.6}V${cy-radius*.18}" transform="rotate(${i*60} ${cx} ${cy})"/>`).join('');
+      return `<g><polygon points="${points}" fill="url(#brass)" stroke="#dfc58c" stroke-width=".65"/><circle cx="${cx}" cy="${cy}" r="${radius*.72}" fill="url(#recess)" stroke="#ad9059" stroke-width="2"/><g stroke="url(#brass)" stroke-width="${radius*.13}">${spokes}</g><circle cx="${cx}" cy="${cy}" r="${radius*.15}" fill="url(#steel)" stroke="#d1b676"/><circle cx="${cx}" cy="${cy}" r="2.5" fill="#5e2532"/></g>`;
+    }
+    draw('#gearwork', gear(243,253,64,24)+gear(355,279,58,22)+gear(291,360,62,24)+gear(388,365,37,18)+gear(235,403,28,16)+gear(389,216,31,18));
+    // CDN 失敗時保留完整靜態錶面，避免空白畫面或三屏空白滑動。
+    if (!window.gsap || !window.ScrollTrigger) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const mm = gsap.matchMedia();
+    const button = $('#toggle');
+    let timeline;
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      document.documentElement.classList.add('motion');
+      document.body.classList.remove('static');
+      button.disabled = false;
+      const unit = () => $('#watch').offsetWidth;
+      // 每層不同起跑時間、移動距離與緩動，scrub:1.5 是追趕時間，
+      // 不是物理重量。重量感由以下錯位節奏共同構成。
+      timeline = gsap.timeline({
+        defaults:{ease:'power2.inOut'},
+        scrollTrigger:{trigger:'#story',start:'top top',end:'bottom bottom',scrub:1.5,invalidateOnRefresh:true},
+        onUpdate() {
+          const p = this.progress(), n = Math.round(p*100);
+          $('#progress').value = n;
+          $('#percent').textContent = `${String(n).padStart(3,'0')} / 100`;
+          $('#phase').textContent = p<.12 ? 'I / THE WHOLE' : p<.86 ? 'II / THE UNFOLDING' : 'III / THE ESSENCE';
+          button.textContent = p>.5 ? '重新組合 ↥' : '展開零件 ↧';
+        }
+      });
+      timeline.fromTo('.introduction',{opacity:1,y:0},{opacity:0,y:-22,duration:.22},0);
+      timeline.fromTo('.plate-title',{opacity:1},{opacity:0,duration:.2},0);
+      timeline.fromTo('.marginalia',{opacity:1},{opacity:0,duration:.25},0);
+      timeline.fromTo('.watch',{scale:1.18},{scale:.78,duration:.88,ease:'sine.inOut'},0);
+      const layers = [
+        // name, Y 倍數, Z 深度, 自轉角, 傾斜角, 縮放, 透明度, 起點, 時長
+        ['glass',-2, 100, -8,58,1.07,.68,0.00,.76],
+        ['hands',-1,  55, 35,54,1.04,1.0,0.06,.78],
+        ['dial',  0,   0, -3,52,1.00,1.0,0.10,.79],
+        ['gears', 1, -40,-42,50, .97,1.0,0.15,.81],
+        ['case',  2, -75,  4,46, .94,.92,0.21,.84]
+      ];
+      layers.forEach(([name,y,z,r,rx,scale,opacity,start,duration]) => {
+        timeline.fromTo(`[data-layer="${name}"]`,
+          {x:0,y:0,z:0,rotation:0,rotationX:0,scale:1,opacity:1},
+          {x:()=>unit()*(name==='glass'?-.035:name==='gears'?-.025:0),y:()=>unit()*.45*y,z:()=>unit()/430*z,rotation:(name==='hands'||name==='gears')?0:r,rotationX:rx,scale,opacity,duration},start);
+        // 在零件平面內自轉，再由外層傾斜，維持機械零件的共同軸向。
+        if (name==='hands' || name==='gears') timeline.fromTo(`[data-layer="${name}"] > *`,{rotation:0,transformOrigin:'50% 50%'},{rotation:r,duration},start);
+      });
+      timeline.fromTo('.astrolabe',{rotation:0,svgOrigin:'400 400'},{rotation:38,duration:1.28,ease:'none'},0);
+      timeline.fromTo('.constellations',{rotation:0,svgOrigin:'400 400'},{rotation:-24,duration:1.28,ease:'none'},0);
+      timeline.fromTo('.golden-grid',{rotation:0,svgOrigin:'400 400'},{rotation:-8,duration:1.28,ease:'none'},0);
+      timeline.fromTo('.annotation',{opacity:0,y:9},{opacity:1,y:0,duration:.15,stagger:.045},1.03);
+      timeline.fromTo('.leader',{scaleX:0},{scaleX:1,duration:.15,stagger:.045,ease:'power1.out'},1.04);
+      // sticky 已提供 200vh 的有效行程，因此不要再疊加 pin。
+      ScrollTrigger.refresh();
+      return () => {
+        timeline = null;
+        document.documentElement.classList.remove('motion');
+        document.body.classList.add('static');
+        button.disabled = true;
+        $('#phase').textContent = 'I / THE WHOLE';
+      };
+    });
+    button.addEventListener('click', () => {
+      if (!timeline) return;
+      const trigger = timeline.scrollTrigger;
+      // 按鈕亦由同一條 ScrollTrigger 時間軸驅動，不另建競爭動畫。
+      const target = timeline.progress()>.5 ? trigger.start : trigger.end;
+      window.scrollTo({top:target,behavior:'smooth'});
+    });
+    // 字體完成載入及旋轉螢幕後，由 ScrollTrigger 重算函式型位移。
+    if (document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
+    window.addEventListener('pageshow', () => ScrollTrigger.refresh());
+  })();
+  </script>
+</body>
+</html>

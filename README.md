@@ -4,6 +4,8 @@
 
 ## 頁面
 
+- `codex/index.html`：黑金星象／文藝復興手稿概念展示。完整單檔，五層內嵌 SVG、GSAP 3.13.0 CDN、300svh 拆解與 scrub:1.5；附 PNG 替換中文註解。此羅馬數字星象錶為概念研究，不是販售配置。
+
 - `index.html`：手機優先的 300vh 分層故事。GSAP ScrollTrigger 搭配 CSS 3D，以現有 MM 模型輸出的五張透明 PNG 做拆解；首頁不載入 WebGL。
 - `studio.html`：原有完整 Three.js 工作台，保留六系列、概念搭配、手機預覽與 AR 入口。`?series=MM#configHead` 可直接開啟對應系列。
 - `catalog.html`：163 個官網腕錶商品頁、16 品牌、1,194 組整錶／配套選項。實拍、配置、價格及清單外需求分開呈現。
@@ -26,8 +28,9 @@
 
 本機可用 `python -m http.server 8791`。發布前做語法、相應互動與手機視覺檢查，再提交並推送既有 GitHub Pages。不要把使用者未追蹤的 `assets/bg_candidates/` 一併加入。
 
+- [黑金概念單檔與驗證](docs/CODEX_EXPERIENCE_REVIEW.md)
 - [首頁改造與驗證](docs/HOME_EXPERIENCE_REVIEW.md)
 - [官方目錄與資料口徑](docs/CATALOG_REVIEW.md)
 - [逐款配置規則](docs/COMPATIBILITY_REVIEW.md)
 
-三頁保留 `noindex, nofollow`。網站仍是公開網址，這項設定只要求搜尋引擎不要收錄。
+四頁保留 `noindex, nofollow`。網站仍是公開網址，這項設定只要求搜尋引擎不要收錄。
