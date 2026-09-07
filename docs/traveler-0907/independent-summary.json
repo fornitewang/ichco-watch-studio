@@ -1,0 +1,29 @@
+{
+  "testedAt": "2026-09-07T13:18:23.590Z",
+  "allPassed": true,
+  "coreChecks": 33,
+  "corePassed": 33,
+  "motionFollowupChecks": 9,
+  "motionFollowupPassed": 9,
+  "jsErrors": [],
+  "popupURLs": [
+    "https://www.ichco.com.tw/collections/%E8%A1%8C%E6%9D%8E%E7%AE%B1",
+    "https://www.ichco.com.tw/collections/%E8%A1%8C%E6%9D%8E%E7%AE%B1",
+    "https://www.ichco.com.tw/collections/%E8%A1%8C%E6%9D%8E%E7%AE%B1"
+  ],
+  "verified": [
+    "Mouse single/double-click and actual official popup behavior",
+    "Enter/Space held-repeat and navigation cooldown",
+    "Outside/menu click resets tap pairing",
+    "Dialog pauses RAF and CSS animations, closes restore walking",
+    "Pause/resume/menu focus/hide/show lifecycle",
+    "Drag/throw and pointer cancellation without navigation",
+    "Runtime reduced-motion switches stop throw and RAF and update controls",
+    "320px resize keeps actor in viewport"
+  ],
+  "scopeNote": "33 core checks retained; only changed motion preference path retested after final defensive fix.",
+  "evidence": [
+    "final-core-report.json",
+    "final-motion-retest.json"
+  ]
+}

@@ -1,0 +1,203 @@
+[
+  {
+    "engine": "chrome",
+    "name": "mobile",
+    "geometry": {
+      "x": 173.2100067138672,
+      "y": 647,
+      "width": 112.00001525878906,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": [],
+    "placed": {
+      "state": "paused",
+      "transform": "translate3d(82.66px, 427px, 0px) rotate(0deg)"
+    },
+    "thrown": "thrown",
+    "landed": {
+      "state": "walking",
+      "box": {
+        "x": 138.5800018310547,
+        "y": 647,
+        "width": 112,
+        "height": 130.65625,
+        "top": 647,
+        "right": 250.5800018310547,
+        "bottom": 777.65625,
+        "left": 138.5800018310547
+      }
+    },
+    "cancelled": "walking",
+    "singleTapPopups": 0,
+    "doubleTap": {
+      "popups": 1,
+      "popupUrls": [
+        "https://www.ichco.com.tw/collections/%E8%A1%8C%E6%9D%8E%E7%AE%B1"
+      ]
+    },
+    "hidden": true,
+    "restored": true,
+    "search": "1 個錶款系列",
+    "dialogSuspended": "true",
+    "dialogRestored": "false",
+    "reduced": {
+      "stable": true,
+      "state": "paused"
+    }
+  },
+  {
+    "engine": "chrome",
+    "name": "narrow",
+    "geometry": {
+      "x": 122.88999938964844,
+      "y": 371,
+      "width": 112,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "chrome",
+    "name": "landscape",
+    "geometry": {
+      "x": 492.2099609375,
+      "y": 212,
+      "width": 96,
+      "height": 112,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "chrome",
+    "name": "desktop",
+    "geometry": {
+      "x": 877.0599975585938,
+      "y": 666,
+      "width": 144,
+      "height": 168,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "chrome",
+    "name": "dark",
+    "geometry": {
+      "x": 171.7100067138672,
+      "y": 647,
+      "width": 112.00001525878906,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "name": "mobile",
+    "geometry": {
+      "x": 172.4499969482422,
+      "y": 647,
+      "width": 112.00001525878906,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": [],
+    "singleTapPopups": 0,
+    "doubleTap": {
+      "popups": 1,
+      "popupUrls": [
+        "https://www.ichco.com.tw/collections/%E8%A1%8C%E6%9D%8E%E7%AE%B1"
+      ]
+    },
+    "hidden": true,
+    "restored": true,
+    "search": "1 個錶款系列",
+    "dialogSuspended": "true",
+    "dialogRestored": "false",
+    "reduced": {
+      "stable": true,
+      "state": "paused"
+    }
+  },
+  {
+    "engine": "webkit",
+    "name": "narrow",
+    "geometry": {
+      "x": 123.31999969482422,
+      "y": 371,
+      "width": 112.00000762939453,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "name": "landscape",
+    "geometry": {
+      "x": 494.3399963378906,
+      "y": 212,
+      "width": 95.99996948242188,
+      "height": 112,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "name": "desktop",
+    "geometry": {
+      "x": 877.969970703125,
+      "y": 666,
+      "width": 144,
+      "height": 168,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "name": "dark",
+    "geometry": {
+      "x": 172.3800048828125,
+      "y": 647,
+      "width": 112,
+      "height": 130.65625,
+      "state": "walking",
+      "overflow": false,
+      "svg": true,
+      "running": "running"
+    },
+    "errors": []
+  }
+]

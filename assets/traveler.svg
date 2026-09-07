@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" fill="none" aria-hidden="true">
+  <!--
+    ICH.co 小旅人：依桌面參考穿搭繪製的原創向量角色，朝右、行李在後。
+    全圖座標原點左上；腳底 y=194。所有動畫請用 transform-box:view-box。
+    t-leg-far origin:111px 119px; t-leg-near:119px 119px（建議各 ±9deg 反相）。
+    t-body origin:116px 117px（建議上下 1px，不單獨大幅旋轉持箱手）。
+    t-arm-free origin:131px 82px（建議 ±5deg）。
+    t-suitcase origin:48px 184px（建議只有 ±1deg，避免手／拉桿斷開）。
+    箱體固定傾角位於 t-case-tilt，請保留；輪子原點各 31px 185px、64px 185px。
+    t-hair origin:121px 31px（建議 ±1.5deg）。
+  -->
+  <defs>
+    <linearGradient id="traveler-denim" x1="102" y1="116" x2="131" y2="175" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#647b96"/><stop offset=".48" stop-color="#4b637e"/><stop offset="1" stop-color="#324b64"/>
+    </linearGradient>
+    <linearGradient id="traveler-leather" x1="97" y1="81" x2="135" y2="111" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#414046"/><stop offset=".28" stop-color="#292b32"/><stop offset=".7" stop-color="#151a22"/><stop offset="1" stop-color="#35383d"/>
+    </linearGradient>
+    <linearGradient id="traveler-hair" x1="101" y1="33" x2="138" y2="68" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9d693c"/><stop offset=".3" stop-color="#e6bb72"/><stop offset=".55" stop-color="#f7d993"/><stop offset=".82" stop-color="#c9904d"/><stop offset="1" stop-color="#aa733b"/>
+    </linearGradient>
+    <linearGradient id="traveler-skin" x1="121" y1="35" x2="139" y2="67" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f4d2b1"/><stop offset="1" stop-color="#d9a07c"/>
+    </linearGradient>
+    <linearGradient id="traveler-metal" x1="21" y1="130" x2="67" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b3bdc6"/><stop offset=".12" stop-color="#ecf0ef"/><stop offset=".36" stop-color="#cdd6db"/><stop offset=".65" stop-color="#f8f8f1"/><stop offset=".85" stop-color="#c5ced1"/><stop offset="1" stop-color="#9ca8b2"/>
+    </linearGradient>
+    <linearGradient id="traveler-case-side" x1="63" y1="128" x2="73" y2="160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#adbac5"/><stop offset=".45" stop-color="#8697a6"/><stop offset="1" stop-color="#a5b0b7"/>
+    </linearGradient>
+    <linearGradient id="traveler-tan" x1="23" y1="125" x2="65" y2="183" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#b6855c"/><stop offset="1" stop-color="#73513e"/>
+    </linearGradient>
+    <linearGradient id="traveler-hood" x1="110" y1="68" x2="134" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c34745"/><stop offset=".45" stop-color="#a63039"/><stop offset="1" stop-color="#752834"/>
+    </linearGradient>
+  </defs>
+
+  <g class="t-suitcase">
+    <g class="t-case-tilt" transform="rotate(14 48 184)">
+      <!-- 兩節金屬拉桿；上方橫把與持箱手相接。 -->
+      <path d="M36 132V99Q36 96 39 96H54Q57 96 57 99V132" stroke="#707d87" stroke-width="3.4" stroke-linejoin="round"/>
+      <path d="M36 129V100M57 129V100" stroke="#d7e0e2" stroke-width="1.3"/>
+      <path d="M36 115H38M55 115H57" stroke="#62747f" stroke-width="1.6"/>
+      <path d="M39 96H54" stroke="#3b4249" stroke-width="5" stroke-linecap="round"/>
+      <path d="M40 94.7H52" stroke="#697078" stroke-width="1.1" stroke-linecap="round"/>
+      <!-- 背側厚度、箱殼與雙道收邊。 -->
+      <path d="M29 125H65L74 131V178L67 185H29Q23 185 23 179V132Q23 126 29 125Z" fill="url(#traveler-case-side)" stroke="#687681" stroke-width="1.1"/>
+      <rect x="21" y="125" width="46" height="59" rx="6.7" fill="url(#traveler-metal)" stroke="#88949c" stroke-width="1.1"/>
+      <rect x="24" y="128" width="40" height="53" rx="4.7" stroke="#fcfcf2" stroke-opacity=".68"/>
+      <path d="M68 131V177M71 133V175" stroke="#6c7f8d" stroke-width=".8"/>
+      <path d="M32 135V174M40 135V175M48 135V175M56 135V174" stroke="#9faeb7" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M33 135V174M41 135V175M49 135V175M57 135V174" stroke="#f9faf3" stroke-width="1.7" stroke-linecap="round"/>
+      <path d="M31 137V172M39 137V173M47 137V173M55 137V172" stroke="#bec8cd" stroke-width=".7" stroke-linecap="round"/>
+      <!-- 棕褐皮革角護套與細縫線。 -->
+      <path d="M21 136V132Q21 125 28 125H34V130H29Q26 130 26 133V137Z M54 125H61Q67 125 67 132V137L62 136V133Q62 130 59 130H54Z M21 171L26 170V177Q26 180 29 180H34V184H28Q21 184 21 177Z M62 170L67 171V177Q67 184 60 184H54V180H59Q62 180 62 177Z" fill="url(#traveler-tan)"/>
+      <path d="M23 134V132Q23 127 29 127H32M56 127H60Q65 127 65 133M23 173V177Q23 182 29 182H32M56 182H60Q65 182 65 176" stroke="#e0b389" stroke-width=".65" stroke-dasharray="1.4 1.5"/>
+      <path d="M39 126V124Q39 121 42 121H47Q50 121 50 124V126" stroke="#725140" stroke-width="2.5"/>
+      <path d="M69 147V159" stroke="#59483c" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M70 149V157" stroke="#ac835e" stroke-width="1.4" stroke-linecap="round"/>
+      <rect x="60.4" y="147" width="3.1" height="7.2" rx="1" fill="#806b51" stroke="#f1d6a0" stroke-width=".45"/>
+      <rect x="41" y="145" width="8.8" height="4.1" rx=".9" fill="#bba98a" stroke="#f6edce" stroke-width=".6"/>
+      <path d="M43 147H47.8" stroke="#786b58" stroke-width=".6"/>
+      <g class="t-wheel t-wheel-far" style="transform-origin:31px 185px">
+        <rect x="27" y="179" width="8" height="6" rx="2" fill="#5e6266"/>
+        <circle cx="31" cy="185" r="5.2" fill="#252c34" stroke="#596570" stroke-width="1"/>
+        <circle cx="31" cy="185" r="2.3" fill="#9aa6ab"/>
+        <path d="M31 183.2V186.8M29.2 185H32.8" stroke="#63737f" stroke-width=".75"/>
+      </g>
+      <g class="t-wheel t-wheel-near" style="transform-origin:64px 185px">
+        <rect x="60" y="179" width="8" height="6" rx="2" fill="#5e6266"/>
+        <circle cx="64" cy="185" r="5.2" fill="#252c34" stroke="#596570" stroke-width="1"/>
+        <circle cx="64" cy="185" r="2.3" fill="#b2bbb9"/>
+        <path d="M64 183.2V186.8M62.2 185H65.8" stroke="#63737f" stroke-width=".75"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- 遠腿先畫，保留明確的雙腳與寬褲輪廓。 -->
+  <g class="t-leg-far" style="transform-origin:111px 119px">
+    <path d="M101 113L121 119L114 148L105 180L89 178L95 144Z" fill="#3c546d" stroke="#2b3e53" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M110 128L102 148L95 174" stroke="#7691aa" stroke-opacity=".48" stroke-width="1.8"/>
+    <path d="M94 163L105 166M91 175L104 176" stroke="#243d55" stroke-width="1"/>
+    <path d="M89 176L105 178L103 185L87 183Z" fill="#8192a2" stroke="#405770" stroke-width=".9"/>
+    <path d="M89 182L101 183L103 187L115 189Q119 190 118 194H85Q82 193 83 189L86 184Z" fill="#e0ddd3" stroke="#9a9e9b" stroke-width="1"/>
+    <path d="M84 190H117V194H85Q82 193 84 190Z" fill="#f2eee0"/>
+    <path d="M96 186L103 187M94 188L102 189" stroke="#929a9c" stroke-width=".8"/>
+  </g>
+
+  <g class="t-leg-near" style="transform-origin:119px 119px">
+    <path d="M115 115L134 115L137 145L136 183H118L116 152L109 134Z" fill="url(#traveler-denim)" stroke="#32485f" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M125 123L128 150L127 178" stroke="#94aac0" stroke-opacity=".68" stroke-width="1.4"/>
+    <path d="M113 127L118 136L124 138M121 150L132 153M121 176L134 176" stroke="#2c455e" stroke-width="1"/>
+    <path d="M118 177H136L136 184H119Z" fill="#8797a7" stroke="#445c72" stroke-width=".9"/>
+    <path d="M120 183H133L137 187L150 189Q154 190 153 194H119Q116 193 117 189Z" fill="#f0eadd" stroke="#a2a3a0" stroke-width="1"/>
+    <path d="M118 190H153V194H119Q116 193 118 190Z" fill="#fffaec"/>
+    <path d="M130 186L137 187M128 188L136 189M147 190L151 191" stroke="#a0a5a1" stroke-width=".8"/>
+    <path d="M121 184L123 188" stroke="#aeb4b0" stroke-width="1.2"/>
+  </g>
+
+  <g class="t-body" style="transform-origin:116px 117px">
+    <!-- 後伸的手臂以弧形肘部连接拉桿頂端，袖口外露紅色織物。 -->
+    <g class="t-arm-handle">
+      <path d="M108 76Q102 77 99 87L91 96L78 96L77 104L95 108Q98 108 101 105L116 87Z" fill="url(#traveler-leather)" stroke="#1e252d" stroke-width="1.1" stroke-linejoin="round"/>
+      <path d="M103 86L96 100L83 100" stroke="#696970" stroke-opacity=".65" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M79 96L82 96L81 105L77 104Z" fill="#b94246"/>
+      <path d="M78 98L75 96Q72 94 69 96L67 98Q67 100 70 100L73 100L72 103Q73 106 76 105L79 104Z" fill="#e9bb96" stroke="#ab795e" stroke-width=".7"/>
+      <path d="M70 97L74 99M72 101L75 102" stroke="#ba8867" stroke-width=".6" stroke-linecap="round"/>
+    </g>
+    <path d="M110 72Q120 68 129 74L134 86L133 119Q120 125 104 118L101 90Z" fill="url(#traveler-hood)" stroke="#6b3035" stroke-width=".8"/>
+    <path d="M112 74Q104 70 104 64Q116 64 124 72L129 82Q118 84 112 74Z" fill="#ad3c42"/>
+    <path d="M108 69Q117 70 121 77" stroke="#e0786c" stroke-width="1.3"/>
+    <path d="M120 87V114M123 89L126 110" stroke="#d07570" stroke-width=".8"/>
+    <path d="M122 96V99M125 96V99" stroke="#ecd3b5" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M106 74L116 79L114 94L111 111L114 121L102 120L98 97Q98 81 106 74Z" fill="url(#traveler-leather)" stroke="#1c242d" stroke-width="1"/>
+    <path d="M129 75L137 83L137 105L139 120L128 121L128 95L124 81Z" fill="url(#traveler-leather)" stroke="#1c242d" stroke-width="1"/>
+    <path d="M108 77L112 83L105 91L112 94L105 109M129 80L126 86L133 93L128 96" stroke="#858185" stroke-opacity=".75" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M104 100L110 104M131 101L134 105M103 114L110 114" stroke="#bab3a8" stroke-width=".85" stroke-linecap="round"/>
+    <circle cx="107" cy="91" r="1.25" fill="#b8b2a7"/><circle cx="130" cy="94" r="1" fill="#b8b2a7"/>
+    <path d="M102 118Q117 123 136 118" stroke="#151c23" stroke-width="2.3"/>
+    <path d="M108 122H131" stroke="#a0a8a7" stroke-width="1"/>
+    <path d="M123 122V128M118 123L116 130" stroke="#344a60" stroke-width=".9"/>
+    <g class="t-arm-free" style="transform-origin:131px 82px">
+      <path d="M133 80Q139 83 140 93L142 105L152 117L146 123L133 110Q130 105 129 97L126 87Z" fill="url(#traveler-leather)" stroke="#20262e" stroke-width="1" stroke-linejoin="round"/>
+      <path d="M135 87L137 105L148 117" stroke="#727279" stroke-opacity=".65" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M148 115L153 119L148 125L144 121Z" fill="#a83841"/>
+      <path d="M152 120L155 122Q160 124 159 127L156 130Q154 131 152 128L148 126Z" fill="#e9bb96" stroke="#aa7a60" stroke-width=".7"/>
+      <path d="M154 124L156 127" stroke="#bb8768" stroke-width=".7" stroke-linecap="round"/>
+    </g>
+
+    <path d="M117 59L117 71Q122 77 130 75L128 61Z" fill="url(#traveler-skin)" stroke="#b28164" stroke-width=".7"/>
+    <path d="M120 65L128 65L129 71Q124 71 120 68Z" fill="#bb8060" fill-opacity=".36"/>
+    <g class="t-hair" style="transform-origin:121px 31px">
+      <path d="M102 37Q98 45 102 60L99 73Q98 81 104 83L109 80L113 86L120 79L125 53L131 35Q115 22 102 37Z" fill="url(#traveler-hair)" stroke="#a16e3f" stroke-width=".9"/>
+      <path d="M106 42Q101 53 108 65L105 77M111 37Q106 53 113 66L112 80M118 34Q113 48 118 60L117 73" stroke="#ffe3a4" stroke-opacity=".58" stroke-width="1.25" stroke-linecap="round"/>
+    </g>
+    <path d="M123 33Q136 31 140 43L140 47L145 52Q146 54 140 55L139 62Q138 68 131 68L122 64L116 51L116 42Z" fill="url(#traveler-skin)" stroke="#b78265" stroke-width=".8" stroke-linejoin="round"/>
+    <ellipse cx="119.2" cy="51.7" rx="3.1" ry="4.5" fill="#e9b38e" stroke="#b88567" stroke-width=".6"/>
+    <path d="M118.4 50.3Q121 49 120 54" stroke="#bc8568" stroke-width=".8" stroke-linecap="round"/>
+    <path d="M135 46.1L139 46.5" stroke="#8f603f" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M136 49Q138 48.2 139.3 49" stroke="#474047" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="138" cy="49.1" r=".75" fill="#37343b"/>
+    <path d="M136 59.3Q138 60.1 139.3 59" stroke="#a76460" stroke-width=".85" stroke-linecap="round"/>
+    <ellipse cx="134" cy="55" rx="3.6" ry="1.9" fill="#d7927c" fill-opacity=".37"/>
+    <circle cx="119.4" cy="56.8" r="1" fill="#eac775"/>
+    <path d="M102 44Q100 31 112 27Q131 21 138 34L141 42Q129 43 123 35Q119 40 118 49L113 56L110 45Z" fill="url(#traveler-hair)" stroke="#a67440" stroke-width=".8"/>
+    <path d="M109 33Q120 26 131 32M106 37Q112 32 118 32M125 30Q133 33 136 38M121 35L116 43" stroke="#ffe2a1" stroke-width="1.3" stroke-linecap="round" stroke-opacity=".82"/>
+    <path d="M114 44Q115 55 112 64L116 74" stroke="#bd894b" stroke-width="2" stroke-linecap="round"/>
+    <!-- 頭頂太陽眼鏡有兩片鏡片與金屬橋，不遮住臉部。 -->
+    <path d="M108 29Q118 25 132 29" stroke="#242d37" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M109 27L119 26L119 31Q117 34 112 32Z M123 26L133 28L131 33Q127 35 123 31Z" fill="#465765" stroke="#222c36" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M119 28H123M108 29L105 34" stroke="#b4a078" stroke-width="1.2"/>
+    <path d="M111 28L116 27M125 27.5L130 28.5" stroke="#9dafba" stroke-width=".8" stroke-linecap="round"/>
+  </g>
+</svg>

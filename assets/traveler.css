@@ -1,0 +1,31 @@
+/* 位移、朝向與步態分開，拖曳不會覆蓋走路動畫。 */
+.traveler{position:fixed;inset:0;z-index:12;pointer-events:none;overflow:clip;--traveler-width:144px}
+.traveler-actor{position:absolute;top:0;left:0;width:var(--traveler-width);will-change:transform;contain:layout style}
+.traveler-grab{display:block;width:100%;padding:0;background:none;border:0;border-radius:28px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;pointer-events:auto;outline-offset:3px}
+.traveler-grab:focus-visible{outline:2px dashed var(--accent)}
+.traveler-actor[data-state="dragging"] .traveler-grab{cursor:grabbing}
+.traveler-facing{display:block;transform:scaleX(var(--facing,1));transform-origin:center}
+.traveler-facing svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 4px 3px #17262020)}
+.traveler-hint{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);width:174px;padding:10px 12px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 22px #152c2010;text-align:center;font:500 12px/1.7 sans-serif;pointer-events:none}
+.traveler-hint span{color:var(--accent);font-size:11px}
+.traveler-dock{position:absolute;right:max(12px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));pointer-events:auto;font:500 12px/1.6 sans-serif}
+.traveler-dock button,.traveler-panel a{min-height:44px;padding:10px 14px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:24px;font:inherit}
+.traveler-dock>button{box-shadow:0 3px 16px #182d2112;white-space:nowrap}
+.traveler-dock>button span{color:var(--accent);margin-right:4px}
+.traveler-panel{position:absolute;right:0;bottom:54px;width:min(278px,calc(100vw - 24px));padding:17px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 35px #142a2020}
+.traveler-panel p{margin:0 0 12px;font-size:12px;line-height:1.8;color:var(--muted)}
+.traveler-panel a{display:block;text-align:center;background:var(--accent);color:var(--surface);text-decoration:none;margin-bottom:10px}
+.traveler-panel>div{display:flex;gap:8px}.traveler-panel>div button{flex:1;padding:9px 8px}
+.traveler[data-suspended="true"]{visibility:hidden}
+.traveler-facing .t-leg-near{transform-box:view-box;transform-origin:119px 119px;animation:traveler-stride .56s ease-in-out infinite alternate}
+.traveler-facing .t-leg-far{transform-box:view-box;transform-origin:111px 119px;animation:traveler-stride .56s ease-in-out -.56s infinite alternate}
+.traveler-facing .t-arm-free{transform-box:view-box;transform-origin:131px 82px;animation:traveler-arm .56s ease-in-out -.56s infinite alternate}
+.traveler-facing .t-wheel{transform-box:view-box;animation:traveler-wheel .6s linear infinite}
+.traveler-actor:not([data-state="walking"]) .traveler-facing *{animation-play-state:paused!important}
+.traveler-actor[data-state="dragging"] .traveler-facing svg{filter:drop-shadow(0 13px 8px #17262025)}
+@keyframes traveler-stride{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+@keyframes traveler-arm{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes traveler-wheel{to{transform:rotate(360deg)}}
+@media(max-width:700px){.traveler{--traveler-width:112px}.traveler-hint{width:154px;font-size:11px}.traveler-dock>button{padding:8px 12px}}
+@media(max-height:450px){.traveler{--traveler-width:96px}}
+@media(prefers-reduced-motion:reduce){.traveler-facing *{animation:none!important}.traveler-actor{will-change:auto}}
