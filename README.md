@@ -28,6 +28,7 @@
 
 本機可用 `python -m http.server 8791`。發布前做語法、相應互動與手機視覺檢查，再提交並推送既有 GitHub Pages。不要把使用者未追蹤的 `assets/bg_candidates/` 一併加入。
 
+- [Santos 手機反黑修正](docs/SANTOS_MOBILE_REVIEW.md)
 - [黑金概念單檔與驗證](docs/CODEX_EXPERIENCE_REVIEW.md)
 - [首頁改造與驗證](docs/HOME_EXPERIENCE_REVIEW.md)
 - [官方目錄與資料口徑](docs/CATALOG_REVIEW.md)

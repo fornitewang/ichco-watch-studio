@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "initial blur & assembly",
+    "button explodes and shows explanations",
+    "button reverses to readable focus state",
+    "touch scroll advances",
+    "rotation refreshes layout without overflow",
+    "reduced motion restores one-screen static scene",
+    "motion resumes once",
+    "nojs complete sharp fallback",
+    "cdn-failure complete sharp fallback",
+    "reduced complete sharp fallback",
+    "PNG replacements retain animation and no missing SVG errors",
+    "zero script errors"
+  ],
+  "errors": []
+}

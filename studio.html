@@ -685,6 +685,11 @@ function buildUI(){
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
       b.onclick=()=>{S[key]=i; apply();}; h.appendChild(b);});};
   mk('opt-scene',SCENES,'scene',o=>sw(o.sw));
+  // Santos 固定款是藍鋼針／羅馬白面，沒有夜光；不能讓夜光展示把整支錶壓成黑色。
+  if(SERIES[S.series].code==='SAN'){
+    const b=$('opt-scene').children[SCENES.findIndex(o=>o.fx==='lume')];
+    if(b){ b.disabled=true; b.style.opacity='.45'; b.title='此款未配置夜光指針與時標'; b.append(' · 此款無夜光'); }
+  }
   mk('opt-metal',METAL,'metal',o=>sw(o.two
     ? `linear-gradient(135deg,${hex(o.base)} 0 46%,${hex(o.acc)} 46% 100%)`
     : `linear-gradient(135deg,#fff3,${hex(o.base)} 45%,#0004)`));
@@ -2829,18 +2834,29 @@ function buildDune(){
 // 把實拍 HDRI 依情境染色／調亮暗（r134 沒有 env tint，只能自己複製一份像素乘上去）
 function tintHDR(srcT,sc){
   const im=srcT.image, w=im.width, h=im.height, d=im.data, n=w*h, ch=d.length/n;
-  const tt=(ENV_TINT[sc.code]||[[1,1,1],1,0]), tint=tt[0], k=tt[1], lift=tt[2]||0;
+  const tt=(ENV_TINT[sc.code]||[[1,1,1],1,0]), tint=tt[0], k=tt[1];
+  // Santos 的大片拋光方圈與鏈帶需要攝影棚反光板，避免正面大區域只映到黑牆；保持原本的金屬與拋光粗糙度。
+  const lift=(tt[2]||0)+(SERIES[S.series].code==='SAN'&&sc.code==='STU'?0.10:0);
   const out=new Float32Array(d.length);
   for(let i=0;i<n;i++){ const o=i*ch;
     out[o]=d[o]*tint[0]*k+lift*tint[0]; out[o+1]=d[o+1]*tint[1]*k+lift*tint[1]; out[o+2]=d[o+2]*tint[2]*k+lift*tint[2];
     if(ch===4) out[o+3]=d[o+3]; }
   const t=new T.DataTexture(out,w,h,srcT.format,T.FloatType);
   t.mapping=T.EquirectangularReflectionMapping; t.encoding=T.LinearEncoding; t.flipY=srcT.flipY;
-  t.minFilter=T.LinearFilter; t.magFilter=T.LinearFilter; t.generateMipmaps=false; t.needsUpdate=true;
+  // Float32 貼圖的線性濾波在 WebGL 2 仍需要此擴充；缺少時改用合法取樣，後續 PMREM 仍會預濾反射。
+  const filter=renderer.extensions.has('OES_texture_float_linear')?T.LinearFilter:T.NearestFilter;
+  t.minFilter=filter; t.magFilter=filter; t.generateMipmaps=false; t.needsUpdate=true;
   return t;
 }
 function applyEnvToAll(){
-  root.traverse(o=>{ if(o.material&&'envMap' in o.material){ if(o.material.userData&&o.material.userData.keepEnv) return; o.material.envMap=envRT; o.material.needsUpdate=true; } });
+  // 方圈／殼側等多材質 mesh 也要更新；不能留下已釋放的 AR／上一個情境貼圖。
+  const seen=new Set();
+  root.traverse(o=>{ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+    if(!m||seen.has(m)||!('envMap' in m)) return; seen.add(m);
+    if(m.userData&&m.userData.keepEnv) return;
+    const next=m.userData&&m.userData.noEnv?null:envRT;
+    if(m.envMap!==next){ m.envMap=next; m.needsUpdate=true; }
+  }); });
 }
 // 蝴蝶扣本體內面的刻字板：拉絲底＋ ICHco 字樣（深色蝕刻）
 function claspLogoTex(){ if(parts.claspLogo) return parts.claspLogo; const SZ=256, c=ctx2d(SZ), g=c.getContext('2d');
@@ -2871,15 +2887,18 @@ function addLumeHalos(){ parts.lumeHalos=[]; if(!parts.lumeM) return;
       sp.scale.set(sc,sc,1); sp.position.copy(pos); sp.visible=show; o.add(sp); parts.lumeHalos.push(sp); } }); }
 function applyScene(){
   const sc=SCENES[S.scene];
-  // 🔴 只 dispose `envRT`（＝rt.texture）不夠，PMREM 的 WebGLRenderTarget 本體會留著：
-  //    每換一次情境光線就漏一個 render target。手機顯示記憶體有限，漏到一個程度之後
-  //    新的環境貼圖產不出來 → 金屬材質沒有反射可取樣 → 整支錶變黑（用戶 0906 手機實測）。
-  if(parts.envPMREM) parts.envPMREM.dispose();          // dispose RT 會連它的 texture 一起釋放
-  else if(envRT) envRT.dispose&&envRT.dispose();        // 舊路徑留著：第一次進來還沒有 envPMREM
-  let rt;
-  if(hdrTex){ const eq=tintHDR(hdrTex,sc); rt=pmrem.fromEquirectangular(eq); eq.dispose(); }
-  else { const cube=envCube(sc); rt=pmrem.fromCubemap(cube); cube.dispose(); }
+  // 🔴 PMREM 要釋放 render target 本體；先完成新反射並更新所有材質，再釋放舊 target。
+  //    不先銷毀仍在使用的貼圖，避免手機切換情境／離開 AR 時金屬短暫取樣到失效資源。
+  const oldPMREM=parts.envPMREM, oldEnv=envRT;
+  let rt, source;
+  try {
+    source=hdrTex?tintHDR(hdrTex,sc):envCube(sc);
+    rt=hdrTex?pmrem.fromEquirectangular(source):pmrem.fromCubemap(source);
+  } finally { if(source) source.dispose(); }
   parts.envPMREM=rt; envRT=rt.texture; scene.environment=envRT;
+  applyEnvToAll();
+  if(oldPMREM) oldPMREM.dispose();
+  else if(oldEnv&&oldEnv!==envRT) oldEnv.dispose();
   // 🔴之前 fog 密度算成 sc.fog*22（0.13~1.1），等於把產品埋進色霧 → 整支錶變剪影。
   //   改成不打霧，情境改用「背景漸層＋環境貼圖＋光色＋粒子」表現。
   scene.fog=null;
@@ -3011,7 +3030,8 @@ function init(){
   camera.position.set(0,4.0,7.8); camera.lookAt(0,-0.72,0);
   root=new T.Group(); root.rotation.x=-0.13; root.rotation.y=-0.50; scene.add(root);
   pmrem=new T.PMREMGenerator(renderer); pmrem.compileCubemapShader(); pmrem.compileEquirectangularShader();
-  if(T.RGBELoader){ new T.RGBELoader().setDataType(T.FloatType).load('assets/studio_small_09_1k.hdr',
+  // 舊手機若連浮點貼圖都不支援，保留已建立的攝影棚 cubemap，避免載入無法取樣的 HDR。
+  if(T.RGBELoader&&(renderer.capabilities.isWebGL2||renderer.extensions.has('OES_texture_float'))){ new T.RGBELoader().setDataType(T.FloatType).load('assets/studio_small_09_1k.hdr',
     function(tx){ hdrTex=tx; if(ok) applyScene(); }, undefined, function(){ hdrTex=null; }); }
   keyLight=new T.DirectionalLight(0xffffff,2.2); keyLight.position.set(-2.6,4.2,2.2);
   keyLight.castShadow=true;
@@ -3254,6 +3274,8 @@ renderer.render(scene,camera);
 
 /* ── 套用選項 ─────────────────────────────────────────── */
 function apply(){
+  // 從其他系列的夜光情境切進 Santos 時，回到可辨識材質的紙棚；避免沿用不可用的夜光狀態。
+  if(SERIES[S.series].code==='SAN'&&SCENES[S.scene].fx==='lume') S.scene=0;
   if(SERIES[S.series].code==='MM') S.bezel=0; // This model has one verified bezel; do not charge for invisible color changes.
   buildUI();
   if(ok){ buildWatch(); applyScene(); }
@@ -3327,7 +3349,10 @@ const chapters=[].slice.call(document.querySelectorAll('.chapter'));
 const stageCol=document.querySelector('.stage-col');
 { const fb=document.getElementById('miniFold'); if(fb&&stageCol) fb.addEventListener('click',()=>{ const on=!stageCol.classList.contains('fold'); stageCol.classList.toggle('fold',on); fb.textContent=on?'展開手錶預覽 ▾':'收起預覽 ▴'; if(ok) resize(); }); }
 const mqMobile=matchMedia('(max-width:1000px)');
-function setSceneOnly(i){ if(S.scene===i||!ok) return; S.scene=i; applyScene(); buildUI(); }
+function setSceneOnly(i){
+  if(SERIES[S.series].code==='SAN'&&SCENES[i].fx==='lume') i=0;
+  if(S.scene===i||!ok) return; S.scene=i; applyScene(); buildUI();
+}
 
 // 錶帶淡出（第 4 章看透底背蓋用）。
 // 🔴 必須先把錶帶材質複製成專屬副本 —— 錶帶跟錶殼共用不鏽鋼材質，

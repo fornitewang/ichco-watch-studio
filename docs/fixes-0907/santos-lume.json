@@ -1,0 +1,50 @@
+[
+  {
+    "version": "before",
+    "source": {
+      "series": "SUB",
+      "scene": "NGT",
+      "hasLume": true
+    },
+    "selected": {
+      "series": "SAN",
+      "scene": "NGT",
+      "hasLume": false,
+      "disabled": false,
+      "label": "夜光"
+    },
+    "story": {
+      "scene": "NGT"
+    },
+    "other": {
+      "series": "SUB",
+      "scene": "NGT",
+      "hasLume": true,
+      "disabled": false
+    }
+  },
+  {
+    "version": "after",
+    "source": {
+      "series": "SUB",
+      "scene": "NGT",
+      "hasLume": true
+    },
+    "selected": {
+      "series": "SAN",
+      "scene": "STU",
+      "hasLume": false,
+      "disabled": true,
+      "label": "夜光 · 此款無夜光"
+    },
+    "story": {
+      "scene": "STU"
+    },
+    "other": {
+      "series": "SUB",
+      "scene": "NGT",
+      "hasLume": true,
+      "disabled": false
+    }
+  }
+]

@@ -1,0 +1,253 @@
+{
+  "errors": [],
+  "portrait": [
+    {
+      "label": "initial",
+      "progress": 0,
+      "time": 0,
+      "filter": "blur(14px)",
+      "cosmosFilter": "blur(14px)",
+      "partTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "rotorTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "1",
+      "overflow": 0
+    },
+    {
+      "label": "blur-ending",
+      "progress": 0.2806469642857143,
+      "time": 0.3143246,
+      "filter": "blur(0.003px)",
+      "cosmosFilter": "blur(0.003px)",
+      "partTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "rotorTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "0",
+      "overflow": 0
+    },
+    {
+      "label": "clear-before-rotation",
+      "progress": 0.2895190178571428,
+      "time": 0.3242613,
+      "filter": "none",
+      "cosmosFilter": "none",
+      "partTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "rotorTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "0",
+      "overflow": 0
+    },
+    {
+      "label": "rotation-start",
+      "progress": 0.3165030357142857,
+      "time": 0.3544834,
+      "filter": "none",
+      "cosmosFilter": "none",
+      "partTransform": "matrix3d(1, 0, 0, 0, 0, 1, 0.000073, 0, 0, -0.000073, 1, 0, 0, 0, 0, 1)",
+      "rotorTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "0",
+      "overflow": 0
+    },
+    {
+      "label": "end",
+      "progress": 0.9997130357142857,
+      "time": 1.1196786,
+      "filter": "none",
+      "cosmosFilter": "none",
+      "partTransform": "matrix3d(1, 0, 0, 0, 0, 0.529919, 0.848048, 0, 0, -0.848048, 0.529919, 0, 0, 0, 0, 1)",
+      "rotorTransform": "matrix(0.743145, -0.669131, 0.669131, 0.743145, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "0",
+      "overflow": 0
+    },
+    {
+      "label": "reverse",
+      "progress": 0.00025303571428571427,
+      "time": 0.0002834,
+      "filter": "blur(14px)",
+      "cosmosFilter": "blur(14px)",
+      "partTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "rotorTransform": "matrix(1, 0, 0, 1, 0, 0)",
+      "surfaces": [
+        {
+          "depth": "-26",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -12.505991, 1)"
+        },
+        {
+          "depth": "-14",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -6.733991, 1)"
+        },
+        {
+          "depth": "-5",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -2.40499, 1)"
+        },
+        {
+          "depth": "1",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0.48101, 1)"
+        },
+        {
+          "depth": "10",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 4.81001, 1)"
+        },
+        {
+          "depth": "17",
+          "transform": "matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 8.176991, 1)"
+        }
+      ],
+      "introOpacity": "1",
+      "overflow": 0
+    }
+  ],
+  "landscape": {
+    "label": {
+      "x": 640.6875,
+      "y": 152.984375,
+      "width": 140,
+      "height": 47.953125,
+      "top": 152.984375,
+      "right": 780.6875,
+      "bottom": 200.9375,
+      "left": 640.6875
+    },
+    "leader": {
+      "x": 477.328125,
+      "y": 176.34375,
+      "width": 303.359375,
+      "height": 1,
+      "top": 176.34375,
+      "right": 780.6875,
+      "bottom": 177.34375,
+      "left": 477.328125
+    },
+    "marginLeft": "-163.359375px",
+    "filter": "none",
+    "overflow": 0
+  },
+  "timelineDuration": 1.12
+}
