@@ -37,6 +37,7 @@
   gsap.registerPlugin(ScrollTrigger);
   ScrollTrigger.config({ignoreMobileResize:true});
   const mm=gsap.matchMedia(),button=$('#toggle');
+  const hud={progress:$('#progress'),percent:$('#percent'),phase:$('#phase'),note:$('.dynamic-note')};
   let timeline;
   mm.add('(prefers-reduced-motion: no-preference)',()=>{
     document.documentElement.classList.add('motion');document.body.classList.remove('static');button.disabled=false;
@@ -95,15 +96,20 @@
       layout={angle,rows,crown};
     }
     measure();ScrollTrigger.addEventListener('refreshInit',measure);
+    let lastPercent=-1,lastPhase=-1,lastNote=-1,lastExpanded=null;
     timeline=gsap.timeline({
       defaults:{ease:'power2.inOut'},
-      scrollTrigger:{id:'watch-anatomy',trigger:'#story',start:'top top',end:'bottom bottom',scrub:1.5,invalidateOnRefresh:true},
+      scrollTrigger:{id:'watch-anatomy',trigger:'#story',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true},
       onUpdate(){
         const p=this.progress(),n=Math.round(p*100),t=this.time();
-        $('#progress').value=n;$('#percent').textContent=String(n).padStart(3,'0')+' / 100';
-        $('#phase').textContent=t<.16?'I / THE DARK WOOD':t<.42?'II / THE WHOLE':t<.95?'III / THE UNFOLDING':'IV / THE INNER ORDER';
-        $('.dynamic-note').textContent=t<.42?'先看完整，再走近細節':t<.95?'循斜向軌跡，逐層展開':'繼續向下，走進機芯';
-        button.textContent=p>.5?'重新組合 ↥':'展開零件 ↧';
+        // Labels change only when their value changes, never on every animation frame.
+        if(n!==lastPercent){hud.progress.value=n;hud.percent.textContent=String(n).padStart(3,'0')+' / 100';lastPercent=n;}
+        const phase=t<.16?0:t<.42?1:t<.95?2:3;
+        if(phase!==lastPhase){hud.phase.textContent=['I / THE DARK WOOD','II / THE WHOLE','III / THE UNFOLDING','IV / THE INNER ORDER'][phase];lastPhase=phase;}
+        const note=t<.42?0:t<.95?1:2;
+        if(note!==lastNote){hud.note.textContent=['向下滑動，展開細節','循斜向軌跡，逐層展開','繼續向下，走進機芯'][note];lastNote=note;}
+        const expanded=p>.5;
+        if(expanded!==lastExpanded){button.textContent=expanded?'重新組合 ↥':'展開零件 ↧';lastExpanded=expanded;}
       }
     });
     timeline.fromTo('.sanctuary-depth',{scale:1,yPercent:0},{scale:1.07,yPercent:-2,duration:1.24,ease:'none'},0);
@@ -114,7 +120,7 @@
     timeline.fromTo('.sanctuary-cut-right',{xPercent:0},{xPercent:2,duration:.8},.35);
     timeline.fromTo('.sanctuary-lintel',{yPercent:0},{yPercent:-3,duration:.9},.2);
     timeline.fromTo('.temple-caption',{opacity:1},{opacity:0,duration:.25},.35);
-    timeline.fromTo('.introduction',{opacity:1,y:0},{opacity:0,y:-18,duration:.14},0);
+    timeline.fromTo('.introduction',{autoAlpha:1,y:0},{autoAlpha:0,y:-18,duration:.14},0);
     timeline.fromTo('.reading-veil',{opacity:1},{opacity:0,duration:.12},.16);
     timeline.fromTo('.watch-position,.cosmos',{filter:'blur(14px)'},{filter:'blur(0px)',duration:.12},.16);
     timeline.set('.watch-position,.cosmos',{filter:'none'},.281);
@@ -136,7 +142,7 @@
     timeline.fromTo('.leader',{scaleX:0},{scaleX:1,duration:.10,stagger:.012,ease:'power1.out'},.99);
     timeline.to({hold:0},{hold:1,duration:.08},1.16);
     // A second chapter reveals the movement's nested assemblies at a larger scale.
-    const deep=gsap.timeline({defaults:{ease:'power2.inOut'},scrollTrigger:{id:'movement-anatomy',trigger:'#movement-study',start:'top top',end:'bottom bottom',scrub:1.5,invalidateOnRefresh:true}});
+    const deep=gsap.timeline({defaults:{ease:'power2.inOut'},scrollTrigger:{id:'movement-anatomy',trigger:'#movement-study',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true}});
     let deepLayout;
     function measureDeep(){
       const stage=$('.movement-stage'),w=stage.clientWidth,u=visual.offsetWidth,k=u/600;
@@ -168,6 +174,11 @@
     deep.fromTo('.movement-rotor > .mechanism-core',{rotation:0},{rotation:-30,duration:.30},.50);
     deep.fromTo('.movement-callout',{opacity:0},{opacity:1,duration:.15,stagger:.045},.79);
     deep.to({hold:0},{hold:1,duration:.1},1.05);
+    // Short product reveals use only transform/opacity. No new scroll pin or heavy filter.
+    gsap.from('.shop-card',{y:42,opacity:0,duration:.8,stagger:.12,ease:'power2.out',
+      scrollTrigger:{trigger:'.shop-grid',start:'top 92%',once:true},
+      onComplete(){gsap.set('.shop-card',{clearProps:'transform,opacity'});}
+    });
     ScrollTrigger.refresh();
     return()=>{
       ScrollTrigger.removeEventListener('refreshInit',measure);

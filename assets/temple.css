@@ -13,7 +13,9 @@
 .sanctuary-cut-left{clip-path:polygon(0 0,12% 0,11% 7%,8.3% 11%,9% 16%,6.8% 18%,6% 39%,4.5% 60%,6.6% 73%,4% 89%,7% 100%,0 100%);transform-origin:0 50%}
 .sanctuary-cut-right{clip-path:polygon(100% 0,90% 0,91% 9%,94% 14%,92% 23%,94% 29%,95.8% 66%,93% 81%,95% 89%,93% 100%,100% 100%);transform-origin:100% 50%}
 .sanctuary-lintel{position:absolute;inset:0;background:linear-gradient(#020506ec,#131719a8);clip-path:polygon(0 0,100% 0,100% 14%,94% 12%,82% 10%,80% 8.5%,20% 8.5%,18% 10%,6% 12%,0 14%);filter:drop-shadow(0 5px 2px #c8b48825)}
-.marble{opacity:.1}.grain{opacity:.035}
+.marble{opacity:.1}
+/* Cache the costly SVG noise separately from the moving watch and sky. */
+.grain{opacity:.035;transform:translateZ(0);will-change:transform}
 .reading-veil{background:radial-gradient(ellipse,#0b0d0ed9 0%,#0b0d0e50 49%,#0b0d0e15 75%)}
 .introduction{text-shadow:0 2px 25px #000}
 .annotation strong,.annotation small{text-shadow:0 1px 3px #000,0 0 12px #0f0e0d,0 0 18px #0f0e0d}
@@ -136,3 +138,68 @@
 @media(max-height:580px) and (min-width:600px){.movement-callout p,.label-meaning{display:none}}
 .strap-item figcaption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;padding:0}
 @media(max-width:700px) and (max-height:650px){.chapter-heading{top:87px}.chapter-heading h2{font-size:21px}.chapter-heading .eyebrow{margin-bottom:7px}.chapter-heading>p:last-child{margin:7px 0}.movement-callout p{display:none}.movement-callout strong{font-size:11px}.movement-footnote{font-size:8px}}
+
+/* A direct path from the visual experience to real products. */
+.masthead .nav-collection{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 20px;background:#c5a059;color:#14110d;border:1px solid #d7bb83;transition:background .2s}
+.masthead .nav-collection:hover{background:#e0c28b}
+.intro-actions{margin:23px 0 0;pointer-events:auto;text-shadow:none}
+.shop-primary{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:28px;min-height:74px;padding:22px 38px;background:#c5a059;color:#15120d;border:1px solid #e2c995;font-size:18px;font-weight:500;line-height:1.6;letter-spacing:2px;overflow:hidden;isolation:isolate;transition:transform .25s,background .25s}
+.shop-primary::before{content:"";position:absolute;inset:-50% -30%;background:linear-gradient(110deg,transparent 35%,#fff5 50%,transparent 65%);transform:translateX(-110%);transition:transform .7s;z-index:-1;pointer-events:none}
+.shop-primary:hover,.shop-primary:focus-visible{background:#dfc18a;transform:translateY(-3px)}
+.shop-primary:hover::before,.shop-primary:focus-visible::before{transform:translateX(110%)}
+.shop-primary .shop-arrow{font:30px/1 "Cinzel",serif;transition:transform .25s}
+.shop-primary:hover .shop-arrow{transform:translate(3px,-3px)}
+.intro-actions .shop-primary{font-size:13px;min-height:52px;padding:13px 25px;gap:18px}
+.intro-actions .shop-arrow{font-size:24px}
+.strap-shop-link{display:inline-flex;align-items:center;gap:16px;min-height:48px;margin-top:21px;padding:8px 0;border-bottom:1px solid var(--gold);color:#d6b879;font-size:13px;letter-spacing:1px}
+#strap-study,#craft{scroll-margin-top:88px}
+.shop-destination{position:relative;padding:100px 7% 30px;border-top:1px solid var(--hair);overflow:clip;background:radial-gradient(ellipse at 50% 12%,#39312670,transparent 56%),#101211;isolation:isolate}
+.shop-heading{text-align:center;position:relative;z-index:1;margin:0 auto 56px;max-width:800px}
+.shop-heading .eyebrow{margin-bottom:18px}
+.shop-heading h2{font-size:clamp(34px,4.4vw,62px);font-weight:400;line-height:1.5;letter-spacing:3px;margin:0}
+.shop-heading h2 em{font-style:normal;color:#d1b478}
+.shop-heading>p:not(.eyebrow){font-size:13px;line-height:2;letter-spacing:1px;color:var(--muted);margin:17px 0 28px}
+.shop-heading .shop-primary{width:min(100%,440px)}
+.shop-orbits{position:absolute;width:min(94vw,860px);aspect-ratio:1;top:-300px;left:50%;transform:translateX(-50%);z-index:-1;pointer-events:none}
+.shop-ring{position:absolute;inset:0;border:1px solid #c5a0591b;border-radius:50%;animation:shop-orbit 90s linear infinite paused}
+.shop-ring::before,.shop-ring::after{content:"";position:absolute;width:5px;height:5px;border:1px solid #c5a05977;transform:rotate(45deg);left:50%;top:-3px}
+.shop-ring::after{top:auto;bottom:-3px}
+.shop-ring:nth-child(2){inset:8%;border-style:dashed;animation-direction:reverse;animation-duration:120s}
+.shop-ring:nth-child(3){inset:17%;border-color:#c5a05912;animation-duration:70s}
+.shop-destination.is-in-view .shop-ring{animation-play-state:running}
+.shop-grid{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px;max-width:1200px;margin:0 auto 60px}
+.shop-card{display:flex;flex-direction:column;min-width:0;border:1px solid #c5a05935;background:#141716;transition:border-color .3s;outline-offset:-3px}
+.shop-card:hover,.shop-card:focus-visible{border-color:#c5a059}
+.shop-card-media{overflow:hidden;aspect-ratio:1 / 1.1;background:#111;position:relative}
+.shop-card img{display:block;width:100%;height:100%;object-fit:contain;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.shop-card:hover img,.shop-card:focus-visible img{transform:scale(1.035)}
+.shop-card-info{display:flex;flex-direction:column;flex:1;padding:24px}
+.shop-card-kicker{font:9px "Cinzel",serif;letter-spacing:3px;color:var(--gold)}
+.shop-card h3{font-size:17px;font-weight:400;line-height:1.7;margin:12px 0 22px}
+.shop-card-action{display:flex;justify-content:space-between;margin-top:auto;padding-top:16px;border-top:1px solid var(--hair);font-size:11px;letter-spacing:1px;color:#cbb789}
+.shop-swipe-hint{display:none}
+.shop-destination .fineprint{max-width:1200px;margin:auto}
+@keyframes shop-orbit{to{transform:rotate(360deg)}}
+@media(max-width:700px){
+ .masthead nav{gap:12px}.masthead .nav-collection{padding:10px 12px;font-size:10px;letter-spacing:.3px}
+ .intro-actions{margin-top:18px}.intro-actions .shop-primary{font-size:12px;min-height:48px;padding:11px 20px}
+ .strap-shop-link{margin-top:14px}
+ .shop-destination{padding:65px 6% 24px}.shop-heading{margin-bottom:32px}
+ .shop-heading h2{font-size:34px;letter-spacing:1px}.shop-heading h2 em{display:block}
+ .shop-heading>p:not(.eyebrow){font-size:11px;margin:15px 0 23px}
+ .shop-primary{font-size:15px;letter-spacing:1px;min-height:66px;padding:19px 20px;gap:18px}
+ .shop-orbits{top:-100px;width:130vw}
+ .shop-grid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:0;margin-bottom:32px;padding:4px 0 16px;scrollbar-width:thin;scrollbar-color:#7e693f #1d211f}
+ .shop-card{flex:0 0 85%;scroll-snap-align:start}.shop-card-info{padding:20px}.shop-card h3{font-size:16px}
+ .shop-swipe-hint{display:block;text-align:center;font-size:10px;letter-spacing:1px;color:var(--muted);margin:-12px 0 28px}
+ #strap-study,#craft{scroll-margin-top:68px}
+}
+@media(max-height:580px) and (min-width:600px){
+ .intro-actions{margin-top:10px}.intro-actions .shop-primary{min-height:42px;padding:8px 20px;font-size:11px}
+ .introduction .concept{margin-top:10px}.masthead .nav-collection{min-height:40px;padding:8px 16px}
+ #strap-study,#craft{scroll-margin-top:54px}
+}
+@media(prefers-reduced-motion:reduce){
+ .grain{will-change:auto}.shop-ring{animation:none!important}
+ .shop-primary,.shop-primary::before,.shop-arrow,.shop-card,.shop-card img{transition:none!important}
+}
