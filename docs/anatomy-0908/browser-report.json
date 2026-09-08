@@ -1,0 +1,1248 @@
+{
+  "time": "2026-09-08T05:12:39.324Z",
+  "results": [
+    {
+      "name": "protected assets/catalog-data.json",
+      "pass": true
+    },
+    {
+      "name": "protected catalog.html",
+      "pass": true
+    },
+    {
+      "name": "protected assets/catalog.js",
+      "pass": true
+    },
+    {
+      "name": "protected assets/catalog.css",
+      "pass": true
+    },
+    {
+      "name": "protected studio.html",
+      "pass": true
+    },
+    {
+      "name": "protected assets/studio-mobile.css",
+      "pass": true
+    },
+    {
+      "name": "root and codex parity",
+      "pass": true
+    },
+    {
+      "name": "desktop all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "desktop opaque statues",
+      "pass": true
+    },
+    {
+      "name": "desktop readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "desktop clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "desktop diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "desktop watch disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "desktop watch visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "glass",
+          "minX": 502,
+          "minY": 116,
+          "maxX": 697,
+          "maxY": 210,
+          "count": 651
+        },
+        {
+          "name": "bezel",
+          "minX": 543,
+          "minY": 236,
+          "maxX": 752,
+          "maxY": 337,
+          "count": 3412
+        },
+        {
+          "name": "hands",
+          "minX": 656,
+          "minY": 380,
+          "maxX": 769,
+          "maxY": 438,
+          "count": 422
+        },
+        {
+          "name": "dial",
+          "minX": 648,
+          "minY": 469,
+          "maxX": 839,
+          "maxY": 562,
+          "count": 14266
+        },
+        {
+          "name": "gears",
+          "minX": 700,
+          "minY": 600,
+          "maxX": 886,
+          "maxY": 703,
+          "count": 14457
+        },
+        {
+          "name": "case",
+          "minX": 732,
+          "minY": 733,
+          "maxX": 947,
+          "maxY": 851,
+          "count": 20412
+        },
+        {
+          "name": "crown",
+          "minX": 916,
+          "minY": 713,
+          "maxX": 989,
+          "maxY": 727,
+          "count": 589
+        }
+      ]
+    },
+    {
+      "name": "desktop leader endpoints clear of watch",
+      "pass": true
+    },
+    {
+      "name": "desktop reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "desktop core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "desktop core disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "desktop core visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "plate",
+          "minX": 635,
+          "minY": 641,
+          "maxX": 894,
+          "maxY": 821,
+          "count": 37246
+        },
+        {
+          "name": "rotor",
+          "minX": 582,
+          "minY": 382,
+          "maxX": 810,
+          "maxY": 548,
+          "count": 11268
+        },
+        {
+          "name": "barrel",
+          "minX": 841,
+          "minY": 472,
+          "maxX": 977,
+          "maxY": 564,
+          "count": 10084
+        },
+        {
+          "name": "balance",
+          "minX": 467,
+          "minY": 590,
+          "maxX": 612,
+          "maxY": 696,
+          "count": 8037
+        }
+      ]
+    },
+    {
+      "name": "desktop core labels clear",
+      "pass": true,
+      "detail": {
+        "hits": 0
+      }
+    },
+    {
+      "name": "desktop no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "orbit automatic motion",
+      "pass": true
+    },
+    {
+      "name": "orbit hover pauses",
+      "pass": true
+    },
+    {
+      "name": "orbit mouse drag clockwise",
+      "pass": true
+    },
+    {
+      "name": "orbit mouse drag reverse",
+      "pass": true
+    },
+    {
+      "name": "orbit resumes on mouse leave",
+      "pass": true
+    },
+    {
+      "name": "orbit explicit pause",
+      "pass": true
+    },
+    {
+      "name": "orbit button navigation",
+      "pass": true
+    },
+    {
+      "name": "orbit keyboard navigation",
+      "pass": true
+    },
+    {
+      "name": "phone all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "phone opaque statues",
+      "pass": true
+    },
+    {
+      "name": "phone readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "phone clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "phone diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "phone watch disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "phone watch visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "glass",
+          "minX": 110,
+          "minY": 205,
+          "maxX": 205,
+          "maxY": 250,
+          "count": 154
+        },
+        {
+          "name": "bezel",
+          "minX": 121,
+          "minY": 273,
+          "maxX": 223,
+          "maxY": 322,
+          "count": 842
+        },
+        {
+          "name": "hands",
+          "minX": 169,
+          "minY": 352,
+          "maxX": 223,
+          "maxY": 380,
+          "count": 97
+        },
+        {
+          "name": "dial",
+          "minX": 155,
+          "minY": 405,
+          "maxX": 249,
+          "maxY": 450,
+          "count": 3457
+        },
+        {
+          "name": "gears",
+          "minX": 172,
+          "minY": 476,
+          "maxX": 263,
+          "maxY": 528,
+          "count": 3550
+        },
+        {
+          "name": "case",
+          "minX": 179,
+          "minY": 552,
+          "maxX": 284,
+          "maxY": 609,
+          "count": 4930
+        },
+        {
+          "name": "crown",
+          "minX": 253,
+          "minY": 538,
+          "maxX": 288,
+          "maxY": 544,
+          "count": 141
+        }
+      ]
+    },
+    {
+      "name": "phone leader endpoints clear of watch",
+      "pass": true
+    },
+    {
+      "name": "phone reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "phone core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "phone core disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "phone core visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "plate",
+          "minX": 112,
+          "minY": 676,
+          "maxX": 292,
+          "maxY": 800,
+          "count": 17865
+        },
+        {
+          "name": "rotor",
+          "minX": 173,
+          "minY": 279,
+          "maxX": 311,
+          "maxY": 379,
+          "count": 4119
+        },
+        {
+          "name": "barrel",
+          "minX": 61,
+          "minY": 440,
+          "maxX": 153,
+          "maxY": 503,
+          "count": 4742
+        },
+        {
+          "name": "balance",
+          "minX": 212,
+          "minY": 562,
+          "maxX": 315,
+          "maxY": 636,
+          "count": 4157
+        }
+      ]
+    },
+    {
+      "name": "phone core labels clear",
+      "pass": true,
+      "detail": {
+        "hits": 0
+      }
+    },
+    {
+      "name": "phone no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "touch hold pauses",
+      "pass": true
+    },
+    {
+      "name": "touch horizontal drag rotates",
+      "pass": true
+    },
+    {
+      "name": "touch release resumes",
+      "pass": true
+    },
+    {
+      "name": "vertical touch still scrolls",
+      "pass": true
+    },
+    {
+      "name": "narrow all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "narrow opaque statues",
+      "pass": true
+    },
+    {
+      "name": "narrow readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "narrow clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "narrow diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "narrow watch disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "narrow watch visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "glass",
+          "minX": 92,
+          "minY": 122,
+          "maxX": 166,
+          "maxY": 157,
+          "count": 111
+        },
+        {
+          "name": "bezel",
+          "minX": 102,
+          "minY": 173,
+          "maxX": 181,
+          "maxY": 211,
+          "count": 511
+        },
+        {
+          "name": "hands",
+          "minX": 141,
+          "minY": 233,
+          "maxX": 178,
+          "maxY": 253,
+          "count": 68
+        },
+        {
+          "name": "dial",
+          "minX": 129,
+          "minY": 272,
+          "maxX": 202,
+          "maxY": 307,
+          "count": 2076
+        },
+        {
+          "name": "gears",
+          "minX": 143,
+          "minY": 324,
+          "maxX": 213,
+          "maxY": 366,
+          "count": 2190
+        },
+        {
+          "name": "case",
+          "minX": 149,
+          "minY": 383,
+          "maxX": 231,
+          "maxY": 427,
+          "count": 2959
+        },
+        {
+          "name": "crown",
+          "minX": 202,
+          "minY": 372,
+          "maxX": 230,
+          "maxY": 377,
+          "count": 97
+        }
+      ]
+    },
+    {
+      "name": "narrow leader endpoints clear of watch",
+      "pass": true
+    },
+    {
+      "name": "narrow reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "narrow core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "narrow core disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "narrow core visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "plate",
+          "minX": 94,
+          "minY": 441,
+          "maxX": 237,
+          "maxY": 539,
+          "count": 11290
+        },
+        {
+          "name": "rotor",
+          "minX": 142,
+          "minY": 222,
+          "maxX": 255,
+          "maxY": 303,
+          "count": 2737
+        },
+        {
+          "name": "barrel",
+          "minX": 52,
+          "minY": 319,
+          "maxX": 124,
+          "maxY": 368,
+          "count": 2938
+        },
+        {
+          "name": "balance",
+          "minX": 179,
+          "minY": 386,
+          "maxX": 254,
+          "maxY": 439,
+          "count": 2317
+        }
+      ]
+    },
+    {
+      "name": "narrow core labels clear",
+      "pass": true,
+      "detail": {
+        "hits": 0
+      }
+    },
+    {
+      "name": "narrow no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "landscape all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "landscape opaque statues",
+      "pass": true
+    },
+    {
+      "name": "landscape readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "landscape clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "landscape diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "landscape reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "landscape core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "landscape no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "tablet all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "tablet opaque statues",
+      "pass": true
+    },
+    {
+      "name": "tablet readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "tablet clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "tablet diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "tablet reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "tablet core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "tablet no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "4k all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "4k opaque statues",
+      "pass": true
+    },
+    {
+      "name": "4k readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "4k clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "4k diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "4k reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "4k core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "4k no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone opaque statues",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "webkit-phone diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone watch disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "webkit-phone watch visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "glass",
+          "minX": 110,
+          "minY": 204,
+          "maxX": 205,
+          "maxY": 248,
+          "count": 128
+        },
+        {
+          "name": "bezel",
+          "minX": 121,
+          "minY": 271,
+          "maxX": 223,
+          "maxY": 319,
+          "count": 634
+        },
+        {
+          "name": "hands",
+          "minX": 178,
+          "minY": 352,
+          "maxX": 223,
+          "maxY": 371,
+          "count": 123
+        },
+        {
+          "name": "dial",
+          "minX": 155,
+          "minY": 403,
+          "maxX": 249,
+          "maxY": 447,
+          "count": 3353
+        },
+        {
+          "name": "gears",
+          "minX": 172,
+          "minY": 478,
+          "maxX": 263,
+          "maxY": 521,
+          "count": 3182
+        },
+        {
+          "name": "case",
+          "minX": 178,
+          "minY": 550,
+          "maxX": 285,
+          "maxY": 604,
+          "count": 4479
+        },
+        {
+          "name": "crown",
+          "minX": 253,
+          "minY": 537,
+          "maxX": 288,
+          "maxY": 544,
+          "count": 152
+        }
+      ]
+    },
+    {
+      "name": "webkit-phone leader endpoints clear of watch",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "webkit-phone core disjoint visible pieces",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "webkit-phone core visible pieces inside viewport",
+      "pass": true,
+      "detail": [
+        {
+          "name": "plate",
+          "minX": 112,
+          "minY": 664,
+          "maxX": 292,
+          "maxY": 787,
+          "count": 17708
+        },
+        {
+          "name": "rotor",
+          "minX": 173,
+          "minY": 279,
+          "maxX": 309,
+          "maxY": 376,
+          "count": 3841
+        },
+        {
+          "name": "barrel",
+          "minX": 61,
+          "minY": 437,
+          "maxX": 155,
+          "maxY": 503,
+          "count": 5076
+        },
+        {
+          "name": "balance",
+          "minX": 214,
+          "minY": 562,
+          "maxX": 315,
+          "maxY": 633,
+          "count": 3749
+        }
+      ]
+    },
+    {
+      "name": "webkit-phone core labels clear",
+      "pass": true,
+      "detail": {
+        "hits": 0
+      }
+    },
+    {
+      "name": "webkit-phone no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape all parts and notes",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape opaque statues",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape readable text has blurred watch",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape clear assembled hold",
+      "pass": true,
+      "detail": {
+        "intro": 0,
+        "filter": "none",
+        "layers": [
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "scale": 1.18,
+            "rotation": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "webkit-landscape diagonal separation",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape reverse reassembles",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape core starts assembled",
+      "pass": true
+    },
+    {
+      "name": "webkit-landscape no horizontal overflow",
+      "pass": true
+    },
+    {
+      "name": "index.html inline scripts parse",
+      "pass": true,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "name": "codex/index.html inline scripts parse",
+      "pass": true,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "name": "reduced-motion static usable",
+      "pass": true
+    },
+    {
+      "name": "reduced-motion no duplicate balance",
+      "pass": true
+    },
+    {
+      "name": "reduced-motion carousel initially paused",
+      "pass": true
+    },
+    {
+      "name": "cdn-blocked static usable",
+      "pass": true
+    },
+    {
+      "name": "cdn-blocked no duplicate balance",
+      "pass": true
+    },
+    {
+      "name": "no uncaught page errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "passed": 115,
+  "total": 115,
+  "note": "The final eight-profile run completed 107 checks before an external CDN timeout during fallback navigation. Only the two remaining fallback cases were retried here; all recorded checks use final source."
+}

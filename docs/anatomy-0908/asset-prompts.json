@@ -1,0 +1,20 @@
+[
+  {
+    "asset": "assets/strap-study-mesh.webp",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: product-mockup. Asset: transparent cutout for a dark premium watch website rotating material display. Create one full, straight uncurved watch strap shown as TWO separate vertical parallel halves, no watch case. Orthographic straight-on front face, no perspective. Both halves fully visible from end to end, vertically straight, same scale, evenly spaced side-by-side, centered. Tall portrait 2:3 canvas. Occupy central 64% width and 87% height. Real photographic materials and tiny crisp edge highlights, low-key warm studio light suitable for a black ancient Greek gallery. Genuine transparent RGBA background, no floor, no drop shadow outside object, no text, no labels, no logos, no watermark. This is a new concept illustration of the described construction; no engraved branding. Fine silver Milanese mesh watch strap, intricate woven steel mesh links, polished silver sliding clasp, one half shorter, other half longer with neatly rounded lower tip.",
+    "reference": "Desktop/watch/images.jpg"
+  },
+  {
+    "asset": "assets/strap-study-rubber.webp",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: product-mockup. Asset: transparent cutout for a dark premium watch website rotating material display. Create one full, straight uncurved watch strap shown as TWO separate vertical parallel halves, no watch case. Orthographic straight-on front face, no perspective. Both halves fully visible from end to end, vertically straight, same scale, evenly spaced side-by-side, centered. Tall portrait 2:3 canvas. Occupy central 64% width and 87% height. Real photographic materials and tiny crisp edge highlights, low-key warm studio light suitable for a black ancient Greek gallery. Genuine transparent RGBA background, no floor, no drop shadow outside object, no text, no labels, no logos, no watermark. This is a new concept illustration of the described construction; no engraved branding. Olive green matte rubber watch strap with two keepers and polished silver pin buckle on short half, seven correctly spaced adjustment holes along long half, gently rounded pointed lower tip.",
+    "reference": "Desktop/watch/images (1).jpg"
+  },
+  {
+    "asset": "assets/strap-study-leather.webp",
+    "tool": "built-in image_gen",
+    "prompt": "Use case: product-mockup. Asset: transparent cutout for a dark premium watch website rotating material display. Create one full, straight uncurved watch strap shown as TWO separate vertical parallel halves, no watch case. Orthographic straight-on front face, no perspective. Both halves fully visible from end to end, vertically straight, same scale, evenly spaced side-by-side, centered. Tall portrait 2:3 canvas. Occupy central 64% width and 87% height. Real photographic materials and tiny crisp edge highlights, low-key warm studio light suitable for a black ancient Greek gallery. Genuine transparent RGBA background, no floor, no drop shadow outside object, no text, no labels, no logos, no watermark. This is a new concept illustration of the described construction; no engraved branding. Deep black crocodile-pattern embossed leather watch strap (material study, no animal claim), precise dark stitching, subtle glossy raised scales, silver pin buckle, two black keepers, adjustment holes, pointed rounded tip.",
+    "reference": "Desktop/watch/images (2).jpg"
+  }
+]

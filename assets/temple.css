@@ -35,3 +35,104 @@
 }
 @media(max-height:580px) and (min-width:600px){.sanctuary-statue{height:100%;width:29%;bottom:-26%}.sanctuary-statue-left{left:-3%}.sanctuary-statue-right{right:-3%}}
 @media(prefers-reduced-motion:reduce){.sanctuary *{will-change:auto!important}}
+
+/* 2026-09-08: opaque stone in shadowed niches; depth is light and occlusion, never translucent marble. */
+.sanctuary-statue{bottom:-2%;height:79%;width:25%;opacity:1;isolation:isolate}
+.sanctuary-statue-left{left:-2%;opacity:1}.sanctuary-statue-right{right:-2%;opacity:1}
+.sanctuary-statue::before{content:"";position:absolute;inset:10% 20% 3%;z-index:-1;background:linear-gradient(90deg,#080b0d,#161c1d 7%,#070c10 12%,#10161a 50%,#080d10 88%,#252929 94%,#080b0d);clip-path:polygon(0 8%,50% 0,100% 8%,100% 100%,0 100%);box-shadow:inset 0 0 32px #000}
+.sanctuary-statue::after{content:"";position:absolute;bottom:0;left:23%;width:54%;height:5%;background:linear-gradient(#4b4a42,#141a1b 15%,#242a29 74%,#111719 76%);border-top:1px solid #85785960}
+.sanctuary-statue img{object-position:center bottom;opacity:1;filter:brightness(.43) saturate(.38);mask-image:none;-webkit-mask-image:none}
+.sanctuary-statue-right img{filter:brightness(.31) saturate(.28)}
+.motion .story{height:430vh;height:430svh}
+.layer-crown{z-index:0}.layer-bezel{z-index:5}.layer-glass{z-index:6}
+.annotation strong{font-size:clamp(16px,1.8vw,24px)}
+.annotation small{font-size:10px;letter-spacing:.3px;line-height:1.6;margin-top:7px}
+.annotation.is-right{text-align:right}
+.annotation.is-right .leader{margin-left:calc(var(--label-width) - var(--leader-width));margin-right:0;transform-origin:right}
+.annotation.is-right .leader::after{left:-3px;right:auto}
+.motion .movement-story{height:300vh;height:300svh}
+.movement-story{position:relative;border-top:1px solid var(--hair);background:#0c1012}
+.movement-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:clip;background:radial-gradient(ellipse at 50% 58%,#333b3540,transparent 58%),linear-gradient(115deg,#0b1013,#151714 55%,#080d10)}
+.movement-stage::before{content:"";position:absolute;inset:14% 8% 9%;border:1px solid #c5a0591a;background:repeating-linear-gradient(0deg,transparent 0 59px,#c5a05908 60px),repeating-linear-gradient(90deg,transparent 0 59px,#c5a05908 60px);pointer-events:none}
+.chapter-heading{position:absolute;top:calc(88px + 4%);left:7%;right:7%;z-index:3;pointer-events:none}
+.chapter-heading .eyebrow{margin:0 0 13px}
+.chapter-heading h2,.strap-heading h2,.notes-heading h2{margin:0;font-weight:400;font-size:clamp(27px,3.4vw,48px);line-height:1.6;letter-spacing:2px}
+.chapter-heading h2 em,.strap-heading h2 em{color:#cbb17a;font-style:normal}
+.chapter-heading>p:last-child,.strap-heading>p:not(.eyebrow),.notes-heading>p:last-child{color:var(--muted);font-size:12px;line-height:2.1;letter-spacing:1px}
+.movement-visual{--unit:min(52vw,52svh,530px);position:absolute;width:var(--unit);height:var(--unit);left:50%;top:59%;transform:translate(-50%,-50%)}
+.movement-layer{position:absolute;inset:0;perspective:1400px;transform-style:flat}
+.movement-layer .mechanism-core{position:absolute;inset:0;transform-style:preserve-3d}
+.movement-layer svg{width:100%;height:100%;display:block}
+.movement-rotor{z-index:4}.movement-barrel{z-index:3}.movement-balance{z-index:2}.movement-plate{z-index:1}
+.movement-callout{position:absolute;width:210px;z-index:3;opacity:0;pointer-events:none}
+.movement-callout span{font-size:10px;color:var(--gold);letter-spacing:2px}
+.movement-callout strong{display:block;font-size:16px;font-weight:400;margin:9px 0;padding-top:12px;border-top:1px solid var(--hair)}
+.movement-callout p{font-size:11px;line-height:1.9;color:var(--muted);margin:0}
+.mc-rotor{left:7%;top:37%}.mc-barrel{right:7%;top:44%}.mc-balance{left:7%;top:68%}
+.movement-footnote{position:absolute;bottom:4%;left:7%;font-size:10px;color:var(--muted);letter-spacing:1px}
+.strap-study{position:relative;display:grid;grid-template-columns:34% 66%;align-items:center;min-height:100svh;padding:110px 7% 85px;border-top:1px solid var(--hair);background:radial-gradient(ellipse at 72% 43%,#2b33354d,transparent 53%),#0d1011;overflow:clip}
+.strap-heading{z-index:2}.strap-heading h2{font-size:clamp(28px,3.4vw,52px)}
+.study-badge{display:inline-block;font-size:10px;line-height:1.9;color:#c3b391;border-left:1px solid var(--gold);padding-left:12px;margin-top:14px}
+.strap-gallery{min-width:0}
+.strap-orbit{position:relative;height:min(60svh,580px);width:100%;outline-offset:0;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;isolation:isolate}
+.strap-orbit.is-dragging{cursor:grabbing}
+.strap-orbit:focus-visible{outline:1px solid var(--gold)}
+.strap-item{position:absolute;width:clamp(150px,21vw,295px);height:87%;left:50%;top:2%;margin:0;transform-origin:50% 53%;will-change:transform}
+.strap-item img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.strap-item figcaption{text-align:center;font:9px "Cinzel",serif;letter-spacing:3px;color:#b9ab91;padding-top:7px}
+.orbit-track{position:absolute;left:7%;right:7%;top:43%;height:44%;border:1px solid #c5a05940;border-radius:50%;transform:rotate(-5deg);z-index:-1}
+.orbit-track::after{content:"";position:absolute;inset:14px;border:1px dashed #c5a05912;border-radius:50%}
+.orbit-plinth{position:absolute;left:12%;right:12%;bottom:3%;height:18%;border-radius:50%;background:radial-gradient(ellipse,#73807925,#161c1d40 40%,transparent 71%);z-index:-1}
+.strap-reading{text-align:center;min-height:95px;margin:18px 0 6px}
+.strap-reading>span{font:9px "Cinzel",serif;color:var(--gold);letter-spacing:3px}
+.strap-reading h3{font-size:20px;letter-spacing:3px;font-weight:400;margin:10px 0}
+.strap-reading p{font-size:11px;line-height:1.8;color:var(--muted);margin:0 12px}
+.orbit-controls{display:flex;justify-content:center;gap:12px;margin-top:18px}
+.orbit-controls button{cursor:pointer;min-height:44px;min-width:44px;border:1px solid #c5a0594d;color:var(--ivory);background:#111616;padding:9px 18px;font-size:11px;letter-spacing:1px}
+.orbit-controls button:hover,.orbit-controls button[aria-pressed="true"]{background:#353126}
+#strap-instructions{text-align:center;max-width:500px;margin:16px auto 0;font-size:10px;line-height:1.9;color:var(--muted);padding:0 10px}
+.anatomy-notes{padding:90px 7%;background:#111412;border-top:1px solid var(--hair)}
+.notes-heading{max-width:600px;margin-bottom:46px}
+.anatomy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 60px}
+.anatomy-grid article{padding:27px 0 30px;border-top:1px solid var(--hair)}
+.anatomy-grid article>span{font:9px "Cinzel",serif;letter-spacing:2px;color:var(--gold)}
+.anatomy-grid h3{font-size:18px;font-weight:400;line-height:1.7;margin:13px 0}
+.anatomy-grid p{font-size:13px;line-height:2.2;color:#bdb5a6;margin:0;max-width:540px}
+.source-note{margin-top:30px;border-top:1px solid var(--hair);padding:24px 0 0;font-size:11px;line-height:2.1;color:var(--muted)}
+.source-note summary{cursor:pointer;color:var(--gold);min-height:40px}.source-note a{text-decoration:underline;text-underline-offset:4px}
+.static .movement-story{height:100svh;min-height:650px}
+.static .movement-callout{display:none}.static .strap-item{will-change:auto}
+@media(min-width:1800px){.sanctuary-statue{width:23%;height:82%}.sanctuary-statue-left{left:0}.sanctuary-statue-right{right:0}.strap-study{padding-left:12%;padding-right:12%}}
+@media(max-width:1000px){.movement-callout{width:160px}.anatomy-grid{gap:0 32px}.strap-study{grid-template-columns:38% 62%}}
+@media(max-width:700px){
+ .sanctuary-statue{height:60%;width:72%;bottom:-5%;opacity:1}.sanctuary-statue-left{left:-36%;opacity:1}.sanctuary-statue-right{right:-36%;opacity:1}
+ .sanctuary-statue img{filter:brightness(.27) saturate(.3)}.sanctuary-statue-right img{filter:brightness(.2) saturate(.3)}
+ .sanctuary-statue::before{inset:12% 27% 4%}.sanctuary-statue::after{left:30%;width:40%}
+ .annotation strong{font-size:16px;overflow-wrap:anywhere}.annotation small{font-size:8px;line-height:1.7;letter-spacing:0}
+ .chapter-heading{top:98px;left:7%;right:7%}.chapter-heading h2{font-size:26px;letter-spacing:1px}.chapter-heading h2 em{display:block}.chapter-heading>p:last-child{font-size:10px;max-width:290px}
+ .movement-visual{--unit:min(95vw,48svh);top:60%}
+ .movement-callout{width:110px}.movement-callout span{font-size:8px;letter-spacing:1px}.movement-callout strong{font-size:12px;margin:6px 0;padding-top:7px}.movement-callout p{font-size:9px}
+ .mc-rotor{left:6%;top:33%}.mc-barrel{right:6%;top:50%}.mc-balance{left:6%;top:73%}
+ .movement-footnote{bottom:3%;font-size:9px;left:6%}
+ .strap-study{display:block;padding:65px 6% 55px}.strap-heading{text-align:center}.strap-heading h2{font-size:31px}.strap-heading h2 br{display:none}.strap-heading h2 em{display:block}
+ .strap-heading>p:not(.eyebrow){font-size:11px}.study-badge{font-size:9px;margin-top:5px}
+ .strap-orbit{height:440px;max-height:59svh;margin-top:34px}
+ .strap-item{width:53%;max-width:220px;height:86%}.strap-reading{margin-top:8px;min-height:90px}
+ .anatomy-notes{padding:60px 7%}.anatomy-grid{grid-template-columns:1fr}.anatomy-grid article{padding:24px 0}.anatomy-grid p{font-size:12px}.anatomy-grid h3{font-size:17px}.notes-heading{margin-bottom:30px}
+}
+@media(max-height:580px) and (min-width:600px){
+ .sanctuary-statue{height:82%;width:26%;bottom:-6%}.sanctuary-statue-left{left:-2%}.sanctuary-statue-right{right:-2%}
+ .chapter-heading{top:70px}.chapter-heading h2{font-size:24px}.chapter-heading .eyebrow{font-size:7px;margin-bottom:5px}.chapter-heading>p:last-child{font-size:9px;margin:4px 0}
+ .movement-visual{--unit:min(42vw,58svh);top:61%}.movement-callout{width:145px}.movement-callout strong{font-size:13px}.movement-callout p{font-size:9px}
+ .mc-rotor{top:42%}.mc-barrel{top:47%}.mc-balance{top:73%}
+ .movement-footnote{font-size:8px;bottom:2%}.strap-orbit{height:340px}.strap-study{padding-top:75px;padding-bottom:45px}
+ .annotation strong{font-size:15px}.annotation small{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.motion .story{height:100svh}.motion .movement-story{height:100svh}.strap-item{will-change:auto}}
+
+.strap-orbit{perspective:1100px;perspective-origin:50% 50%}
+.annotation strong{white-space:nowrap;overflow-wrap:normal}.label-meaning{display:block}
+@media(max-width:380px){.label-meaning{display:none}.annotation small{font-size:8px}}
+@media(max-height:580px) and (min-width:600px){.movement-callout p,.label-meaning{display:none}}
+.strap-item figcaption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;padding:0}
+@media(max-width:700px) and (max-height:650px){.chapter-heading{top:87px}.chapter-heading h2{font-size:21px}.chapter-heading .eyebrow{margin-bottom:7px}.chapter-heading>p:last-child{margin:7px 0}.movement-callout p{display:none}.movement-callout strong{font-size:11px}.movement-footnote{font-size:8px}}
