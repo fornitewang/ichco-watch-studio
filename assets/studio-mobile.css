@@ -1,0 +1,13 @@
+/* 規格按鈕的勾選位置預留空間，選取時不重新擠動同列選項。 */
+.chip::after{content:"";width:15px;height:15px;flex:none;margin-left:1px;visibility:hidden}
+.chip[aria-pressed="true"]::after{visibility:visible}
+.chip,.scard{touch-action:manipulation}
+@media(max-width:1000px){
+ html{scroll-padding-top:calc(var(--studio-pin-top,78px) + 16px)}
+ .stage-col.pin.mini .stage{height:clamp(190px,calc(var(--studio-vh,1svh)*31),280px)}
+ .stage-col.pin::before{content:"";position:fixed;top:calc(var(--studio-pin-top,78px) - 16px);left:0;right:0;height:16px;background:var(--paper);z-index:4;pointer-events:none}
+ .chapter{min-height:calc(var(--studio-vh,1svh)*82)}
+ .chapter:first-child{min-height:calc(var(--studio-vh,1svh)*112)}
+ .stage-col,.chapters,#configHead,.ghead,.opts,.chips{overflow-anchor:none}
+ .ghead{scroll-margin-top:calc(var(--studio-pin-top,78px) + clamp(190px,calc(var(--studio-vh,1svh)*31),280px) + 20px)}
+}

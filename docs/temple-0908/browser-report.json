@@ -1,0 +1,398 @@
+{
+  "checks": [
+    {
+      "name": "official catalog data unchanged",
+      "pass": true
+    },
+    {
+      "name": "Claude story CH unchanged",
+      "pass": true
+    },
+    {
+      "name": "original hero frames unchanged",
+      "pass": true
+    },
+    {
+      "name": "model geometry functions unchanged",
+      "pass": true
+    },
+    {
+      "name": "original painting and AR scripts unchanged",
+      "pass": true
+    },
+    {
+      "name": "original exploded watch SVG unchanged",
+      "pass": true
+    },
+    {
+      "name": "index.html script 2",
+      "pass": true
+    },
+    {
+      "name": "codex/index.html script 2",
+      "pass": true
+    },
+    {
+      "name": "studio.html script 0",
+      "pass": true
+    },
+    {
+      "name": "studio.html script 3",
+      "pass": true
+    },
+    {
+      "name": "studio.html script 4",
+      "pass": true
+    },
+    {
+      "name": "studio.html script 5",
+      "pass": true
+    },
+    {
+      "name": "assets/traveler.js syntax",
+      "pass": true
+    },
+    {
+      "name": "assets/traveler-companion.js syntax",
+      "pass": true
+    },
+    {
+      "name": "assets/catalog.js syntax",
+      "pass": true
+    },
+    {
+      "name": "chrome home 390 no overflow",
+      "pass": true
+    },
+    {
+      "name": "chrome home 390 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 390 background linked",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 390 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 390 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 390 labels visible",
+      "pass": true
+    },
+    {
+      "name": "chrome home 1440 no overflow",
+      "pass": true
+    },
+    {
+      "name": "chrome home 1440 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 1440 background linked",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 1440 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 1440 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 1440 labels visible",
+      "pass": true
+    },
+    {
+      "name": "chrome home 844 no overflow",
+      "pass": true
+    },
+    {
+      "name": "chrome home 844 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 844 background linked",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 844 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 844 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "chrome explosion 844 labels visible",
+      "pass": true
+    },
+    {
+      "name": "chrome traveler cry visible",
+      "pass": true
+    },
+    {
+      "name": "chrome dog warning",
+      "pass": true
+    },
+    {
+      "name": "chrome dog angry eyes",
+      "pass": true
+    },
+    {
+      "name": "chrome bark mouth moves",
+      "pass": true,
+      "detail": {
+        "jaw": [
+          "matrix(1, 0, 0, 1, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)"
+        ]
+      }
+    },
+    {
+      "name": "chrome dog head aims upward",
+      "pass": true
+    },
+    {
+      "name": "chrome dog calms after release",
+      "pass": true
+    },
+    {
+      "name": "chrome reduced motion stops dog",
+      "pass": true
+    },
+    {
+      "name": "studio starts original opening",
+      "pass": true,
+      "detail": {
+        "scrollY": 0,
+        "storyOn": true,
+        "storyDone": false,
+        "series": "MM",
+        "heroFrames": 72
+      }
+    },
+    {
+      "name": "mobile preview header gap >= 15",
+      "pass": true,
+      "detail": 16.5
+    },
+    {
+      "name": "selection keeps DOM and focus target",
+      "pass": true,
+      "detail": {
+        "dispatchMs": 0.3999999761581421,
+        "sameNode": true,
+        "pressed": "true",
+        "sameEnvironment": true,
+        "scrollDelta": 0,
+        "busy": null
+      }
+    },
+    {
+      "name": "selection reuses live environment",
+      "pass": true,
+      "detail": {
+        "dispatchMs": 0.3999999761581421,
+        "sameNode": true,
+        "pressed": "true",
+        "sameEnvironment": true,
+        "scrollDelta": 0,
+        "busy": null
+      }
+    },
+    {
+      "name": "selection leaves scroll position",
+      "pass": true,
+      "detail": {
+        "dispatchMs": 0.3999999761581421,
+        "sameNode": true,
+        "pressed": "true",
+        "sameEnvironment": true,
+        "scrollDelta": 0,
+        "busy": null
+      }
+    },
+    {
+      "name": "selection UI responds quickly",
+      "pass": true,
+      "detail": {
+        "dispatchMs": 0.3999999761581421,
+        "sameNode": true,
+        "pressed": "true",
+        "sameEnvironment": true,
+        "scrollDelta": 0,
+        "busy": null
+      }
+    },
+    {
+      "name": "preview update completes",
+      "pass": true,
+      "detail": {
+        "dispatchMs": 0.3999999761581421,
+        "sameNode": true,
+        "pressed": "true",
+        "sameEnvironment": true,
+        "scrollDelta": 0,
+        "busy": null
+      }
+    },
+    {
+      "name": "mobile address bar height does not reflow story",
+      "pass": true
+    },
+    {
+      "name": "Santos still rejects night scene",
+      "pass": true
+    },
+    {
+      "name": "studio no overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit home 390 no overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit home 390 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 390 background linked",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 390 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 390 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 390 labels visible",
+      "pass": true
+    },
+    {
+      "name": "webkit home 1440 no overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit home 1440 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 1440 background linked",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 1440 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 1440 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 1440 labels visible",
+      "pass": true
+    },
+    {
+      "name": "webkit home 844 no overflow",
+      "pass": true
+    },
+    {
+      "name": "webkit home 844 background assets loaded",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 844 background linked",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 844 all layers visible",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 844 focus cleared",
+      "pass": true
+    },
+    {
+      "name": "webkit explosion 844 labels visible",
+      "pass": true
+    },
+    {
+      "name": "webkit traveler cry visible",
+      "pass": true
+    },
+    {
+      "name": "webkit dog warning",
+      "pass": true
+    },
+    {
+      "name": "webkit dog angry eyes",
+      "pass": true
+    },
+    {
+      "name": "webkit bark mouth moves",
+      "pass": true,
+      "detail": {
+        "jaw": [
+          "matrix(1, 0, 0, 1, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)",
+          "matrix(1, 0, 0, 0.09, 0, 0)"
+        ]
+      }
+    },
+    {
+      "name": "webkit dog head aims upward",
+      "pass": true
+    },
+    {
+      "name": "webkit dog calms after release",
+      "pass": true
+    },
+    {
+      "name": "webkit reduced motion stops dog",
+      "pass": true
+    },
+    {
+      "name": "zero JS errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "metrics": {
+    "entry": {
+      "scrollY": 0,
+      "storyOn": true,
+      "storyDone": false,
+      "series": "MM",
+      "heroFrames": 72
+    },
+    "gap": 16.5,
+    "selection": {
+      "dispatchMs": 0.3999999761581421,
+      "sameNode": true,
+      "pressed": "true",
+      "sameEnvironment": true,
+      "scrollDelta": 0,
+      "busy": null
+    }
+  },
+  "errors": []
+}

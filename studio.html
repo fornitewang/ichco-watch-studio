@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+// 重新進入製錶手記先看原有序章；舊型錄 #configHead 連結也不再跳過動畫。
+if ('scrollRestoration' in history) history.scrollRestoration='manual';
+if (location.hash==='#configHead') history.replaceState(history.state,'',location.pathname+location.search);
+window.studioEntryInteracted=false;
+['wheel','touchstart','pointerdown','keydown'].forEach(name=>addEventListener(name,()=>{window.studioEntryInteracted=true;},{once:true,passive:true}));
+// 手機網址列伸縮只改可視區，不反覆改故事章節高度；旋轉或寬度改變時才重算。
+(()=>{let width=0;function measure(){if(width&&Math.abs(innerWidth-width)<2)return;width=innerWidth;window.studioStableHeight=innerHeight;document.documentElement.style.setProperty('--studio-vh',(innerHeight*.01)+'px');}measure();addEventListener('resize',measure,{passive:true});})();
+</script>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <!-- 這頁是給家人看的，先擋掉搜尋引擎收錄。要讓客人搜得到就把下面這行刪掉。 -->
 <meta name="robots" content="noindex, nofollow">
@@ -371,6 +380,7 @@ header{position:sticky; top:0; z-index:40;
 @media(max-width:380px){.wrap{padding-left:12px;padding-right:12px}.stage-col.pin .stage{left:12px;right:12px}}
 </style>
 
+<link rel="stylesheet" href="assets/studio-mobile.css?v=20260908a">
 <header><div class="bar">
   <a class="brand" href="index.html" aria-label="回到工藝首頁" style="color:inherit;text-decoration:none">
     <svg width="26" height="26" viewBox="0 0 44 44" fill="none" stroke="currentColor"
@@ -673,17 +683,19 @@ function resetSeriesPreview(){
 }
 $('conceptModeToggle').onchange=()=>{conceptMode=$('conceptModeToggle').checked;if(!conceptMode)resetSeriesPreview();apply();};
 function buildUI(){
+  const uiKey=String(S.series);
+  if($('opt-series').dataset.builtFor===uiKey){ syncOptionUI(); return; }
   const sc=$('opt-series'); sc.textContent='';
   SERIES.forEach((o,i)=>{
     const b=document.createElement('button'); b.className='scard'; b.type='button';
     b.setAttribute('aria-pressed',i===S.series);
     b.innerHTML=`<b>${o.name}</b><span class="mv">${o.mv}</span>`+
       `<span class="fr">${o.size}mm · ${o.wr} · 搭配預覽</span>`;
-    b.onclick=()=>{S.series=i;conceptMode=false;resetSeriesPreview();apply();if(window.setArt)setArt(SERIES[i]);}; sc.appendChild(b);   // 切系列時套該款實品的預設指針；只有客人親手選系列才切底圖（🔴 註解不能插在 appendChild 前面，會把系列卡整排註解掉）
+    b.onclick=()=>{S.series=i;conceptMode=false;resetSeriesPreview();apply(true);if(window.setArt)setArt(SERIES[i]);}; sc.appendChild(b);   // 只由客人選系列切底圖；不可把 appendChild 放在 // 後面。
   });
   const mk=(host,arr,key,f)=>{const h=$(host); h.textContent='';
     arr.forEach((o,i)=>{const b=chipEl(o,i===S[key],f?f(o):null);
-      b.onclick=()=>{S[key]=i; apply();}; h.appendChild(b);});};
+      b.onclick=()=>{if(S[key]===i)return;S[key]=i; apply(true);}; h.appendChild(b);});};
   mk('opt-scene',SCENES,'scene',o=>sw(o.sw));
   // Santos 固定款是藍鋼針／羅馬白面，沒有夜光；不能讓夜光展示把整支錶壓成黑色。
   if(SERIES[S.series].code==='SAN'){
@@ -710,6 +722,22 @@ function buildUI(){
   if($('chronoCtl')) $('chronoCtl').hidden=!SERIES[S.series].sub || DIAL[S.dial].tex==='skeleton';   // 三眼款才有計時按鈕；鏤空機芯（NH70）沒有計時功能→按鈕一併收起（用戶 2026-09-04）
   ['opt-metal','opt-bezel','opt-dial','opt-hands','opt-band'].forEach(function(id){
     const sec=$(id)&&$(id).closest('section'); if(sec) sec.hidden=fixed||!conceptMode; });
+  sc.dataset.builtFor=uiKey;
+  syncOptionUI();
+}
+function syncOptionUI(){
+  ['series','scene','metal','bezel','dial','hands','lume','band'].forEach(key=>{
+    Array.from($('opt-'+key).children).forEach((b,i)=>b.setAttribute('aria-pressed',String(i===S[key])));
+  });
+  BAND.forEach((bd,i)=>{const chip=$('opt-band').children[i],sample=chip&&chip.querySelector('.sw');
+    if(sample&&bd.type==='metal')sample.style.background='linear-gradient(180deg,#fff6,'+hex(METAL[S.metal].base)+' 45%,#0006)';});
+  const fixed=!!SERIES[S.series].fixed;
+  $('conceptModeToggle').checked=conceptMode;$('conceptModeToggle').disabled=fixed;
+  $('conceptModeNote').hidden=!conceptMode||fixed;
+  $('mmReferenceActions').hidden=SERIES[S.series].code!=='MM';
+  $('mmModelLabel').textContent=DIAL[S.dial].tex==='skeleton'?'目前款式：NH70 鏤空搭配':'目前款式：NH38 開心款 · 9 點開窗';
+  if($('chronoCtl'))$('chronoCtl').hidden=!SERIES[S.series].sub||DIAL[S.dial].tex==='skeleton';
+  ['opt-metal','opt-bezel','opt-dial','opt-hands','opt-band'].forEach(id=>{const sec=$(id).closest('section');if(sec)sec.hidden=fixed||!conceptMode;});
 }
 
 /* ══ 3D ═══════════════════════════════════════════════════ */
@@ -2885,8 +2913,9 @@ function addLumeHalos(){ parts.lumeHalos=[]; if(!parts.lumeM) return;
     for(let i=0;i<n;i++){ const t=n===1?0:(i/(n-1)-0.5); const pos=c.clone(); pos.setComponent(ax,c.getComponent(ax)+t*(L-w)); pos.setComponent(axMin,c.getComponent(axMin)+dims[axMin]/2+0.02);
       const sp=new T.Sprite(new T.SpriteMaterial({map:parts.haloTex,color:col,blending:T.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.5}));
       sp.scale.set(sc,sc,1); sp.position.copy(pos); sp.visible=show; o.add(sp); parts.lumeHalos.push(sp); } }); }
-function applyScene(){
+function applyScene(reuseEnvironment=false){
   const sc=SCENES[S.scene];
+  if(!reuseEnvironment||!envRT||parts.envSceneIndex!==S.scene||parts.envSource!==hdrTex){
   // 🔴 PMREM 要釋放 render target 本體；先完成新反射並更新所有材質，再釋放舊 target。
   //    不先銷毀仍在使用的貼圖，避免手機切換情境／離開 AR 時金屬短暫取樣到失效資源。
   const oldPMREM=parts.envPMREM, oldEnv=envRT;
@@ -2896,9 +2925,11 @@ function applyScene(){
     rt=hdrTex?pmrem.fromEquirectangular(source):pmrem.fromCubemap(source);
   } finally { if(source) source.dispose(); }
   parts.envPMREM=rt; envRT=rt.texture; scene.environment=envRT;
+  parts.envSceneIndex=S.scene;parts.envSource=hdrTex;
   applyEnvToAll();
   if(oldPMREM) oldPMREM.dispose();
   else if(oldEnv&&oldEnv!==envRT) oldEnv.dispose();
+  }else{ applyEnvToAll(); }
   // 🔴之前 fog 密度算成 sc.fog*22（0.13~1.1），等於把產品埋進色霧 → 整支錶變剪影。
   //   改成不打霧，情境改用「背景漸層＋環境貼圖＋光色＋粒子」表現。
   scene.fog=null;
@@ -3047,12 +3078,16 @@ function init(){
   clock=new T.Clock();
   resize(); addEventListener('resize',resize);
   if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(resize).catch(function(){}); }
-  if(document.fonts&&document.fonts.load){ document.fonts.load('900 100px Cinzel').then(function(){ if(ok&&SERIES[S.series].code==='SAN') apply(); }).catch(function(){}); }
+  if(document.fonts&&document.fonts.load){ document.fonts.load('900 100px Cinzel').then(function(){ if(ok&&SERIES[S.series].code==='SAN'){lastPreviewKey='';apply();} }).catch(function(){}); }
   setTimeout(resize,300);
   drag(); apply(); animate();
 }
 function resize(){
+  if(!renderer||!camera)return;
   const r=cv.parentElement.getBoundingClientRect();
+  if(r.width<=0||r.height<=0)return;
+  renderer.getSize(_szChk);
+  if(Math.abs(r.width-_szChk.x)<1&&Math.abs(r.height-_szChk.y)<1)return;
   renderer.setSize(r.width,r.height,false);
   camera.aspect=r.width/r.height; camera.updateProjectionMatrix();
 }
@@ -3273,12 +3308,30 @@ renderer.render(scene,camera);
 }
 
 /* ── 套用選項 ─────────────────────────────────────────── */
-function apply(){
+let previewFrame=0,previewTask=0,previewRevision=0,lastPreviewKey='',lastPreviewScene=-1;
+function renderSelectedPreview(){
+  previewFrame=0;previewTask=0;
+  if(!ok)return;
+  const key=[S.series,S.metal,S.bezel,S.dial,S.hands,S.lume,S.band,SCENES[S.scene].fx].join('|');
+  if(key!==lastPreviewKey){ buildWatch(); lastPreviewKey=key; }
+  applyScene(lastPreviewScene===S.scene);
+  lastPreviewScene=S.scene;
+  document.querySelector('.stage').removeAttribute('aria-busy');
+}
+function apply(deferPreview=false){
   // 從其他系列的夜光情境切進 Santos 時，回到可辨識材質的紙棚；避免沿用不可用的夜光狀態。
   if(SERIES[S.series].code==='SAN'&&SCENES[S.scene].fx==='lume') S.scene=0;
   if(SERIES[S.series].code==='MM') S.bezel=0; // This model has one verified bezel; do not charge for invisible color changes.
   buildUI();
-  if(ok){ buildWatch(); applyScene(); }
+  if(ok){
+    cancelAnimationFrame(previewFrame);clearTimeout(previewTask);
+    const revision=++previewRevision;
+    document.querySelector('.stage').setAttribute('aria-busy','true');
+    if(deferPreview){
+      // 選項先上色並保留 DOM／焦點，下一個繪製機會後合併快速連點的最後一次模型更新。
+      previewFrame=requestAnimationFrame(()=>{previewFrame=0;previewTask=setTimeout(()=>{if(revision===previewRevision)renderSelectedPreview();},0);});
+    }else renderSelectedPreview();
+  }
   const se=SERIES[S.series],mt=METAL[S.metal],bz=BEZEL[S.bezel],dl=DIAL[S.dial],
         hs=HANDS[S.hands],lm=LUME[S.lume],bd=BAND[S.band],sc=SCENES[S.scene];
   const fixed=!!se.fixed;                         // Santos：固定規格，不吃選項加價
@@ -3386,7 +3439,7 @@ function setBandFade(k){
 
 function onScroll(){
   const story=$('story'); if(!story) return;
-  const vh=innerHeight, mid=vh*0.5;
+  const vh=mqMobile.matches?(window.studioStableHeight||innerHeight):innerHeight, mid=vh*0.5;
   // 🔴 進度不能用整段 story 的線性比例算：第一章 112vh、其餘 92vh，
   //    比例會愈往下偏愈多（實測第 5 章卡片置中時只算到 4.3），鏡頭就落後文字一章。
   //    改成用每一章元素的實際位置 → u ＝ 連續章節序號，第 i 章置中時剛好 = i。
@@ -3424,10 +3477,10 @@ function onScroll(){
   if(mqMobile.matches&&stageCol){
     const scTop=stageCol.getBoundingClientRect().top;
     // Keep the pinned preview below the actual header, including loaded fonts.
-    const pinTop=Math.ceil(document.querySelector('header').getBoundingClientRect().height);
+    const pinTop=Math.ceil(document.querySelector('header').getBoundingClientRect().height)+16;
     document.documentElement.style.setProperty('--studio-pin-top',pinTop+'px');
-    const wantPin=scTop<=pinTop, wantMini=wantPin&&!storyOn;
     const hadPin=stageCol.classList.contains('pin'), hadMini=stageCol.classList.contains('mini');
+    const wantPin=hadPin?scTop<=pinTop+3:scTop<=pinTop, wantMini=wantPin&&!storyOn;
     if(wantPin!==hadPin||wantMini!==hadMini){
       stageCol.classList.toggle('pin', wantPin); stageCol.classList.toggle('mini', wantMini);
       if(ok) resize();
@@ -3481,7 +3534,8 @@ function onScroll(){
   //   CH[].hot 座標留著沒用到，之後要做別的標註再拿來用。
   if(near!==curCh){ curCh=near; }
 }
-addEventListener('scroll', onScroll, {passive:true});
+let scrollFrame=0;
+addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;onScroll();});},{passive:true});
 addEventListener('resize', onScroll);
 
 // 計時碼錶狀態：開始／停止／歸零；按鈕同時讓對應的按把按下去
@@ -3507,10 +3561,9 @@ if(catalogSeriesIndex>=0){
   S.series=catalogSeriesIndex;
   if(catalogSeriesCode==='MM')Object.assign(S,MM_PRESET);
   const hd=(DIALSPEC[catalogSeriesCode]||{}).hands;if(hd!=null)S.hands=hd;
-  storyOn=false;storyDone=true;
 }
 if(ok){ init(); } else { $('fallback').style.display='grid'; apply(); }
-if(catalogSeriesIndex>=0)window.addEventListener('load',()=>{ $('configHead').scrollIntoView(); if(window.setArt)setArt(SERIES[S.series]); },{once:true});
+window.addEventListener('load',()=>{if(!window.studioEntryInteracted)window.scrollTo({top:0,left:0,behavior:'instant'});onScroll();},{once:true});
 onScroll();
 setTimeout(onScroll,300);
 </script>

@@ -1,0 +1,37 @@
+/* Ancient Greek paper theatre: independent scenic planes, behind the original watch assembly. */
+.stage{isolation:isolate;background:#0f0e0d}
+.sanctuary{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1;background:#0b0d0e}
+.sanctuary-depth{position:absolute;inset:-4%;background:url("temple-sanctuary.webp") center 55%/cover no-repeat;transform-origin:50% 55%;opacity:.85}
+.sanctuary-halo{position:absolute;inset:8% 8% 0;background:radial-gradient(ellipse at 50% 43%,#080c0ed9 0%,#1017167d 29%,transparent 65%);opacity:1}
+.sanctuary-mist{position:absolute;inset:20% -15% -14%;background:radial-gradient(ellipse at 27% 80%,#c5d5c61c,transparent 36%),radial-gradient(ellipse at 76% 72%,#aabbbe26,transparent 36%);opacity:.6}
+.sanctuary-statue{position:absolute;bottom:-12%;height:91%;width:34%;margin:0;transform-origin:50% 88%}
+.sanctuary-statue img{width:100%;height:100%;object-fit:contain;filter:brightness(.62) saturate(.48);mask-image:linear-gradient(#000 75%,transparent 99%);-webkit-mask-image:linear-gradient(#000 75%,transparent 99%)}
+.sanctuary-statue-left{left:-5%;opacity:.58}
+.sanctuary-statue-right{right:-5%;opacity:.38}
+.sanctuary-statue-right img{transform:scaleX(-1);filter:brightness(.48) saturate(.35)}
+.sanctuary-cut{position:absolute;inset:0;background:linear-gradient(100deg,#090b0e,#1c2022 46%,#060709);filter:drop-shadow(5px 4px 1px #c2b59830);opacity:.92}
+.sanctuary-cut-left{clip-path:polygon(0 0,12% 0,11% 7%,8.3% 11%,9% 16%,6.8% 18%,6% 39%,4.5% 60%,6.6% 73%,4% 89%,7% 100%,0 100%);transform-origin:0 50%}
+.sanctuary-cut-right{clip-path:polygon(100% 0,90% 0,91% 9%,94% 14%,92% 23%,94% 29%,95.8% 66%,93% 81%,95% 89%,93% 100%,100% 100%);transform-origin:100% 50%}
+.sanctuary-lintel{position:absolute;inset:0;background:linear-gradient(#020506ec,#131719a8);clip-path:polygon(0 0,100% 0,100% 14%,94% 12%,82% 10%,80% 8.5%,20% 8.5%,18% 10%,6% 12%,0 14%);filter:drop-shadow(0 5px 2px #c8b48825)}
+.marble{opacity:.1}.grain{opacity:.035}
+.reading-veil{background:radial-gradient(ellipse,#0b0d0ed9 0%,#0b0d0e50 49%,#0b0d0e15 75%)}
+.introduction{text-shadow:0 2px 25px #000}
+.annotation strong,.annotation small{text-shadow:0 1px 3px #000,0 0 12px #0f0e0d,0 0 18px #0f0e0d}
+.annotation::before{content:"";position:absolute;inset:-12px -14px;background:radial-gradient(ellipse,#0f0e0de8 18%,#0f0e0d8a 56%,transparent 76%);z-index:-1}
+.masthead nav{gap:25px}.nav-studio{color:#d7c5a1}
+.temple-caption{position:absolute;bottom:25%;left:4.5%;writing-mode:vertical-rl;font:8px/1.8 "Cinzel",serif;letter-spacing:3px;color:#c3b39470;pointer-events:none}
+.colophon{background:linear-gradient(#0f0e0df5,#0f0e0df2),url("temple-sanctuary.webp") center bottom/cover}
+.journey-links{display:flex;gap:24px;flex-wrap:wrap;margin:0 0 32px;font-size:12px;letter-spacing:1px;color:var(--gold)}
+.journey-links a{padding:12px 0;border-bottom:1px solid var(--hair)}
+@media(max-width:700px){
+ .masthead{padding:0 18px}.masthead nav{gap:17px;font-size:10px;letter-spacing:.4px}.nav-studio{display:block}
+ .sanctuary-depth{inset:-3% -35%;background-position:center 57%;opacity:.8}
+ .sanctuary-statue{height:65%;width:65%;bottom:-8%}
+ .sanctuary-statue-left{left:-27%;opacity:.47}.sanctuary-statue-right{right:-28%;opacity:.28}
+ .sanctuary-cut-left{transform:translateX(-3%)}.sanctuary-cut-right{transform:translateX(3%)}
+ .sanctuary-halo{inset:0 -13%;background:radial-gradient(ellipse,#090d10e0 0%,#0e1418a3 35%,transparent 71%)}
+ .temple-caption{display:none}.journey-links{gap:18px;font-size:11px}
+ .annotation::before{inset:-9px;background:radial-gradient(ellipse,#0f0e0df2 20%,#0f0e0dc0 60%,transparent 77%)}
+}
+@media(max-height:580px) and (min-width:600px){.sanctuary-statue{height:100%;width:29%;bottom:-26%}.sanctuary-statue-left{left:-3%}.sanctuary-statue-right{right:-3%}}
+@media(prefers-reduced-motion:reduce){.sanctuary *{will-change:auto!important}}

@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#0f0e0d">
   <meta name="description" content="以但丁《神曲》的旅程、攀登與星辰為敘事靈感，逐層展開 ICH.co 概念錶的時間手稿。">
   <title>ICH.co — A Journey to the Stars</title>
+  <link rel="canonical" href="https://fornitewang.github.io/ichco-watch-studio/">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%230f0e0d'/%3E%3Ccircle cx='32' cy='32' r='25' fill='none' stroke='%23c5a059'/%3E%3Cpath d='M32 13v19l12 8' fill='none' stroke='%23c5a059' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,12 +89,14 @@
     @media(max-height:580px) and (min-width:600px){.introduction h1{font-size:36px}.introduction h1 br{display:none}.introduction .eyebrow{margin-bottom:12px}.intro-rule{display:none}.intro-copy{font-size:10px;line-height:1.7;margin:12px 0}.concept{margin-top:12px;font-size:8px}.annotation strong{font-size:17px}.annotation small{font-size:8px}.annotation .leader{margin-top:5px}}
 
   </style>
+  <link rel="stylesheet" href="../assets/temple.css?v=20260908a">
+  <link rel="preload" href="../assets/temple-sanctuary.webp" as="image">
 </head>
 <body class="static">
   <a class="skip" href="#craft">跳至設計理念</a>
   <header class="masthead">
     <div class="signature"><a class="brand" href="#" aria-label="ICH.co 概念設計首頁">ICH<i>.</i>co</a><span class="brand-note">A JOURNEY INWARD<br>A GAZE TOWARD THE STARS</span></div>
-    <nav aria-label="主要導覽"><a class="nav-index" href="#craft">設計手記</a><a class="nav-collection" href="https://fornitewang.github.io/ichco-watch-studio/catalog.html">探索錶款 ↗</a></nav>
+    <nav aria-label="主要導覽"><a class="nav-index" href="#craft">設計手記</a><a class="nav-studio" href="../studio.html">3D 製錶手記</a><a class="nav-collection" href="../catalog.html">探索錶款 ↗</a></nav>
   </header>
   <!-- 共用 SVG 材質定義；五層不依賴任何外部圖片或 3D 模型。 -->
   <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
@@ -117,6 +120,14 @@
   <main>
     <section class="story" id="story" aria-labelledby="title">
       <div class="stage">
+        <!-- 真實石材與紙雕剪影分層，僅背景移動；保留原本五層手錶的材質、幾何與拆解時序。 -->
+        <div class="sanctuary" aria-hidden="true">
+          <div class="sanctuary-depth"></div><div class="sanctuary-halo"></div>
+          <figure class="sanctuary-statue sanctuary-statue-left"><img src="../assets/temple-oracle.webp" alt="" width="1024" height="1536" decoding="async"></figure>
+          <figure class="sanctuary-statue sanctuary-statue-right"><img src="../assets/temple-oracle.webp" alt="" width="1024" height="1536" decoding="async"></figure>
+          <div class="sanctuary-mist"></div><div class="sanctuary-cut sanctuary-cut-left"></div><div class="sanctuary-cut sanctuary-cut-right"></div><div class="sanctuary-lintel"></div>
+        </div>
+        <span class="temple-caption" aria-hidden="true">TEMPLE OF TIME · A PAPER THEATRE</span>
         <div class="marble" aria-hidden="true"></div><svg class="grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#paperGrain)" opacity=".8"/></svg><div class="frame" aria-hidden="true"></div>
         <div class="intro-position"><div class="introduction"><p class="eyebrow">DANTE · JOURNEY · STARS</p><h1 id="title">A Journey<br> <em>to the Stars.</em></h1><div class="intro-rule"></div><p class="intro-copy">循微光前行，向星辰抬眼。<br>在層層展開之間，讀見時間的內在。</p><span class="concept">ICH.co 概念錶研究 · 非販售配置</span></div></div>
         <div class="reading-veil" aria-hidden="true"></div>
@@ -290,6 +301,15 @@
         }
       });
       // 文字完全消失後才退去模糊；對焦完成之前，各零件維持原位。
+      // 神殿、雕像、紙雕框使用同一條 ScrollTrigger；不改五層手錶的展開距離或旋轉。
+      timeline.fromTo('.sanctuary-depth',{scale:1,yPercent:0},{scale:1.12,yPercent:-3,duration:1.08,ease:'none'},0);
+      timeline.fromTo('.sanctuary-statue-left',{xPercent:0,yPercent:0},{xPercent:-16,yPercent:8,duration:.72},.30);
+      timeline.fromTo('.sanctuary-statue-right',{xPercent:0,yPercent:0},{xPercent:16,yPercent:5,duration:.76},.30);
+      timeline.fromTo('.sanctuary-mist',{xPercent:-3,yPercent:5,opacity:.45},{xPercent:4,yPercent:-9,opacity:.85,duration:1.08,ease:'none'},0);
+      timeline.fromTo('.sanctuary-cut-left',{xPercent:0},{xPercent:-3,duration:.8},.25);
+      timeline.fromTo('.sanctuary-cut-right',{xPercent:0},{xPercent:3,duration:.8},.25);
+      timeline.fromTo('.sanctuary-lintel',{yPercent:0},{yPercent:-5,duration:.85},.2);
+      timeline.fromTo('.temple-caption',{opacity:1},{opacity:0,duration:.25},.34);
       timeline.fromTo('.introduction',{opacity:1,y:0},{opacity:0,y:-18,duration:.16},0);
       timeline.fromTo('.reading-veil',{opacity:1},{opacity:0,duration:.15},.17);
       // Safari 類瀏覽器的 backdrop-filter 不一定會模糊 3D 合成層，直接對完整畫面對焦。

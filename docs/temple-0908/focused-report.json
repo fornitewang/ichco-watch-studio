@@ -1,0 +1,108 @@
+[
+  {
+    "name": "chrome dialog hides both companions",
+    "pass": true
+  },
+  {
+    "name": "chrome catalog selected option stays in place",
+    "pass": true,
+    "detail": {
+      "before": 594.890625,
+      "after": 595.28125,
+      "latency": 22
+    }
+  },
+  {
+    "name": "chrome catalog selected option correct",
+    "pass": true
+  },
+  {
+    "name": "chrome same photo does not flash or reload",
+    "pass": true,
+    "detail": {
+      "opacity": "1",
+      "loading": false
+    }
+  },
+  {
+    "name": "chrome no legacy configurator hashes",
+    "pass": true
+  },
+  {
+    "name": "chrome traveler cry inside right edge",
+    "pass": true,
+    "detail": {
+      "x": 280.3003234863281,
+      "y": 544.2926025390625,
+      "width": 107.08685302734375,
+      "height": 45.742919921875
+    }
+  },
+  {
+    "name": "chrome drag does not open luggage",
+    "pass": true
+  },
+  {
+    "name": "chrome double click opens once",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "name": "chrome no JS errors",
+    "pass": true,
+    "detail": []
+  },
+  {
+    "name": "webkit dialog hides both companions",
+    "pass": true
+  },
+  {
+    "name": "webkit catalog selected option stays in place",
+    "pass": true,
+    "detail": {
+      "before": 594.875,
+      "after": 595.265625,
+      "latency": 106
+    }
+  },
+  {
+    "name": "webkit catalog selected option correct",
+    "pass": true
+  },
+  {
+    "name": "webkit same photo does not flash or reload",
+    "pass": true,
+    "detail": {
+      "opacity": "1",
+      "loading": false
+    }
+  },
+  {
+    "name": "webkit no legacy configurator hashes",
+    "pass": true
+  },
+  {
+    "name": "webkit traveler cry inside right edge",
+    "pass": true,
+    "detail": {
+      "x": 280.293701171875,
+      "y": 544.3176879882812,
+      "width": 107.08685302734375,
+      "height": 45.74298095703125
+    }
+  },
+  {
+    "name": "webkit drag does not open luggage",
+    "pass": true
+  },
+  {
+    "name": "webkit double click opens once",
+    "pass": true,
+    "detail": 1
+  },
+  {
+    "name": "webkit no JS errors",
+    "pass": true,
+    "detail": []
+  }
+]

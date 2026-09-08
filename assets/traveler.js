@@ -47,6 +47,7 @@
     art.style.setProperty('--facing', facing);
     art.style.setProperty('--case-sway', (pointer ? -angle*facing*.7 : thrown ? clamp(-vx*facing*.009,-11,11) : 0) + 'deg');
     hint.style.left = clamp(bounds.width / 2, 90 - x, bounds.viewportWidth - x - 90) + 'px';
+    actor.style.setProperty('--cry-left',clamp(bounds.width*.62,8-x,bounds.viewportWidth-x-108)+'px');
     publish();
   }
   function measure(initial = false) {
@@ -226,7 +227,7 @@
   });
   addEventListener('ich:companion-ready', publish);
   // 自有 SVG 同源載入，保留向量子部件，讓腿、手臂、輪子分別活動。
-  fetch('assets/traveler-cel.svg?v=20260907b').then(response => {
+  fetch('assets/traveler-cel.svg?v=20260908a').then(response => {
     if (!response.ok) throw new Error('Traveler artwork unavailable');
     return response.text();
   }).then(source => {

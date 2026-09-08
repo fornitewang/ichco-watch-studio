@@ -54,6 +54,27 @@
 .husky-facing svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 3px 2px #27332124)}
 .husky-facing [class]{transform-box:view-box}
 .h-happy-eyes,.h-sitting-body{display:none}
+.h-angry-eyes,.h-bark-mouth{display:none}
+.traveler-exclaim,.husky-bark{position:absolute;z-index:3;pointer-events:none;white-space:nowrap;font:900 23px/1.3 "Microsoft JhengHei",sans-serif;letter-spacing:2px;color:#793f34;text-shadow:-2px -2px 0 #fff9e9,2px -2px 0 #fff9e9,-2px 2px 0 #fff9e9,2px 2px 0 #fff9e9,0 3px 5px #38251730;opacity:0}
+.traveler-exclaim{left:var(--cry-left,62%);top:4%;transform:rotate(-9deg)}
+.traveler-actor:is([data-state="held"],[data-state="dragging"]) .traveler-exclaim{opacity:1}
+.husky-bark{left:var(--bark-left,60%);top:-12%;font-size:20px;transform:translateX(-35%) rotate(-8deg);transition:opacity .05s}
+.husky-actor[data-barking="true"] .husky-bark{opacity:1}
+.husky-actor[data-warning="true"] .h-head{transform:rotate(var(--alert-angle,-28deg));transition:transform .13s ease-out}
+.husky-actor[data-warning="true"] :is(.h-eyes,.h-happy-eyes,.h-mouth-rest,.h-tongue){display:none}
+.husky-actor[data-warning="true"] :is(.h-angry-eyes,.h-bark-mouth){display:inline}
+.husky-actor[data-warning="true"] .h-bark-mouth{transform:scaleY(var(--bark-open,.09));transition:transform .065s ease-out}
+.husky-actor[data-warning="true"] .h-ear-far{transform:rotate(5deg)}
+.husky-actor[data-warning="true"] .h-ear-near{transform:rotate(-5deg)}
+.husky-actor[data-warning="true"] .h-tail{transform:rotate(23deg);animation:none}
+.husky-actor[data-state="guarding"] .h-leg-near-front{transform:rotate(-13deg)}
+.husky-actor[data-state="guarding"] .h-leg-far-front{transform:rotate(12deg)}
+.husky-actor[data-state="guarding"] .h-leg-near-back{transform:rotate(8deg)}
+.husky-actor[data-state="guarding"] .h-leg-far-back{transform:rotate(-9deg)}
+.husky-actor[data-state="guarding"] svg{transform-origin:55% 94%;animation:husky-warning 1.25s ease-in-out infinite}
+.husky-actor[data-state="protecting"] .h-leg-near-back,.husky-actor[data-state="protecting"] .h-leg-far-front{animation:husky-step .24s ease-in-out infinite alternate}
+.husky-actor[data-state="protecting"] .h-leg-far-back,.husky-actor[data-state="protecting"] .h-leg-near-front{animation:husky-step .24s ease-in-out -.24s infinite alternate}
+@keyframes husky-warning{0%,24%,50%,100%{transform:translateY(0) scaleY(1)}8%,39%{transform:translateY(-3px) scaleY(1.025)}65%,80%{transform:translateY(1px) scaleY(.99)}}
 .husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-near-back,.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-far-front{animation:husky-step .4s ease-in-out infinite alternate}
 .husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-far-back,.husky-actor:is([data-state="walking"],[data-state="chasing"]) .h-leg-near-front{animation:husky-step .4s ease-in-out -.4s infinite alternate}
 .husky-actor[data-state="chasing"] .h-leg{animation-duration:.25s}

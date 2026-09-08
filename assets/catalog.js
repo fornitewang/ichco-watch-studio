@@ -73,10 +73,11 @@
   function setImage(image,caption,scope='selected') {
     const img=$('productImage'),badge=$('photoScope'),placeholder=$('photoUnavailable'),request=++photoRequest;
     const src=new URL(image.src,location.href).href;
+    const alreadyReady=img.currentSrc===src&&img.complete&&img.naturalWidth>0;
     const label={selected:'所選款式照片',shared:'共用參考照片',gallery:'系列相簿 · 尚未更改搭配',incomplete:'搭配未選完 · 款式參考',unmatched:'此搭配沒有獨立照片'}[scope];
-    img.style.opacity='0';img.alt=state.product.title+' — '+caption;img.dataset.imageId=image.id;
-    placeholder.hidden=false;placeholder.textContent='正在載入官網照片…';
-    $('imageCaption').textContent=caption;badge.dataset.scope=scope;badge.textContent='照片載入中';
+    img.style.opacity=alreadyReady?'1':'0';img.alt=state.product.title+' — '+caption;img.dataset.imageId=image.id;
+    placeholder.hidden=alreadyReady;placeholder.textContent='正在載入官網照片…';
+    $('imageCaption').textContent=caption;badge.dataset.scope=scope;badge.textContent=alreadyReady?label:'照片載入中';
     img.onload=()=>{
       if(request!==photoRequest||img.currentSrc!==src||!img.naturalWidth)return;
       img.style.opacity='1';placeholder.hidden=true;badge.dataset.scope=scope;badge.textContent=label;
@@ -87,7 +88,7 @@
       badge.dataset.scope='unavailable';badge.textContent='照片暫時無法載入';
       $('imageCaption').textContent='照片載入失敗；下方已選搭配與售價沒有改變，請至官網確認外觀。';
     };
-    img.src=image.src;
+    if(alreadyReady)img.onload();else img.src=image.src;
     $('returnSelectedPhoto').hidden=scope!=='gallery';
     document.querySelectorAll('#imageThumbs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.imageId===String(image.id))));
   }
@@ -117,7 +118,10 @@
         b.onclick=()=>{
           state.choices[index]=value;const cleared=reconcileChoices(index);
           state.changeMessage=cleared.length?'新選項沒有原先的對應組合，請重新選擇：'+cleared.join('、')+'。':state.variant?'已更新所選款式；照片與售價同步更新。':'請完成剩下的選項，才會顯示這組整錶售價。';
-          renderVariant();writeURL();const next=[...document.querySelectorAll('#variantOptions button')].find(n=>n.dataset.optionIndex===String(index)&&n.dataset.optionValue===value);next?.focus({preventScroll:true});
+          const pane=$('productDialog').querySelector('.product-content'),before=b.getBoundingClientRect().top,oldScroll=pane.scrollTop;
+          renderVariant();writeURL();const next=[...document.querySelectorAll('#variantOptions button')].find(n=>n.dataset.optionIndex===String(index)&&n.dataset.optionValue===value);
+          // 保持點擊位置，避免上方說明換行後把正在選的規格推走。
+          if(next){const delta=next.getBoundingClientRect().top-before;if(pane.scrollHeight>pane.clientHeight)pane.scrollTop=oldScroll+delta;next.focus({preventScroll:true});}
         };row.append(b);
       });field.append(row);options.append(field);
     });
@@ -137,7 +141,7 @@
     $('productSource').textContent='資料核對：'+state.data.checkedDate+' · 價格與庫存依官網當下資訊為準';
     $('officialLink').href=p.officialUrl;$('officialLink').textContent=v?.available&&!v.requiresClarification?'至官網確認與訂購 ↗':'至官網查看與詢問 ↗';
     const preview=$('previewLink');preview.hidden=!(v&&p.previewSeries&&p.previewVariantIds?.includes(v.id));
-    if(!preview.hidden)preview.href='studio.html?series='+encodeURIComponent(p.previewSeries)+'#configHead';
+    if(!preview.hidden)preview.href='studio.html?series='+encodeURIComponent(p.previewSeries);
     if(v?.requiresClarification)$('customRequest').closest('details').open=true;
   }
 

@@ -26,3 +26,11 @@
 @media(max-width:700px){.photo-caption-row .image-caption{flex-basis:200px}.capability-panel{padding:12px}.request-details textarea{font-size:16px}.photo-caption-row .text-button{min-height:26px}.selected-variant-title{font-size:11px}}
 
 .photo-scope[data-scope=unmatched],.photo-scope[data-scope=unavailable]{background:#79542a;color:#fff}.photo-unavailable{position:absolute;inset:40% 20px auto;text-align:center;font-size:12px;line-height:1.8;color:var(--muted);pointer-events:none}
+/* 選項更新時由程式維持所點規格的位置，不與瀏覽器 scroll anchoring 重複補償。 */
+#variantOptions,.product-content{overflow-anchor:none}
+@media(max-width:700px){
+ .product-gallery{padding-top:17px}
+ .product-content{scroll-behavior:auto;scroll-padding-top:18px}
+ #selectionChange{min-height:36px}
+ .option-chip{touch-action:manipulation}
+}
