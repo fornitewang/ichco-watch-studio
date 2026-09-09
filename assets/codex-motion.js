@@ -30,6 +30,7 @@
     part.dataset.mechanism=name;part.innerHTML=html;core.append(part);
   });
   const visual=$('#movement-visual');
+  window.ICHJourneyEffects?.buildCrown($('[data-layer="crown"] .rotor'));
   visual.innerHTML=['plate','balance','barrel','rotor'].map(name=>'<div class="movement-layer movement-'+name+'" data-mechanism-part="'+name+'"><div class="mechanism-core">'+(name==='plate'?plate:additions[name])+'</div></div>').join('');
   // Cloned SVGs only reference the shared definitions; never duplicate identifiers.
   visual.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
@@ -49,7 +50,7 @@
       {name:'gears',range:[-213,213],x:[-213,213],depth:[-30,30],size:1},
       {name:'case',range:[-252,252],x:[-232,232],depth:[-30,0],size:1}
     ];
-    let layout;
+    let layout,effects;
     function project(p,unit,angle){
       const ys=[],xs=[],a=angle*Math.PI/180,k=unit/600;
       p.range.forEach(y=>p.depth.forEach(z=>{
@@ -83,7 +84,7 @@
       const crownScale=scale*1.6,crownY=(rows[4].bottom+rows[5].top)/2;
       const crownCenter=Math.min(w-edge-labelWidth-28,w/2+spread/2+half*scale);
       const crownX=crownCenter-w/2-(218*unit/600*crownScale);
-      const cb=project({range:[-22,22],x:[158,253],depth:[0,0]},unit,angle);
+      const cb=project({range:[-23,23],x:[151,256],depth:[-28,28]},unit,angle);
       const crown={x:crownX,y:crownY-center,scale:crownScale,top:crownY+cb.min*crownScale,bottom:crownY+cb.max*crownScale,left:w/2+crownX+cb.left*crownScale,right:w/2+crownX+cb.right*crownScale};
       const calls=[['glass',rows[0],false],['bezel',rows[1],true],['hands',rows[2],false],['dial',rows[3],true],['gears',rows[4],false],['crown',crown,true],['case',rows[5],false]];
       calls.forEach(([name,row,right])=>{
@@ -93,23 +94,32 @@
         const leaderOffset=label.querySelector('strong').offsetHeight+(mobile?7:8);
         label.style.top=((row.top+row.bottom)/2-leaderOffset)+'px';
       });
-      layout={angle,rows,crown};
+      const ashRows=calls.map(([name,row])=>{
+        const b=name==='crown'?cb:bounds[parts.findIndex(p=>p.name===name)];
+        return{...row,name,cx:(row.left+row.right)/2,clipTop:50+b.min/unit*100-1,clipBottom:50+b.max/unit*100+1};
+      });
+      layout={angle,rows,crown,w,unit,h:stage.height,ashRows};
+      effects?.resize({w,h:stage.height,unit,rows:ashRows});
     }
     measure();ScrollTrigger.addEventListener('refreshInit',measure);
+    const moveScene=gsap.quickSetter('.stage','y','px');
+    effects=window.ICHJourneyEffects?.create($('#meteor-canvas'),y=>moveScene(-y));
+    effects?.resize({w:layout.w,h:layout.h,unit:layout.unit,rows:layout.ashRows});
+    const meteor={progress:0};
     let lastPercent=-1,lastPhase=-1,lastNote=-1,lastExpanded=null;
     timeline=gsap.timeline({
       defaults:{ease:'power2.inOut'},
-      scrollTrigger:{id:'watch-anatomy',trigger:'#story',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true},
+      scrollTrigger:{id:'watch-anatomy',trigger:'#journey',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true},
       onUpdate(){
         const p=this.progress(),n=Math.round(p*100),t=this.time();
         // Labels change only when their value changes, never on every animation frame.
         if(n!==lastPercent){hud.progress.value=n;hud.percent.textContent=String(n).padStart(3,'0')+' / 100';lastPercent=n;}
-        const phase=t<.16?0:t<.42?1:t<.95?2:3;
-        if(phase!==lastPhase){hud.phase.textContent=['I / THE DARK WOOD','II / THE WHOLE','III / THE UNFOLDING','IV / THE INNER ORDER'][phase];lastPhase=phase;}
+        const phase=t<.16?0:t<.42?1:t<.95?2:t<1.3?3:t<2.3?4:5;
+        if(phase!==lastPhase){hud.phase.textContent=['I / THE DARK WOOD','I / THE WHOLE','I / THE UNFOLDING','I / THE INNER ORDER','II / THE FALLING STAR','III / THE INNER FIRE'][phase];lastPhase=phase;}
         const note=t<.42?0:t<.95?1:2;
-        if(note!==lastNote){hud.note.textContent=['向下滑動，展開細節','循斜向軌跡，逐層展開','繼續向下，走進機芯'][note];lastNote=note;}
-        const expanded=p>.5;
-        if(expanded!==lastExpanded){button.textContent=expanded?'重新組合 ↥':'展開零件 ↧';lastExpanded=expanded;}
+        if(note!==lastNote){hud.note.textContent=['向下滑動，展開細節','循斜向軌跡，逐層展開','繼續向下，循星光而行'][note];lastNote=note;}
+        const expanded=t>.7;
+        if(expanded!==lastExpanded){button.textContent=expanded?'重看旅程 ↥':'展開零件 ↧';lastExpanded=expanded;}
       }
     });
     timeline.fromTo('.sanctuary-depth',{scale:1,yPercent:0},{scale:1.07,yPercent:-2,duration:1.24,ease:'none'},0);
@@ -141,8 +151,19 @@
     timeline.fromTo('.annotation',{opacity:0},{opacity:1,duration:.10,stagger:.012},.98);
     timeline.fromTo('.leader',{scaleX:0},{scaleX:1,duration:.10,stagger:.012,ease:'power1.out'},.99);
     timeline.to({hold:0},{hold:1,duration:.08},1.16);
+    timeline.addLabel('watch-open',1.14);
+    timeline.addLabel('meteor-entry',1.30);
+    timeline.fromTo('.annotations,.stage-bottom',{autoAlpha:1},{autoAlpha:0,duration:.12},1.29);
+    timeline.to('.sanctuary,.marble,.grain',{opacity:0,duration:.22},1.75);
+    timeline.to(meteor,{progress:1,duration:1.05,ease:'none',onUpdate:()=>effects?.render(meteor.progress)},1.30);
+    if(!effects)timeline.to('.stage',{autoAlpha:0,duration:.45},1.9);
+    timeline.fromTo('#movement-study',{autoAlpha:0},{autoAlpha:1,duration:.30},2.32);
+    timeline.fromTo('#movement-visual',{xPercent:-50,yPercent:-50,x:0,y:28,scale:.93},{y:0,scale:1,duration:.30},2.32);
+    timeline.addLabel('meteor-impact',2.161);
+    timeline.addLabel('movement-reveal',2.32);
+    timeline.addLabel('movement-whole',2.62);
     // A second chapter reveals the movement's nested assemblies at a larger scale.
-    const deep=gsap.timeline({defaults:{ease:'power2.inOut'},scrollTrigger:{id:'movement-anatomy',trigger:'#movement-study',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true}});
+    const deep=gsap.timeline({id:'movement-chapter',defaults:{ease:'power2.inOut'}});
     let deepLayout;
     function measureDeep(){
       const stage=$('.movement-stage'),w=stage.clientWidth,u=visual.offsetWidth,k=u/600;
@@ -174,6 +195,10 @@
     deep.fromTo('.movement-rotor > .mechanism-core',{rotation:0},{rotation:-30,duration:.30},.50);
     deep.fromTo('.movement-callout',{opacity:0},{opacity:1,duration:.15,stagger:.045},.79);
     deep.to({hold:0},{hold:1,duration:.1},1.05);
+    timeline.add(deep,2.70);
+    timeline.addLabel('movement-unfold',2.94);
+    timeline.fromTo('.nav-collection',{autoAlpha:0},{autoAlpha:1,duration:.20},3.65);
+    timeline.to({hold:0},{hold:1,duration:.1},3.85);
     // Short product reveals use only transform/opacity. No new scroll pin or heavy filter.
     gsap.from('.shop-card',{y:42,opacity:0,duration:.8,stagger:.12,ease:'power2.out',
       scrollTrigger:{trigger:'.shop-grid',start:'top 92%',once:true},
@@ -183,13 +208,15 @@
     return()=>{
       ScrollTrigger.removeEventListener('refreshInit',measure);
       ScrollTrigger.removeEventListener('refreshInit',measureDeep);
+      effects?.destroy();
       timeline=null;document.documentElement.classList.remove('motion');document.body.classList.add('static');button.disabled=true;
       $('.watch-position').style.removeProperty('top');
     };
   });
   button.addEventListener('click',()=>{
     if(!timeline)return;
-    const t=timeline.scrollTrigger;window.scrollTo({top:timeline.progress()>.5?t.start:t.end,behavior:'smooth'});
+    const t=timeline.scrollTrigger,target=timeline.time()>.7?0:timeline.labels['watch-open']/timeline.duration();
+    window.scrollTo({top:t.start+(t.end-t.start)*target,behavior:'smooth'});
   });
   if(document.fonts)document.fonts.ready.then(()=>ScrollTrigger.refresh());
   window.addEventListener('pageshow',()=>ScrollTrigger.refresh());

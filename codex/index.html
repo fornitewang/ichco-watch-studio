@@ -89,7 +89,7 @@
     @media(max-height:580px) and (min-width:600px){.introduction h1{font-size:36px}.introduction h1 br{display:none}.introduction .eyebrow{margin-bottom:12px}.intro-rule{display:none}.intro-copy{font-size:10px;line-height:1.7;margin:12px 0}.concept{margin-top:12px;font-size:8px}.annotation strong{font-size:17px}.annotation small{font-size:8px}.annotation .leader{margin-top:5px}}
 
   </style>
-  <link rel="stylesheet" href="../assets/temple.css?v=20260909a">
+  <link rel="stylesheet" href="../assets/temple.css?v=20260909b">
   <link rel="preload" href="../assets/temple-sanctuary.webp" as="image">
 </head>
 <body class="static">
@@ -118,6 +118,7 @@
 <pattern id="mechBrush" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 .5H5M0 2H5" stroke="#fff1cb" stroke-opacity=".12" stroke-width=".35"/></pattern><filter id="paperGrain"><feTurbulence type="fractalNoise" baseFrequency=".77" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
   </defs></svg>
   <main>
+    <div class="journey" id="journey"><div class="journey-stage">
     <section class="story" id="story" aria-labelledby="title">
       <div class="stage">
         <!-- 石像使用實心材質與独立壁龕，柱廊、雕像、紙雕外框分層移動。 -->
@@ -129,7 +130,7 @@
         </div>
         <span class="temple-caption" aria-hidden="true">TEMPLE OF TIME · A PAPER THEATRE</span>
         <div class="marble" aria-hidden="true"></div><svg class="grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#paperGrain)" opacity=".8"/></svg><div class="frame" aria-hidden="true"></div>
-        <div class="intro-position"><div class="introduction"><p class="eyebrow">ICHco · FIND YOUR TIME</p><h1 id="title">A Journey<br> <em>to the Stars.</em></h1><div class="intro-rule"></div><p class="intro-copy">看見機械的細節，找到你的下一只錶。</p><div class="intro-actions"><a class="shop-primary" href="../catalog.html"><span>選購全部錶款</span><span class="shop-arrow" aria-hidden="true">↗</span></a></div><span class="concept">ICH.co 概念錶研究 · 非販售配置</span></div></div>
+        <div class="intro-position"><div class="introduction"><p class="eyebrow">ICHco · FIND YOUR TIME</p><h1 id="title">A Journey<br> <em>to the Stars.</em></h1><div class="intro-rule"></div><p class="intro-copy">看見機械的細節，找到你的下一只錶。</p><span class="concept">ICH.co 概念錶研究 · 非販售配置</span></div></div>
         <div class="reading-veil" aria-hidden="true"></div>
         <p class="plate-title" aria-hidden="true">PLATE I / CAMMINO<span>Every step, a little closer to light</span></p>
         <p class="marginalia" aria-hidden="true">Through the dark,<br>toward the light,<br>with another<br>by our side.<small>φ = 1.618…</small></p><span class="folio" aria-hidden="true">FIG. 01 — ITINERARIUM TEMPORIS</span>
@@ -202,6 +203,8 @@
         <p class="movement-footnote">機械原理與位置為概念示意 · 向下探索錶帶材質</p>
       </div>
     </section>
+      <canvas class="meteor-canvas" id="meteor-canvas" aria-hidden="true"></canvas>
+    </div></div>
     <section class="strap-study" id="strap-study" aria-labelledby="strap-title">
       <div class="strap-heading"><p class="eyebrow">III / MATERIALS IN ORBIT</p><h2 id="strap-title">同一段旅途，<br><em>不同的觸感。</em></h2><p>轉一轉，看看你喜歡的材質。</p><span class="study-badge">錶帶概念示意 · 實際搭配請見各款商品</span><br><a class="strap-shop-link" href="../catalog.html">尋找喜歡的錶款 <span aria-hidden="true">↗</span></a></div>
       <div class="strap-gallery">
@@ -259,7 +262,8 @@
     draw('#gearwork', gear(243,253,64,24)+gear(355,279,58,22)+gear(291,360,62,24)+gear(388,365,37,18)+gear(235,403,28,16)+gear(389,216,31,18));
   })();
   </script>
-  <script src="../assets/codex-motion.js?v=20260909a"></script>
+  <script src="../assets/journey-effects.js?v=20260909b"></script>
+  <script src="../assets/codex-motion.js?v=20260909b"></script>
   <script src="../assets/strap-orbit.js?v=20260908b"></script>
   <script src="../assets/shop-entry.js?v=20260909a"></script>
 </body>
