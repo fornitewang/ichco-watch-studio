@@ -43,7 +43,7 @@
   ScrollTrigger.config({ignoreMobileResize:true});
   const mm=gsap.matchMedia(),button=$('#toggle');
   const hud={progress:$('#progress'),percent:$('#percent'),phase:$('#phase'),note:$('.dynamic-note')};
-  let timeline;
+  let timeline,player;
   mm.add('(prefers-reduced-motion: no-preference)',()=>{
     document.documentElement.classList.add('motion');document.body.classList.remove('static');button.disabled=false;
     const parts=[
@@ -84,6 +84,7 @@
         cursor=row.bottom+gap;return row;
       });
       $('.watch-position').style.top=center+'px';
+      if(window.ICHJourneyPlayer?.softFocus)window.ICHJourneyPlayer.softFocus.style.top=center+'px';
       document.documentElement.style.setProperty('--label-width',labelWidth+'px');
       const crownScale=scale*1.6,crownY=(rows[4].bottom+rows[5].top)/2;
       const crownCenter=Math.min(w-edge-labelWidth-28,w/2+spread/2+half*scale);
@@ -113,9 +114,10 @@
     let lastPercent=-1,lastPhase=-1,lastNote=-1,lastExpanded=null;
     timeline=gsap.timeline({
       defaults:{ease:'power2.inOut'},
-      scrollTrigger:{id:'watch-anatomy',trigger:'#journey',start:'top top',end:'bottom bottom',scrub:.7,invalidateOnRefresh:true},
+      scrollTrigger:{id:'watch-anatomy',trigger:'#journey',start:'top top',end:'bottom bottom',scrub:1.15,invalidateOnRefresh:true},
       onUpdate(){
         const p=this.progress(),n=Math.round(p*100),t=this.time();
+        player?.update(p);
         // Labels change only when their value changes, never on every animation frame.
         if(n!==lastPercent){hud.progress.value=n;hud.percent.textContent=String(n).padStart(3,'0')+' / 100';lastPercent=n;}
         const phase=t<.16?0:t<.42?1:t<.95?2:t<1.3?3:t<2.3?4:5;
@@ -136,8 +138,16 @@
     timeline.fromTo('.temple-caption',{opacity:1},{opacity:0,duration:.25},.35);
     timeline.fromTo('.introduction',{autoAlpha:1,y:0},{autoAlpha:0,y:-18,duration:.14},0);
     timeline.fromTo('.reading-veil',{opacity:1},{opacity:0,duration:.12},.16);
-    timeline.fromTo('.watch-position,.cosmos',{filter:'blur(14px)'},{filter:'blur(0px)',duration:.12},.16);
-    timeline.set('.watch-position,.cosmos',{filter:'none'},.281);
+    if(window.ICHJourneyPlayer?.softFocus){
+      // Crossfade the already-rendered soft assembly instead of re-blurring dozens of SVG decks.
+      gsap.set('.watch-position',{filter:'none'});
+      timeline.fromTo('.watch-position',{opacity:0},{opacity:1,duration:.12},.16);
+      timeline.fromTo('.watch-soft-focus',{autoAlpha:1},{autoAlpha:0,duration:.12},.16);
+      timeline.set('.cosmos',{filter:'none'},.281);
+    }else{
+      timeline.fromTo('.watch-position,.cosmos',{filter:'blur(14px)'},{filter:'blur(0px)',duration:.12},.16);
+      timeline.set('.watch-position,.cosmos',{filter:'none'},.281);
+    }
     // .281–.42 is a clear, fully assembled hold. All pieces share the same lift before separating.
     timeline.fromTo('.cosmos,.frame',{opacity:1},{opacity:0,duration:.30},.42);
     parts.forEach((part,i)=>{
@@ -229,8 +239,14 @@
       scrollTrigger:{trigger:'.shop-grid',start:'top 92%',once:true},
       onComplete(){gsap.set('.shop-card',{clearProps:'transform,opacity'});}
     });
+    gsap.from('.path-card',{y:28,opacity:0,duration:.7,stagger:.09,ease:'power2.out',
+      scrollTrigger:{trigger:'#path-cards',start:'top 82%',once:true},
+      onComplete(){gsap.set('.path-card',{clearProps:'transform,opacity'});}
+    });
+    player=window.ICHJourneyPlayer?.create(timeline);
     ScrollTrigger.refresh();
     return()=>{
+      player?.destroy();player=null;
       ScrollTrigger.removeEventListener('refreshInit',measure);
       ScrollTrigger.removeEventListener('refreshInit',measureDeep);
       effects?.destroy();
@@ -240,6 +256,7 @@
   });
   button.addEventListener('click',()=>{
     if(!timeline)return;
+    player?.stop();
     const t=timeline.scrollTrigger,target=timeline.time()>.7?0:timeline.labels['watch-open']/timeline.duration();
     window.scrollTo({top:t.start+(t.end-t.start)*target,behavior:'smooth'});
   });

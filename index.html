@@ -90,6 +90,8 @@
 
   </style>
   <link rel="stylesheet" href="assets/temple.css?v=20260909c">
+  <link rel="stylesheet" href="assets/journey-player.css?v=20260909d">
+  <link rel="preload" href="assets/watch-assembled.webp" as="image">
   <link rel="preload" href="assets/temple-sanctuary.webp" as="image">
 </head>
 <body class="static">
@@ -219,6 +221,27 @@
         <p id="strap-instructions">滑鼠停留即暫停；按住左右拖曳可旋轉。手機按住拖曳，放開繼續；上下滑動可瀏覽頁面。也可用鍵盤左右鍵與空白鍵操作。</p>
       </div>
     </section>
+    <section class="path-section" id="path-cards" aria-labelledby="path-title">
+      <div class="path-heading"><p class="eyebrow">IV / CHOOSE YOUR PATH</p><h2 id="path-title" tabindex="-1">選一張牌，<em>走向你的錶。</em></h2><p>此刻，你為什麼想戴一只錶？</p></div>
+      <div class="path-deck" role="group" aria-label="選擇你的選錶動機">
+        <button class="path-card" type="button" disabled aria-pressed="false" aria-controls="path-result" aria-label="曙光：我的第一只錶" data-path="dawn" data-title="第一只錶，先選願意天天戴的。" data-copy="從手腕尺寸、預算與日常穿搭開始，再看看各款的機芯與保養需求。" data-href="catalog.html" data-cta="開始挑選第一只錶">
+          <span class="path-turn"><span class="path-front"><span class="path-numeral">I</span><span class="path-art" aria-hidden="true"></span><strong class="path-name">曙光</strong><span class="path-motive">我的第一只錶</span></span><span class="path-back" aria-hidden="true"><span class="path-numeral">I / 曙光</span><strong>從日常出發</strong><span>先看尺寸<br>再選喜歡的外觀</span></span></span>
+        </button>
+        <button class="path-card" type="button" disabled aria-pressed="false" aria-controls="path-result" aria-label="繆思：讓穿搭更完整" data-path="muse" data-title="讓手腕，接上你的穿搭。" data-copy="先比較錶殼輪廓與配色，再確認喜歡的錶帶是否屬於該款可選搭配。" data-href="catalog.html" data-cta="探索外觀與搭配">
+          <span class="path-turn"><span class="path-front"><span class="path-numeral">II</span><span class="path-art" aria-hidden="true"></span><strong class="path-name">繆思</strong><span class="path-motive">讓穿搭更完整</span></span><span class="path-back" aria-hidden="true"><span class="path-numeral">II / 繆思</span><strong>找到你的輪廓</strong><span>錶殼、色彩、錶帶<br>一起看才完整</span></span></span>
+        </button>
+        <button class="path-card" type="button" disabled aria-pressed="false" aria-controls="path-result" aria-label="匠心：想要自己的搭配" data-path="maker" data-title="從這一款能做的，選出你的不同。" data-copy="進入客製系列，依各款實際提供的規格與選項搭配。" data-href="catalog.html?type=custom" data-cta="查看客製系列">
+          <span class="path-turn"><span class="path-front"><span class="path-numeral">III</span><span class="path-art" aria-hidden="true"></span><strong class="path-name">匠心</strong><span class="path-motive">想要自己的搭配</span></span><span class="path-back" aria-hidden="true"><span class="path-numeral">III / 匠心</span><strong>由你定下細節</strong><span>從可選配置裡<br>組合自己的風格</span></span></span>
+        </button>
+        <button class="path-card" type="button" disabled aria-pressed="false" aria-controls="path-result" aria-label="星律：喜歡機械細節" data-path="pulse" data-title="外觀之下，還有值得細看的機芯。" data-copy="比較商品頁提供的機芯與功能資訊；剛才的拆解是工藝概念展示。" data-href="catalog.html" data-cta="查看錶款與機芯資訊">
+          <span class="path-turn"><span class="path-front"><span class="path-numeral">IV</span><span class="path-art" aria-hidden="true"></span><strong class="path-name">星律</strong><span class="path-motive">喜歡機械細節</span></span><span class="path-back" aria-hidden="true"><span class="path-numeral">IV / 星律</span><strong>走近時間的心</strong><span>讀懂機芯<br>再選手腕上的風景</span></span></span>
+        </button>
+        <button class="path-card" type="button" disabled aria-pressed="false" aria-controls="path-result" aria-label="繫念：送給重要的人" data-path="bond" data-title="先想起那個人，再挑這只錶。" data-copy="以對方常穿的顏色、手腕尺寸與你的預算縮小選擇，並確認交期及售後資訊。" data-href="catalog.html" data-cta="為重要的人選錶">
+          <span class="path-turn"><span class="path-front"><span class="path-numeral">V</span><span class="path-art" aria-hidden="true"></span><strong class="path-name">繫念</strong><span class="path-motive">送給重要的人</span></span><span class="path-back" aria-hidden="true"><span class="path-numeral">V / 繫念</span><strong>記下一個時刻</strong><span>從對方的日常<br>找到合適的心意</span></span></span>
+        </button>
+      </div>
+      <div class="path-result" id="path-result"><div aria-live="polite" aria-atomic="true"><h3 id="path-result-title">讓喜歡，成為起點。</h3><p id="path-result-copy">選一張有共鳴的牌，或直接探索全部錶款。</p></div><a id="path-result-link" href="catalog.html"><span>探索全部錶款</span><span aria-hidden="true">↗</span></a></div>
+    </section>
     <section class="shop-destination" id="craft" aria-labelledby="craft-title">
       <div class="shop-orbits" aria-hidden="true"><span class="shop-ring"></span><span class="shop-ring"></span><span class="shop-ring"></span></div>
       <div class="shop-heading"><p class="eyebrow">THE ICHco COLLECTION</p><h2 id="craft-title">下一只，<em>由你選擇。</em></h2><p>瀏覽錶款，找到喜歡的外觀與搭配。</p><a class="shop-primary" href="catalog.html"><span>選購全部 ICHco 錶款</span><span class="shop-arrow" aria-hidden="true">↗</span></a></div>
@@ -263,7 +286,8 @@
   })();
   </script>
   <script src="assets/journey-effects.js?v=20260909c"></script>
-  <script src="assets/codex-motion.js?v=20260909c"></script>
+  <script src="assets/journey-player.js?v=20260909d"></script>
+  <script src="assets/codex-motion.js?v=20260909d"></script>
   <script src="assets/strap-orbit.js?v=20260908b"></script>
   <script src="assets/shop-entry.js?v=20260909a"></script>
 </body>

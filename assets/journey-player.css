@@ -1,0 +1,80 @@
+/* A still of this exact assembly carries the fixed soft focus; live SVGs never animate blur. */
+.watch-soft-focus{position:absolute;left:50%;top:52%;width:var(--unit);aspect-ratio:1;transform:translate(-50%,-50%);z-index:3;pointer-events:none;filter:blur(14px)}
+.watch-soft-focus img{display:block;width:100%;height:100%}
+.static .watch-soft-focus{display:none}
+.motion .watch-position{filter:none}
+.motion .cosmos{filter:blur(14px)}
+.perfume-dock{min-height:204px;display:grid;place-items:center;margin:4px auto 0;pointer-events:auto}
+.perfume-play{display:flex;flex-direction:column;align-items:center;width:210px;padding:0 8px 12px;border:0;color:#ead5b0;background:transparent;cursor:pointer;font:inherit;text-shadow:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border-radius:18px}
+.perfume-art{display:block;width:184px;height:172px;overflow:visible;transition:transform .35s ease}
+.perfume-play:hover .perfume-art{transform:translateY(-3px)}
+.perfume-play:disabled{cursor:default}
+.perfume-play:focus-visible,.journey-reset:focus-visible,.journey-pause:focus-visible{outline:1px solid #edcda3;outline-offset:5px}
+.perfume-label{font-size:12px;letter-spacing:3px;white-space:nowrap}
+.perfume-label>span{margin-left:7px;color:#f1cbdc}
+.perfume-play small{margin-top:8px;font-size:9px;letter-spacing:1px;color:#b9a59c}
+.perfume-dock [hidden],.journey-controls[hidden]{display:none!important}
+.journey-reset{color:#d5bea0;background:#141313b8;border:1px solid #c5a05966;padding:14px 22px;min-height:44px;font-family:inherit;font-size:11px;letter-spacing:2px;cursor:pointer}
+.journey-reset>span{margin-right:10px;font-size:20px}
+.has-player .intro-rule{margin:22px auto 14px}
+.has-player .intro-copy{margin:10px 0 2px}
+.has-player .concept{margin-top:8px}
+.journey-controls{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:20px;padding:6px 8px 6px 18px;z-index:15;background:#111515f5;border:1px solid #b8996466;box-shadow:0 5px 24px #0005;isolation:isolate}
+.journey-playing{font-size:10px;letter-spacing:1px;color:#c3b69e;white-space:nowrap}
+.journey-pause{font-family:inherit;font-size:11px;min-width:70px;min-height:44px;padding:10px;border:0;border-left:1px solid #c5a05940;color:#eddac1;background:transparent;cursor:pointer}
+.journey-play-track{position:absolute;bottom:-1px;left:0;right:0;height:1px;overflow:hidden}
+.journey-play-track i{display:block;height:100%;background:#edc3d2;transform:scaleX(0);transform-origin:left}
+.journey-status{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.journey-stage:focus,#path-title:focus{outline:none}
+/* Five original oracle-style cards. The choice belongs to the visitor. */
+.path-section{position:relative;padding:110px 6% 86px;min-height:100svh;background:radial-gradient(ellipse at 50% 43%,#31242f5c,transparent 64%),#0d1011;isolation:isolate;scroll-margin-top:100px}
+.path-section::before{content:"";position:absolute;inset:45px 3% 32px;border:1px solid #c5a05921;pointer-events:none;z-index:-1}
+.path-heading{text-align:center;max-width:720px;margin:0 auto 45px}
+.path-heading .eyebrow{margin-bottom:15px;color:#c4a579}
+.path-heading h2{font-size:clamp(30px,3.5vw,48px);font-weight:400;letter-spacing:3px;margin:0 0 18px}
+.path-heading h2 em{color:#d8bca0;font-style:normal}
+.path-heading p:last-child{color:#b6a99b;font-size:12px;letter-spacing:1px;line-height:1.9}
+.path-deck{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px;max-width:1100px;margin:auto}
+.path-card{position:relative;padding:0;width:100%;aspect-ratio: .61;border:0;background:none;color:#ddc7a5;cursor:pointer;perspective:900px;text-align:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.path-card:disabled{cursor:default}
+.path-card:focus-visible{outline:2px solid #e6cb9d;outline-offset:6px;border-radius:5px}
+.path-turn{display:block;position:absolute;inset:0;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.2,.7,.2,1)}
+.path-card:hover .path-turn{transform:translateY(-7px) rotateY(-4deg)}
+.path-card[aria-pressed="true"] .path-turn{transform:translateY(-9px) rotateY(180deg)}
+.path-front,.path-back{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #a68d655e;border-radius:60px 60px 5px 5px;background:radial-gradient(ellipse at 50% 32%,#44343b70,transparent 74%),#14191a;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;padding:17px 12px}
+.path-front::before,.path-back::before{content:"";position:absolute;inset:7px;border:1px solid #c5a05935;border-radius:53px 53px 2px 2px;pointer-events:none}
+.path-back{transform:rotateY(180deg);background:radial-gradient(ellipse at 50% 22%,#6b4d473d,transparent 76%),#1d1d1a;border-color:#d7b47e}
+.path-numeral{font:10px 'Cinzel',serif;letter-spacing:3px;color:#c2a477}
+.path-art{display:block;width:100%;max-width:154px;margin:8px 0 4px}
+.path-art svg{display:block;width:100%;fill:none;stroke:#d0b582;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+.path-art ellipse{stroke:#aa8c5c55}.path-art .art-faint{stroke:#d8bf901a}
+.path-name{font-size:18px;letter-spacing:3px;font-weight:400;margin-top:6px}
+.path-motive{font-size:10px;color:#baa99e;letter-spacing:1px;margin-top:11px}
+.path-back .path-numeral{margin-bottom:20px}
+.path-back strong{font-size:18px;line-height:1.9;letter-spacing:2px;font-weight:400}
+.path-back>span:last-child{font-size:10px;line-height:2;color:#b5a89b;letter-spacing:1px;margin-top:22px}
+.path-result{text-align:center;min-height:178px;max-width:700px;margin:42px auto 0}
+.path-result h3{font-size:18px;font-weight:400;letter-spacing:2px;margin:0 0 10px;color:#d5bf9b}
+.path-result p{font-size:12px;line-height:1.9;color:#b8ab9f;margin:0 auto 21px}
+.path-result a{display:inline-flex;align-items:center;justify-content:center;gap:30px;min-height:52px;min-width:230px;padding:13px 23px;color:#e7d0a4;border:1px solid #ad8d59;background:#25231e;font-size:13px;letter-spacing:2px;transition:background .2s}
+.path-result a:hover{background:#453b2a}
+.path-result a>span:last-child{font-size:22px}
+@media(min-width:1800px){.path-deck{max-width:1400px;gap:28px}.path-art{max-width:185px}.path-card{max-height:380px}.path-section{display:flex;flex-direction:column;justify-content:center}.path-deck{width:100%}}
+@media(max-width:700px){
+ .perfume-dock{min-height:186px}.perfume-art{width:165px;height:154px}.perfume-play{width:190px}
+ .has-player .intro-rule{margin:18px auto 12px}.journey-controls{bottom:15px}
+ .path-section{padding:80px 20px 50px;min-height:0}.path-section::before{inset:22px 10px}
+ .path-heading{margin-bottom:30px}.path-heading h2{font-size:29px;letter-spacing:1px}.path-heading p:last-child{font-size:11px}
+ .path-deck{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:14px 22px 20px;margin:0 -20px;scrollbar-width:thin;scrollbar-color:#a68d6580 transparent}
+ .path-card{flex:0 0 166px;scroll-snap-align:center;height:274px}
+ .path-card:hover .path-turn{transform:none}.path-card[aria-pressed="true"] .path-turn{transform:translateY(-7px) rotateY(180deg)}
+ .path-result{margin-top:25px;min-height:190px}.path-result p{font-size:11px}
+}
+@media(max-height:720px) and (max-width:700px){.has-player .eyebrow{margin-bottom:10px}.has-player h1{font-size:30px}.has-player .intro-rule{margin:12px auto}.has-player .perfume-dock{min-height:150px}.perfume-art{height:124px;width:140px}.perfume-play small{display:none}}
+@media(max-height:580px) and (min-width:600px){
+ .has-player.introduction{width:min(90vw,680px);padding-right:160px}.has-player h1{font-size:30px}.has-player h1 br{display:block}
+ .has-player .perfume-dock{position:absolute;right:0;top:50%;transform:translateY(-50%);margin:0;width:155px;min-height:0}
+ .perfume-art{height:124px;width:140px}.perfume-play{width:155px}.perfume-play small{display:none}
+ .journey-controls{bottom:9px}.path-section{padding-top:80px}
+}
+@media(prefers-reduced-motion:reduce){.path-turn,.perfume-art{transition:none}.path-card:hover .path-turn{transform:none}.path-card[aria-pressed="true"] .path-turn{transform:rotateY(180deg)}}
