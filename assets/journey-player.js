@@ -72,13 +72,14 @@
     document.body.append(bar);
     const live=document.createElement('span');live.className='journey-status';live.setAttribute('role','status');document.body.append(live);
     const pause=bar.querySelector('button'),track=bar.querySelector('i');
-    let tour=null,press=null,active=false,expectedY=0,maxY=0,lastProgress=-1;
+    let tour=null,press=null,active=false,maxY=0,lastProgress=-1,viewportWidth=innerWidth;
+    const touchViewport=matchMedia('(pointer: coarse)').matches;
     function updateBar(p){const n=Math.round(p*100);if(n!==lastProgress){track.style.transform='scaleX('+p+')';lastProgress=n;}}
     const state=s=>document.body.dataset.journeyPlayback=s;
     function showDefault(){play.hidden=used;play.disabled=false;reset.hidden=!used||scrollY>st.start+30;}
     showDefault();state(used?'manual':'idle');
     const sectionTop=selector=>Math.max(0,Math.min(maxY,$(selector).getBoundingClientRect().top+scrollY-$('.masthead').offsetHeight-12));
-    function setScroll(y){expectedY=Math.max(0,Math.min(maxY,Math.round(y)));window.scrollTo({top:expectedY,behavior:'instant'});}
+    function setScroll(y){window.scrollTo({top:Math.max(0,Math.min(maxY,Math.round(y))),behavior:'instant'});}
     function stop(reason='manual'){
       if(!active)return;
       active=false;tour?.kill();press?.kill();tour=null;press=null;
@@ -103,10 +104,13 @@
         tour=gsap.timeline({id:'journey-autoplay',onUpdate(){updateBar(this.progress());},onComplete(){
           stop('complete');$('#path-title').focus({preventScroll:true});
         }});
-        tour.to(clock,{p:1,duration:40,ease:'none',onUpdate(){
+        const render=()=>{
           timeline.totalProgress(clock.p);
           setScroll(st.start+(st.end-st.start)*clock.p);
-        }});
+        };
+        // Brief opening, then an unhurried reveal. Manual scroll timing is unchanged.
+        tour.to(clock,{p:.42/timeline.duration(),duration:1.8,ease:'none',onUpdate:render});
+        tour.to(clock,{p:1,duration:38.2,ease:'none',onUpdate:render});
         tour.to(travel,{y:()=>sectionTop('#strap-study'),duration:2.4,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
         tour.to(hold,{p:1,duration:3});
         tour.to(travel,{y:()=>sectionTop('#path-cards'),duration:2.8,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
@@ -134,15 +138,22 @@
       if(e.key==='Escape'&&active){stop();$('.journey-stage').focus({preventScroll:true});}
       else if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(e.key)&&!dock.contains(e.target)&&!bar.contains(e.target))stop();
     };
-    const scroll=()=>{if(active&&Math.abs(scrollY-expectedY)>4)stop();};
+    // Native scrolling can settle after scrollTo on mobile. Only direct input cancels playback.
     const visibility=()=>{if(document.hidden)stop();};
-    const resize=()=>stop();
+    const resize=()=>{
+      const widthChanged=Math.abs(innerWidth-viewportWidth)>2;
+      viewportWidth=innerWidth;
+      // Browser bars change a phone's height during our own scrolling; that is not a pause request.
+      if(!touchViewport||widthChanged)stop();
+      else if(active)maxY=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+    };
+    const orientation=()=>stop();
     play.addEventListener('click',begin);reset.addEventListener('click',restore);
     pause.addEventListener('click',()=>{stop();$('.journey-stage').focus({preventScroll:true});});
     $('.journey-stage').setAttribute('tabindex','-1');
     window.addEventListener('wheel',wheel,{passive:true});window.addEventListener('touchstart',touch,{passive:true});
     window.addEventListener('pointerdown',pointer,{passive:true});window.addEventListener('keydown',key);
-    window.addEventListener('scroll',scroll,{passive:true});window.addEventListener('resize',resize);
+    window.addEventListener('resize',resize);window.addEventListener('orientationchange',orientation);
     document.addEventListener('visibilitychange',visibility);
     return {stop,update(p){
       // Avoid reading scrollY after transform writes, and do not mutate unchanged attributes.
@@ -152,7 +163,7 @@
       destroy(){
         stop();dock.remove();bar.remove();live.remove();intro.classList.remove('has-player');
         window.removeEventListener('wheel',wheel);window.removeEventListener('touchstart',touch);window.removeEventListener('pointerdown',pointer);
-        window.removeEventListener('keydown',key);window.removeEventListener('scroll',scroll);window.removeEventListener('resize',resize);
+        window.removeEventListener('keydown',key);window.removeEventListener('resize',resize);window.removeEventListener('orientationchange',orientation);
         document.removeEventListener('visibilitychange',visibility);
       }};
   }
