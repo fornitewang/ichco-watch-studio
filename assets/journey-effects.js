@@ -6,18 +6,11 @@
   const mix=(a,b,t)=>a+(b-a)*t;
   const seed=n=>{const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);};
 
+  // A drawn side elevation: shallow bevels and restrained shading, not a faceted 3D cylinder.
   function buildCrown(target){
     if(!target)return;
-    const cylinder=(name,x,length,radius,count)=>{
-      const chord=2*radius*Math.tan(Math.PI/count)+.35;
-      const sides=Array.from({length:count},(_,i)=>{
-        const a=i*360/count,light=Math.round(28+43*Math.max(0,Math.cos((a-38)*Math.PI/180)));
-        return '<i class="crown-facet" style="--face-angle:'+a+'deg;--facet-height:'+chord/600+';--metal-light:'+light+'%"></i>';
-      }).join('');
-      const cap='<span class="crown-cap"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="#f2d7a2" stroke-width="2"/><circle cx="50" cy="50" r="34" fill="none" stroke="#5e482b" stroke-width="3"/><path d="M50 25L62 50L50 75L38 50Z" fill="none" stroke="#d6bf8a" stroke-width="3"/></svg></span>';
-      return '<div class="crown-cylinder '+name+'" style="--crown-x:'+x/600+';--crown-length:'+length/600+';--crown-radius:'+radius/600+'">'+sides+cap+'</div>';
-    };
-    target.innerHTML='<div class="crown-assembly">'+cylinder('crown-stem',182,62,5,12)+cylinder('crown-head',228,47,23,28)+'</div>';
+    const flutes=Array.from({length:7},(_,i)=>{const x=511+i*4;return '<path d="M'+x+' 283V317" stroke="#655036" stroke-width="1.2"/><path d="M'+(x+1)+' 284V316" stroke="#dac599" stroke-width=".8"/>';}).join('');
+    target.innerHTML='<svg class="surface crown-illustration" viewBox="0 0 600 600" aria-hidden="true"><defs><linearGradient id="drawnCrownGold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#cfb783"/><stop offset=".2" stop-color="#bfa575"/><stop offset=".68" stop-color="#a88c5c"/><stop offset="1" stop-color="#705738"/></linearGradient></defs><path d="M452 296H510V304H452Z" fill="#99855d" stroke="#514532" stroke-width=".8"/><path d="M454 297H507" stroke="#d2bf92" stroke-width="1"/><path d="M458 297V303M466 297V303M474 297V303M482 297V303M490 297V303" stroke="#67563d" stroke-width="1"/><path d="M509 278H541L547 284V316L541 322H509Q505 322 505 318V282Q505 278 509 278Z" fill="url(#drawnCrownGold)" stroke="#584832" stroke-width="1.2"/><path d="M541 278L547 284V316L541 322Z" fill="#6d5636"/><path d="M509 278H541L544 282H509Q508 282 508 285V315L505 318V282Z" fill="#d8c392" opacity=".65"/>'+flutes+'<path d="M509 321H541M543 284V316" fill="none" stroke="#dbc28e" stroke-width=".7"/><path d="M510 280H539" stroke="#e2cfaa" stroke-width=".8"/></svg>';
   }
 
   function create(canvas,setCamera){
@@ -40,7 +33,8 @@
     };
     function resize(layout){
       scene=layout;
-      const dpr=Math.min(devicePixelRatio||1,1.5);
+      // Sparks are soft imagery: bound the backing store even on a 4K desktop.
+      const dpr=Math.min(devicePixelRatio||1,1.5,1920/scene.w,1440/scene.h);
       canvas.width=Math.round(scene.w*dpr);canvas.height=Math.round(scene.h*dpr);
       ctx.setTransform(dpr,0,0,dpr,0,0);
       scene.endY=Math.min(scene.h*.92,Math.max(...scene.rows.map(r=>r.bottom))+35);

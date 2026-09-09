@@ -14,8 +14,8 @@
 .sanctuary-cut-right{clip-path:polygon(100% 0,90% 0,91% 9%,94% 14%,92% 23%,94% 29%,95.8% 66%,93% 81%,95% 89%,93% 100%,100% 100%);transform-origin:100% 50%}
 .sanctuary-lintel{position:absolute;inset:0;background:linear-gradient(#020506ec,#131719a8);clip-path:polygon(0 0,100% 0,100% 14%,94% 12%,82% 10%,80% 8.5%,20% 8.5%,18% 10%,6% 12%,0 14%);filter:drop-shadow(0 5px 2px #c8b48825)}
 .marble{opacity:.1}
-/* Cache the costly SVG noise separately from the moving watch and sky. */
-.grain{opacity:.035;transform:translateZ(0);will-change:transform}
+/* A tiny decoded texture replaces a full-screen procedural SVG filter. */
+.grain{opacity:.035;background:url("paper-grain.svg") repeat;background-size:128px 128px;transform:translateZ(0);will-change:transform}
 .reading-veil{background:radial-gradient(ellipse,#0b0d0ed9 0%,#0b0d0e50 49%,#0b0d0e15 75%)}
 .introduction{text-shadow:0 2px 25px #000}
 .annotation strong,.annotation small{text-shadow:0 1px 3px #000,0 0 12px #0f0e0d,0 0 18px #0f0e0d}
@@ -219,12 +219,18 @@
 .motion .meteor-canvas{display:block;opacity:0}
 .masthead .nav-collection{visibility:hidden;opacity:0}
 .strap-study,.shop-destination{border-top:0;background-color:#0d1011}
-.crown-assembly{position:absolute;inset:0;transform-style:preserve-3d}
-.crown-cylinder{position:absolute;left:calc(50% + var(--unit)*var(--crown-x));top:50%;width:0;height:0;transform-style:preserve-3d}
-.crown-facet{position:absolute;left:0;top:0;display:block;width:calc(var(--unit)*var(--crown-length));height:calc(var(--unit)*var(--facet-height));transform:translate(-50%,-50%) rotateX(var(--face-angle)) translateZ(calc(var(--unit)*var(--crown-radius)));backface-visibility:hidden;background:linear-gradient(90deg,#34291b 0%,hsl(39 30% var(--metal-light)) 10%,hsl(42 35% var(--metal-light)) 74%,#dcc38e 86%,#58442a 94%);border-top:.3px solid #f8deae55}
-.crown-stem .crown-facet{background:repeating-linear-gradient(90deg,#746447 0 1px,#c8b98d 1px 2px,#483d2e 2px 3px)}
-.crown-cap{position:absolute;left:0;top:0;width:calc(var(--unit)*var(--crown-radius)*2);height:calc(var(--unit)*var(--crown-radius)*2);border:1px solid #e6ce9f;border-radius:50%;background:radial-gradient(ellipse at 28% 20%,#fff0c5,#bca473 35%,#52402b 67%,#d7bd82 85%,#57472e);transform:translate(-50%,-50%) translateX(calc(var(--unit)*var(--crown-length)*.5)) rotateY(90deg);backface-visibility:visible}
-.crown-cap svg{display:block;width:100%;height:100%}
-.crown-head{transform:rotateY(-48deg)}
-.crown-stem .crown-cap svg{display:none}
+.masthead{backdrop-filter:none;-webkit-backdrop-filter:none;background:#0f0e0df5}
+/* Paint the unmoving distant image, halo and paper texture into one opaque cached surface. */
+.sanctuary{background-image:url("paper-grain.svg"),radial-gradient(ellipse at 50% 46%,#080c0ed9 0%,#1017167d 29%,transparent 65%),linear-gradient(#0b0d0e26,#0b0d0e26),url("temple-sanctuary.webp");background-size:128px 128px,100% 100%,100% 100%,cover;background-position:0 0,center,center,center 55%;background-repeat:repeat,no-repeat,no-repeat,no-repeat}
+.sanctuary-depth,.sanctuary-halo,.marble,.grain{display:none}
+.sanctuary-cut,.sanctuary-lintel{filter:none}
+.crown-illustration{transform:none}
+.movement-visual{z-index:1}
+.movement-leaders{display:none;position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.motion .movement-leaders{display:block}
+.movement-pointer{opacity:0}
+.movement-pointer path{fill:none;stroke:#c5a05999;stroke-width:1;vector-effect:non-scaling-stroke}
+.movement-pointer circle{fill:#101514;stroke:#dfc185;stroke-width:1;vector-effect:non-scaling-stroke}
+@media(max-width:700px){.motion .movement-leaders{display:none}}
+@media(min-width:701px) and (max-width:1100px) and (min-height:581px){.movement-visual{--unit:min(42vw,52svh,390px)}}
 @media(prefers-reduced-motion:reduce){.meteor-canvas{display:none!important}}

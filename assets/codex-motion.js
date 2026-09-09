@@ -30,6 +30,10 @@
     part.dataset.mechanism=name;part.innerHTML=html;core.append(part);
   });
   const visual=$('#movement-visual');
+  const leaders=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  leaders.classList.add('movement-leaders');leaders.setAttribute('aria-hidden','true');
+  leaders.innerHTML=['rotor','barrel','balance'].map(name=>'<g class="movement-pointer mp-'+name+'"><path/><circle r="3"/></g>').join('');
+  visual.before(leaders);
   window.ICHJourneyEffects?.buildCrown($('[data-layer="crown"] .rotor'));
   visual.innerHTML=['plate','balance','barrel','rotor'].map(name=>'<div class="movement-layer movement-'+name+'" data-mechanism-part="'+name+'"><div class="mechanism-core">'+(name==='plate'?plate:additions[name])+'</div></div>').join('');
   // Cloned SVGs only reference the shared definitions; never duplicate identifiers.
@@ -84,7 +88,7 @@
       const crownScale=scale*1.6,crownY=(rows[4].bottom+rows[5].top)/2;
       const crownCenter=Math.min(w-edge-labelWidth-28,w/2+spread/2+half*scale);
       const crownX=crownCenter-w/2-(218*unit/600*crownScale);
-      const cb=project({range:[-23,23],x:[151,256],depth:[-28,28]},unit,angle);
+      const cb=project({range:[-23,23],x:[151,248],depth:[0,0]},unit,18);
       const crown={x:crownX,y:crownY-center,scale:crownScale,top:crownY+cb.min*crownScale,bottom:crownY+cb.max*crownScale,left:w/2+crownX+cb.left*crownScale,right:w/2+crownX+cb.right*crownScale};
       const calls=[['glass',rows[0],false],['bezel',rows[1],true],['hands',rows[2],false],['dial',rows[3],true],['gears',rows[4],false],['crown',crown,true],['case',rows[5],false]];
       calls.forEach(([name,row,right])=>{
@@ -122,7 +126,7 @@
         if(expanded!==lastExpanded){button.textContent=expanded?'重看旅程 ↥':'展開零件 ↧';lastExpanded=expanded;}
       }
     });
-    timeline.fromTo('.sanctuary-depth',{scale:1,yPercent:0},{scale:1.07,yPercent:-2,duration:1.24,ease:'none'},0);
+    // Keep the distant temple cached. Foreground statues, paper wings and mist retain parallax.
     timeline.fromTo('.sanctuary-statue-left',{xPercent:0,yPercent:0},{xPercent:-8,yPercent:4,duration:.8},.40);
     timeline.fromTo('.sanctuary-statue-right',{xPercent:0,yPercent:0},{xPercent:8,yPercent:4,duration:.8},.40);
     timeline.fromTo('.sanctuary-mist',{xPercent:-3,yPercent:5,opacity:.4},{xPercent:4,yPercent:-5,opacity:.75,duration:1.24,ease:'none'},0);
@@ -142,7 +146,7 @@
       timeline.fromTo(selector+' .part',{rotationX:0},{rotationX:()=>layout.angle,duration:.53},.42);
     });
     timeline.fromTo('[data-layer="crown"]',{x:0,y:0,scale:1.18},{x:()=>layout.crown.x,y:()=>layout.crown.y,scale:()=>layout.crown.scale,duration:.53},.42);
-    timeline.fromTo('[data-layer="crown"] .part',{rotationX:0},{rotationX:()=>layout.angle,duration:.53},.42);
+    timeline.fromTo('[data-layer="crown"] .part',{rotationX:0},{rotationX:18,duration:.53},.42);
     timeline.fromTo('[data-layer="hands"] .rotor',{rotation:0},{rotation:32,duration:.29},.65);
     timeline.fromTo('[data-layer="gears"] .rotor',{rotation:0},{rotation:-30,duration:.30},.65);
     timeline.fromTo('.astrolabe',{rotation:0,svgOrigin:'400 400'},{rotation:30,duration:1.2,ease:'none'},0);
@@ -169,8 +173,29 @@
       const stage=$('.movement-stage'),w=stage.clientWidth,u=visual.offsetWidth,k=u/600;
       const dx=Math.min(150,u*.36),dy=Math.min(125,u*.34);
       deepLayout={plate:{x:dx*.3,y:dy*.95,scale:.76},rotor:{x:-dx*.2,y:-dy*1.16,scale:.78},barrel:{x:dx*.67,y:-dy*.14,scale:1.25},balance:{x:-dx*.53,y:dy*.1,scale:1.24}};
-      ['rotor','barrel','balance'].forEach(name=>$('.mc-'+name).style.removeProperty('top'));
-      if(w>700)return;
+      ['rotor','barrel','balance'].forEach(name=>{const label=$('.mc-'+name);['top','left','right'].forEach(prop=>label.style.removeProperty(prop));});
+      if(w>700){
+        // Anchor the reading to each final assembly, independent of the monitor's outer edges.
+        leaders.setAttribute('viewBox','0 0 '+w+' '+stage.clientHeight);
+        const angle=48*Math.PI/180;
+        const anchors=[{name:'rotor',point:[157,351],turn:-30,right:false},{name:'barrel',point:[442,214],turn:0,right:true},{name:'balance',point:[151,353],turn:0,right:false}];
+        anchors.forEach(({name,point,turn,right})=>{
+          const l=deepLayout[name],rz=turn*Math.PI/180,x=(point[0]-300)*k,y=(point[1]-300)*k;
+          const yy=y*Math.cos(angle),z=y*Math.sin(angle),perspective=1/(1-z/1400);
+          const ax=w/2+l.x+(x*Math.cos(rz)-yy*Math.sin(rz))*perspective*l.scale;
+          const ay=visual.offsetTop+l.y+(x*Math.sin(rz)+yy*Math.cos(rz))*perspective*l.scale;
+          const label=$('.mc-'+name),gap=w<1100?32:52,edge=Math.max(24,w*.02);
+          const left=Math.max(edge,Math.min(w-edge-label.offsetWidth,right?ax+gap:ax-gap-label.offsetWidth));
+          label.style.left=left+'px';label.style.right='auto';
+          label.style.top=(ay-label.querySelector('strong').offsetTop)+'px';
+          const start=right?left-10:left+label.offsetWidth+10,end=ax+(right?6:-6);
+          const group=leaders.querySelector('.mp-'+name);
+          group.querySelector('path').setAttribute('d','M'+start.toFixed(2)+' '+ay.toFixed(2)+'H'+end.toFixed(2));
+          group.querySelector('circle').setAttribute('cx',ax.toFixed(2));
+          group.querySelector('circle').setAttribute('cy',ay.toFixed(2));
+        });
+        return;
+      }
       const heading=$('.chapter-heading'),top=heading.offsetTop+heading.offsetHeight+25;
       const bottom=stage.clientHeight-$('.movement-footnote').offsetHeight-40;
       const rowHeight=(bottom-top)/4;
@@ -193,7 +218,7 @@
     });
     deep.fromTo('.movement-layer > .mechanism-core',{rotationX:22},{rotationX:48,duration:.53},.24);
     deep.fromTo('.movement-rotor > .mechanism-core',{rotation:0},{rotation:-30,duration:.30},.50);
-    deep.fromTo('.movement-callout',{opacity:0},{opacity:1,duration:.15,stagger:.045},.79);
+    ['rotor','barrel','balance'].forEach((name,i)=>deep.fromTo('.mc-'+name+',.mp-'+name,{opacity:0},{opacity:1,duration:.15},.79+i*.045));
     deep.to({hold:0},{hold:1,duration:.1},1.05);
     timeline.add(deep,2.70);
     timeline.addLabel('movement-unfold',2.94);
