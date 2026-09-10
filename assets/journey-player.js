@@ -19,6 +19,7 @@
     card.querySelector('.path-art').innerHTML='<svg viewBox="0 0 160 184" aria-hidden="true"><ellipse cx="80" cy="92" rx="62" ry="78"/><path class="art-faint" d="M18 92H142M80 14V170M31 38L129 146M31 146L129 38"/>'+icons[card.dataset.path]+'<path d="M80 8L84 14L80 20L76 14ZM80 164L84 170L80 176L76 170Z"/></svg>';
     card.disabled=false;
     card.addEventListener('click',()=>{
+      if($('#path-cards').dataset.choiceEnhanced==='true')return;
       document.querySelectorAll('.path-card').forEach(other=>other.setAttribute('aria-pressed',String(other===card)));
       $('#path-result-title').textContent=card.dataset.title;
       $('#path-result-copy').textContent=card.dataset.copy;

@@ -4,12 +4,13 @@
   const section=document.querySelector('#path-cards');if(!section)return;
   const cards=[...section.querySelectorAll('.path-card')],base=new URL('../',document.currentScript.src);
   const products={
-    datejust:{slug:'ichco-datejust-seikomod',name:'Datejust系列日誌款機械錶',image:'100680595-t.webp'},
-    polar:{slug:'ichco-polar-prospector-customized-watch-',name:'Polar-Prospector 極地探勘者',image:'92949885-t.webp'},
-    santos:{slug:'ich-co-santos',name:'Santos 山度士系列 Seikomod',image:'69436752-t.webp'},
-    carbon:{slug:'ichco-customize-carbon-tattoo-seikomod',name:'Carbon Tattoo 碳紋系列',image:'99056418-t.webp'},
-    royal:{slug:'ichco-seikomod-royal-skeleton',name:'SeikoMod Royal skeleton',image:'77085755-t.webp'},
-    samurai:{slug:'ichco-samurai',name:'Samurai 日本武士酒桶系列',image:'109435162-t.webp'}
+    // Official series starting prices checked 2026-09-10; add-ons are not whole-watch prices.
+    datejust:{slug:'ichco-datejust-seikomod',name:'Datejust系列日誌款機械錶',image:'100680595-t.webp',price:7280},
+    polar:{slug:'ichco-polar-prospector-customized-watch-',name:'Polar-Prospector 極地探勘者',image:'92949885-t.webp',price:8980},
+    santos:{slug:'ich-co-santos',name:'Santos 山度士系列 Seikomod',image:'69436752-t.webp',price:5880},
+    carbon:{slug:'ichco-customize-carbon-tattoo-seikomod',name:'Carbon Tattoo 碳紋系列',image:'99056418-t.webp',price:7580},
+    royal:{slug:'ichco-seikomod-royal-skeleton',name:'SeikoMod Royal skeleton',image:'77085755-t.webp',price:7680},
+    samurai:{slug:'ichco-samurai',name:'Samurai 日本武士酒桶系列',image:'109435162-t.webp',price:7880}
   };
   const directions={
     dawn:{label:'第一只錶',hint:'日常經典・運動輪廓',back:'從天天想戴的開始',backHint:'日誌款 / 極地系列',title:'第一只錶，先找到你的日常。',copy:'喜歡經典感，先看日誌款；偏愛運動輪廓，再比較極地系列。把尺寸與預算一起放進選擇裡。',picks:[['datejust','想要日常經典感，可先比較日誌系列的面色與鏈帶型號。'],['polar','偏愛運動輪廓，可從 43mm 極地系列開始比較錶徑與腕圍。']]},
@@ -20,15 +21,17 @@
   };
   const make=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text)el.textContent=text;return el;};
   const picks=make('div','path-picks');picks.hidden=true;picks.setAttribute('aria-label','依選錶方向挑選的 ICH 系列');
-  const note=make('p','path-picks-note','系列實品參考；價格、庫存與可選搭配請以 ICH 商品頁為準。');note.hidden=true;
+  const note=make('p','path-picks-note','參考起價核對於 2026/09/10。實際價格、庫存與可選搭配，以 ICH 商品頁為準。');note.hidden=true;
   const result=section.querySelector('#path-result'),more=section.querySelector('#path-result-link');result.insertBefore(picks,more);result.insertBefore(note,more);
-  const toolbar=make('div','path-tools');toolbar.append(make('p','','看見想要的方向，輕觸翻牌。'));
+  const toolbar=make('div','path-tools');toolbar.append(make('p','','選一張，讓你的方向留下來。'));
   const effectsButton=make('button','path-effects','微光：開啟');effectsButton.type='button';effectsButton.setAttribute('aria-label','切換牌面微光動畫');effectsButton.setAttribute('aria-pressed','true');toolbar.append(effectsButton);
   section.querySelector('.path-deck').before(toolbar);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');let enabled=true,visible=false,reveal=null;
+  const title=section.querySelector('#path-result-title'),copy=section.querySelector('#path-result-copy');title.tabIndex=-1;
+  const initial={title:title.textContent,copy:copy.textContent,href:more.getAttribute('href'),cta:more.querySelector('span').textContent};
   function syncEffects(){
     const allow=enabled&&!reduced.matches;
-    section.dataset.awake=String(visible&&!document.hidden);section.dataset.effects=String(allow);
+    section.dataset.awake=String(visible&&!document.hidden&&(!section.dataset.choiceState||section.dataset.choiceState==='idle'));section.dataset.effects=String(allow);
     effectsButton.disabled=reduced.matches;effectsButton.setAttribute('aria-pressed',String(allow));
     effectsButton.textContent=reduced.matches?'已減少動態':enabled?'微光：開啟':'微光：關閉';
   }
@@ -48,19 +51,31 @@
     back.append(make('span','path-back-cue','下方查看推薦錶款 ↓'));
     card.setAttribute('aria-label',d.label+'：'+d.hint+'，翻牌查看推薦');
     card.dataset.title=d.title;card.dataset.copy=d.copy;
-    card.addEventListener('click',()=>{
+  });
+  function renderRecommendations(card){
+      const d=directions[card.dataset.path];
+      cards.forEach(other=>other.setAttribute('aria-pressed',String(other===card)));
+      title.textContent=d.title;copy.textContent=d.copy;more.href=card.dataset.href;more.querySelector('span').textContent=card.dataset.cta;result.classList.add('has-choice');
       picks.replaceChildren();
       d.picks.forEach(([key,why])=>{
         const p=products[key],article=make('article','path-pick'),link=make('a','path-pick-main');
         link.href='https://www.ichco.com.tw/products/'+p.slug;link.target='_blank';link.rel='noopener noreferrer';
         const photo=make('img');photo.src=new URL('assets/catalog/images/'+p.image,base);photo.alt=p.name+' 官網實品參考';photo.width=180;photo.height=180;photo.decoding='async';
-        const info=make('div','path-pick-info');info.append(make('span','path-pick-kicker','ICHco / 為你挑選'),make('h4','',p.name),make('p','',why),make('span','path-pick-cta','前往 ICH 官網選購 ↗'));
+        const price=make('span','path-pick-price');price.append(make('small','','系列參考'),document.createTextNode('NT$ '+p.price.toLocaleString('en-US')+' 起'));
+        const info=make('div','path-pick-info');info.append(make('span','path-pick-kicker','ICHco / 為你挑選'),make('h4','',p.name),price,make('p','',why),make('span','path-pick-cta','前往 ICH 官網選購 ↗'));
         link.append(photo,info);
         const compare=make('a','path-pick-compare','先在本站查看規格與搭配 →');compare.href=new URL('catalog.html?product='+encodeURIComponent(p.slug),base);
         article.append(link,compare);picks.append(article);
       });
       picks.hidden=false;note.hidden=false;
       reveal?.cancel();if(!reduced.matches)reveal=picks.animate([{opacity:0,transform:'translateY(9px)'},{opacity:1,transform:'translateY(0)'}],{duration:500,easing:'ease-out'});
-    });
+      syncEffects();
+  }
+  const choice=window.ICHPathChoice?.create({section,cards,
+    onStart(){reveal?.cancel();picks.hidden=true;note.hidden=true;section.dataset.awake='false';},
+    onReveal:renderRecommendations,
+    onReset(){reveal?.cancel();picks.replaceChildren();picks.hidden=true;note.hidden=true;result.classList.remove('has-choice');title.textContent=initial.title;copy.textContent=initial.copy;more.setAttribute('href',initial.href);more.querySelector('span').textContent=initial.cta;syncEffects();}
   });
+  section.dataset.choiceEnhanced='true';
+  cards.forEach(card=>card.addEventListener('click',()=>choice?choice.choose(card):renderRecommendations(card)));
 })();

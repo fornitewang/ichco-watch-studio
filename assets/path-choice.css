@@ -1,0 +1,26 @@
+/* The short selection performance owns its small stage, never the scroll journey. */
+.path-theatre{position:relative;box-sizing:border-box;width:100%;max-width:1100px;margin:0 auto;padding:24px 0;isolation:isolate}
+.path-section[data-choice-state]{overflow-anchor:none}
+.path-section[data-choice-state=busy] .path-deck{visibility:hidden;pointer-events:none}
+.path-section[data-choice-state=busy] .path-result{visibility:hidden;pointer-events:none}
+.path-section[data-choice-state=settled] .path-deck{display:flex;justify-content:center;align-items:center;gap:0;padding:14px 0;margin:0;overflow:visible;scroll-snap-type:none;min-height:var(--choice-stage-h)}
+.path-section[data-choice-state=settled] .path-card{flex:none;width:var(--choice-card-w);height:var(--choice-card-h);max-height:none;transform:none!important;opacity:1!important}
+.path-section[data-choice-state=settled] .path-card[hidden]{display:none}
+.path-section[data-choice-state=settled] .path-card .path-turn{transition:none;transform:rotateY(180deg)}
+.path-section:not([data-choice-state=idle]) .path-front::after,.path-section:not([data-choice-state=idle]) .path-sparks{animation:none!important;opacity:0}
+.choice-stage{position:absolute;inset:0;pointer-events:none;overflow:hidden;contain:layout paint style}
+.choice-copy{position:absolute;left:0;top:0;margin:0;padding:0;perspective:900px;transform-origin:50% 50%;color:#ddc7a5;text-align:center;will-change:transform,opacity}
+.choice-copy .path-turn{transition:none!important;will-change:transform}
+.choice-copy .path-front::after,.choice-copy .path-sparks{display:none}
+.choice-copy.is-chosen .path-front,.choice-copy.is-chosen .path-back{border-color:#f4d09b;box-shadow:0 0 23px #d9ad6230,inset 0 0 20px #dcc08612}
+.choice-fragments{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+.path-choice-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;min-height:44px;margin:18px auto 0}
+.path-choice-actions[hidden],.path-choice-actions button[hidden]{display:none}
+.path-choice-actions button{min-height:44px;padding:9px 18px;border:1px solid #b8996355;background:#181c1c;color:#decaab;font:11px 'Noto Serif TC',serif;letter-spacing:1px;cursor:pointer}
+.path-choice-actions button:hover{border-color:#d5b986;background:#292921}
+.path-choice-actions button:focus-visible{outline:2px solid #e6cb9d;outline-offset:4px}
+.path-choice-status{font-size:10px;letter-spacing:1px;color:#c4b099;margin:0}
+.path-pick-price{display:block;font:15px 'Cinzel','Noto Serif TC',serif;letter-spacing:.3px;color:#e7c68c;margin:6px 0 10px}
+.path-pick-price small{font:9px 'Noto Serif TC',serif;letter-spacing:0;color:#b3a38c;margin-right:7px}
+@media(min-width:1800px){.path-theatre{max-width:1400px}}
+@media(max-width:700px){.path-choice-actions{gap:9px;margin-top:10px}.path-choice-actions button{font-size:10px;padding:8px 13px}.path-pick-price{font-size:14px}.path-pick-price small{display:block;margin-bottom:4px}.choice-copy .path-front .path-name{font-size:21px}}
