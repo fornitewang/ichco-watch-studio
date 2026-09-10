@@ -1,0 +1,53 @@
+/* Subtle light on the cards, never on the opening watch scene. Only transform and opacity move. */
+.path-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:1100px;margin:0 auto 18px}
+.path-tools p{font-size:11px;letter-spacing:1px;color:#b9ab99;margin:0}
+.path-effects{border:1px solid #b79a634d;background:#16191a;color:#d0ba98;min-height:44px;padding:8px 13px;font:10px 'Noto Serif TC',serif;letter-spacing:1px;cursor:pointer;white-space:nowrap}
+.path-effects:disabled{cursor:default;color:#9d9588}.path-effects:focus-visible{outline:2px solid #e6cb9d;outline-offset:4px}
+.path-front .path-numeral{font-size:9px;letter-spacing:2px;color:#c6ac80}
+.path-front .path-name{font-size:22px;letter-spacing:2px;line-height:1.35;margin-top:4px;color:#f0dcc0}
+.path-front .path-motive{line-height:1.7;min-height:34px;margin-top:9px;color:#c6b9ab;letter-spacing:.5px}
+.path-front .path-art{max-width:132px;margin:6px 0 0}
+.path-invitation{font-size:9px;letter-spacing:2px;margin-top:8px;color:#d0af76}
+.path-front::after{content:'';position:absolute;inset:-30% -55%;background:linear-gradient(112deg,transparent 41%,#f4dca222 48%,#fff4d642 50%,#ecd2a01a 53%,transparent 60%);pointer-events:none;opacity:0;transform:translateX(-55%);animation:path-glint 9s ease-in-out infinite;animation-delay:var(--glint-delay,0s);animation-play-state:paused}
+.path-sparks{position:absolute;inset:0;pointer-events:none;opacity:0;animation:path-starlight 6.8s ease-in-out infinite;animation-delay:var(--glint-delay,0s);animation-play-state:paused;background:radial-gradient(circle at 20% 27%,#ffe8b3 0 1px,transparent 2px),radial-gradient(circle at 78% 41%,#d8cbea 0 1px,transparent 2px),radial-gradient(circle at 30% 75%,#f3cc88 0 .8px,transparent 2px)}
+.path-sparks::before,.path-sparks::after{content:'';position:absolute;left:19%;top:23%;width:9px;height:13px;background:#f9dfad;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}
+.path-sparks::after{left:76%;top:65%;width:7px;height:10px;background:#dfd7eb}
+.path-section[data-awake=true][data-effects=true] .path-card[aria-pressed=false]:not(:hover):not(:focus-visible) .path-front::after,
+.path-section[data-awake=true][data-effects=true] .path-card[aria-pressed=false]:not(:hover):not(:focus-visible) .path-sparks{animation-play-state:running}
+.path-card[aria-pressed=true] .path-front::after,.path-card[aria-pressed=true] .path-sparks{animation:none;opacity:0}
+.path-section[data-effects=false] .path-front::after,.path-section[data-effects=false] .path-sparks{animation-name:none;opacity:0}
+.path-card:focus-visible .path-turn{transform:translateY(-7px) rotateY(-4deg)}
+.path-card[aria-pressed=true]:focus-visible .path-turn{transform:translateY(-9px) rotateY(180deg)}
+.path-back>span:not(.path-numeral){font-size:11px;line-height:1.8;letter-spacing:.5px;color:#d6c3ab;margin-top:20px}
+.path-back .path-back-cue{font-size:9px!important;letter-spacing:1px!important;margin-top:20px!important;color:#ceb17e!important}
+.path-result{max-width:980px;margin-top:36px}
+.path-result h3{font-size:22px;line-height:1.6}
+.path-result>div[aria-live] p{max-width:650px;font-size:12px}
+.path-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:26px 0 12px;text-align:left}
+.path-picks[hidden],.path-picks-note[hidden]{display:none}
+.path-pick{border:1px solid #a58a593f;background:linear-gradient(135deg,#252725,#121717);padding:15px;min-width:0}
+.path-result .path-pick-main{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:center;border:0;min-width:0;min-height:0;padding:0;background:none;text-align:left;letter-spacing:normal}
+.path-result .path-pick-main:hover{background:none}
+.path-pick-main img{display:block;width:112px;height:136px;object-fit:contain;background:#eeece7;border:1px solid #a28b6138}
+.path-pick-info{min-width:0}.path-pick-kicker{font:8px 'Cinzel',serif;letter-spacing:2px;color:#ba9c6f}
+.path-pick h4{font-size:14px;line-height:1.65;font-weight:400;letter-spacing:.5px;color:#ead9bd;margin:8px 0}
+.path-pick-info p{font-size:11px;line-height:1.85;color:#b9aea0;margin:0 0 12px}
+.path-result .path-pick-cta{font-size:11px!important;line-height:1.7;letter-spacing:.5px;color:#e4bf82}
+.path-result .path-pick-compare{display:flex;justify-content:center;min-width:0;min-height:44px;border:0;border-top:1px solid #ac946035;background:none;font-size:10px;letter-spacing:.5px;padding:12px 0 0;margin-top:13px;color:#bcac96}
+.path-result .path-pick-compare:hover{background:none;color:#f1d4a3}
+.path-result .path-picks-note{font-size:9px;letter-spacing:.5px;margin:14px auto 24px;color:#9f9589}
+.path-result>#path-result-link{margin-top:3px}
+@keyframes path-glint{0%,58%,100%{opacity:0;transform:translateX(-55%)}64%{opacity:.7}78%{opacity:0;transform:translateX(55%)}}
+@keyframes path-starlight{0%,100%{opacity:.12;transform:translateY(1px) scale(.99)}46%{opacity:.68;transform:translateY(-2px) scale(1.02)}}
+@media(min-width:1800px){.path-tools{max-width:1400px;width:100%}.path-front .path-art{max-width:152px}}
+@media(max-width:700px){
+ .path-tools{gap:9px;margin-bottom:8px}.path-tools p{font-size:10px;letter-spacing:.3px}
+ .path-card{height:298px;flex-basis:176px}.path-front .path-art{max-width:110px}.path-front .path-name{font-size:21px}
+ .path-front .path-motive{font-size:10px}.path-invitation{font-size:8px;letter-spacing:1px}
+ .path-result{margin-top:26px}.path-result h3{font-size:20px;letter-spacing:1px}
+ .path-picks{grid-template-columns:1fr;gap:14px;margin-top:22px}
+ .path-pick{padding:13px}.path-result .path-pick-main{grid-template-columns:94px minmax(0,1fr);gap:13px}
+ .path-pick-main img{width:94px;height:122px}.path-pick h4{font-size:13px}.path-pick-info p{font-size:10px}
+ .path-pick-kicker{font-size:7px;letter-spacing:1px}.path-result .path-pick-cta{font-size:10px!important}
+}
+@media(prefers-reduced-motion:reduce){.path-front::after,.path-sparks{animation:none!important;opacity:0}.path-card:focus-visible .path-turn{transform:none}.path-card[aria-pressed=true]:focus-visible .path-turn{transform:rotateY(180deg)}}

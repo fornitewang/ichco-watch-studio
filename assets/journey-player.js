@@ -72,6 +72,12 @@
     document.body.append(bar);
     const live=document.createElement('span');live.className='journey-status';live.setAttribute('role','status');document.body.append(live);
     const pause=bar.querySelector('button'),track=bar.querySelector('i');
+    const beats=window.ICHJourneyBeats;
+    const showBeat=beat=>{
+      if(!beat)return;
+      bar.querySelector('.journey-playing').textContent=beat.id+' / '+beat.name;
+      bar.dataset.beat=beat.id;bar.dataset.beatSeconds=beat.seconds;
+    };
     let tour=null,press=null,active=false,maxY=0,lastProgress=-1,viewportWidth=innerWidth;
     const touchViewport=matchMedia('(pointer: coarse)').matches;
     function updateBar(p){const n=Math.round(p*100);if(n!==lastProgress){track.style.transform='scaleX('+p+')';lastProgress=n;}}
@@ -94,6 +100,7 @@
       maxY=document.documentElement.scrollHeight-innerHeight;
       st.disable(false);timeline.totalProgress(0);setScroll(st.start);state('spraying');
       updateBar(0);bar.hidden=false;pause.focus({preventScroll:true});
+      showBeat(beats?.[0]);
       live.textContent='開始自動播放。滾動、觸碰畫面或按暫停，即可改為手動瀏覽。';
       const art=play.querySelector('.perfume-art');
       // Local mist uses transforms and alpha. There is no idle animation loop.
@@ -108,12 +115,22 @@
           timeline.totalProgress(clock.p);
           setScroll(st.start+(st.end-st.start)*clock.p);
         };
-        // Brief opening, then an unhurried reveal. Manual scroll timing is unchanged.
-        tour.to(clock,{p:.42/timeline.duration(),duration:1.8,ease:'none',onUpdate:render});
-        tour.to(clock,{p:1,duration:38.2,ease:'none',onUpdate:render});
-        tour.to(travel,{y:()=>sectionTop('#strap-study'),duration:2.4,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
-        tour.to(hold,{p:1,duration:3});
-        tour.to(travel,{y:()=>sectionTop('#path-cards'),duration:2.8,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
+        if(beats){
+          // Each chapter owns its seconds; the reversible scroll scene retains its original timing.
+          beats.slice(1).forEach(beat=>{
+            const timing={duration:beat.seconds,onStart:()=>showBeat(beat)};
+            if(beat.kind==='scene')tour.to(clock,{...timing,p:beat.end/timeline.duration(),ease:'none',onUpdate:render});
+            else if(beat.kind==='travel')tour.to(travel,{...timing,y:()=>sectionTop(beat.target),ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
+            else if(beat.kind==='hold')tour.to(hold,{...timing,p:1});
+          });
+        }else{
+          // Preserve playback if the optional chapter map is unavailable.
+          tour.to(clock,{p:.42/timeline.duration(),duration:1.8,ease:'none',onUpdate:render});
+          tour.to(clock,{p:1,duration:38.2,ease:'none',onUpdate:render});
+          tour.to(travel,{y:()=>sectionTop('#strap-study'),duration:2.4,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
+          tour.to(hold,{p:1,duration:3});
+          tour.to(travel,{y:()=>sectionTop('#path-cards'),duration:2.8,ease:'power1.inOut',onUpdate:()=>setScroll(travel.y)});
+        }
       }});
       press.to(art.querySelector('.bottle-pump'),{y:7,duration:.18,ease:'power2.in'})
         .to(art.querySelector('.bottle-pump'),{y:0,duration:.3,ease:'power2.out'},.18)
@@ -122,6 +139,7 @@
         .to(art.querySelector('.mist-drops'),{x:30,y:-6,scale:1.5,svgOrigin:'139 32',duration:.6,ease:'power1.out'},.14)
         .to(art.querySelector('.perfume-spray'),{opacity:0,duration:.46},.35)
         .to(play,{opacity:0,y:-8,duration:.38},.56);
+      if(beats)press.timeScale(press.duration()/beats[0].seconds);
     }
     function restore(){
       stop();used=false;showDefault();state('idle');
