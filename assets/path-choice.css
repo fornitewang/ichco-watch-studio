@@ -13,7 +13,7 @@
 .choice-copy .path-turn{transition:none!important;will-change:transform}
 .choice-copy .path-front::after,.choice-copy .path-sparks{display:none}
 .choice-copy.is-chosen .path-front,.choice-copy.is-chosen .path-back{border-color:#f4d09b;box-shadow:0 0 23px #d9ad6230,inset 0 0 20px #dcc08612}
-.choice-fragments{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+.choice-discharge{position:absolute;inset:0;width:100%;height:100%;z-index:10;pointer-events:none}
 .path-choice-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;min-height:44px;margin:18px auto 0}
 .path-choice-actions[hidden],.path-choice-actions button[hidden]{display:none}
 .path-choice-actions button{min-height:44px;padding:9px 18px;border:1px solid #b8996355;background:#181c1c;color:#decaab;font:11px 'Noto Serif TC',serif;letter-spacing:1px;cursor:pointer}
