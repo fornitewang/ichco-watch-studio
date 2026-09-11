@@ -111,12 +111,29 @@
     effects=window.ICHJourneyEffects?.create($('#meteor-canvas'),y=>moveScene(-y));
     effects?.resize({w:layout.w,h:layout.h,unit:layout.unit,rows:layout.ashRows});
     const meteor={progress:0};
+    let lastEffectProgress=-1;
+    function renderEffectsAt(time,force=false){
+      const progress=Math.max(0,Math.min(1,(time-1.30)/1.05));
+      if(effects&&(force||progress!==lastEffectProgress)){
+        effects.render(progress);lastEffectProgress=progress;
+      }
+    }
+    const refreshEffects=()=>{
+      if(!timeline)return;
+      // An enabled trigger owns the scroll position; auto-play owns the clock while disabled.
+      // A paused scrub tween can otherwise restore its old frame when manual control resumes.
+      const trigger=timeline.scrollTrigger;
+      if(trigger?.enabled){trigger.getTween()?.pause();timeline.totalProgress(trigger.progress);}
+      renderEffectsAt(timeline.time(),true);
+    };
     let lastPercent=-1,lastPhase=-1,lastNote=-1,lastExpanded=null;
     timeline=gsap.timeline({
       defaults:{ease:'power2.inOut'},
       scrollTrigger:{id:'watch-anatomy',trigger:'#journey',start:'top top',end:'bottom bottom',scrub:1.15,invalidateOnRefresh:true},
       onUpdate(){
         const p=this.progress(),n=Math.round(p*100),t=this.time();
+        // Derive imperative canvas, camera and visibility from the master scene, even on reverse seeks.
+        renderEffectsAt(t);
         player?.update(p);
         // Labels change only when their value changes, never on every animation frame.
         if(n!==lastPercent){hud.progress.value=n;hud.percent.textContent=String(n).padStart(3,'0')+' / 100';lastPercent=n;}
@@ -169,7 +186,7 @@
     timeline.addLabel('meteor-entry',1.30);
     timeline.fromTo('.annotations,.stage-bottom',{autoAlpha:1},{autoAlpha:0,duration:.12},1.29);
     timeline.to('.sanctuary,.marble,.grain',{opacity:0,duration:.22},1.75);
-    timeline.to(meteor,{progress:1,duration:1.05,ease:'none',onUpdate:()=>effects?.render(meteor.progress)},1.30);
+    timeline.to(meteor,{progress:1,duration:1.05,ease:'none'},1.30);
     if(!effects)timeline.to('.stage',{autoAlpha:0,duration:.45},1.9);
     timeline.fromTo('#movement-study',{autoAlpha:0},{autoAlpha:1,duration:.30},2.32);
     timeline.fromTo('#movement-visual',{xPercent:-50,yPercent:-50,x:0,y:28,scale:.93},{y:0,scale:1,duration:.30},2.32);
@@ -244,11 +261,15 @@
       onComplete(){gsap.set('.path-card',{clearProps:'transform,opacity'});}
     });
     player=window.ICHJourneyPlayer?.create(timeline);
+    // Refresh rewinds/restores timelines with callbacks suppressed. Reapply the restored scene
+    // after that transaction, including completed meteor tweens and disabled auto-play triggers.
+    ScrollTrigger.addEventListener('refresh',refreshEffects);
     ScrollTrigger.refresh();
     return()=>{
       player?.destroy();player=null;
       ScrollTrigger.removeEventListener('refreshInit',measure);
       ScrollTrigger.removeEventListener('refreshInit',measureDeep);
+      ScrollTrigger.removeEventListener('refresh',refreshEffects);
       effects?.destroy();
       timeline=null;document.documentElement.classList.remove('motion');document.body.classList.add('static');button.disabled=true;
       $('.watch-position').style.removeProperty('top');
